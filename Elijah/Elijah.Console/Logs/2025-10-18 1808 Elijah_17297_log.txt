@@ -1,0 +1,3 @@
+2025-10-18 18:08:15 INFO: Starting FunctionName
+2025-10-18 18:08:15 INFO: FunctionName successfully ended
+2025-10-18 18:08:15 INFO: Duration: 00:00:00.0034513

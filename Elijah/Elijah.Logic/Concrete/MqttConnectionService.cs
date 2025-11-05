@@ -1,0 +1,34 @@
+using Elijah.Logic.Abstract;
+using MQTTnet;
+using Microsoft.Extensions.Configuration;
+
+namespace Elijah.Logic.Concrete;
+
+public class MqttConnectionService : IMqttConnectionService
+{
+    private readonly IMqttClient _client;
+    private readonly MqttClientOptions _options;
+
+    public IMqttClient Client => _client;
+
+    public MqttConnectionService(IConfiguration cfg)
+    {
+        var section = cfg.GetSection("MQTTString");
+        _options = new MqttClientOptionsBuilder()
+            .WithTcpServer(section["Hostname"], int.Parse(section["Port"]))
+            .WithClientId(section["ClientId"])
+            .Build();
+
+        _client = new MqttClientFactory().CreateMqttClient();
+    }
+
+    public async Task ConnectAsync()
+    {
+        await _client.ConnectAsync(_options, CancellationToken.None);
+    }
+
+    public async Task DisconnectAsync()
+    {
+        await _client.DisconnectAsync();
+    }
+}
