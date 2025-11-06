@@ -27,7 +27,6 @@ namespace Elijah.Logic.Injection
             // services.InitialiseFsLogging(configuration);
 
             // Services
-            services.AddSingleton<MqttConnectionService>();
             services.AddSingleton<IMqttConnectionService, MqttConnectionService>(); // if you use the interface
 
 // 2. Domain services (the ones you already have)
@@ -43,11 +42,11 @@ namespace Elijah.Logic.Injection
             services.AddScoped<IReceiveService, ReceiveService>();
 
 // 4. Façade (depends on all above)
-            services.AddScoped<IZigbeeClient, ZigbeeClient>();
 
 
             // Zigbee client
             services.AddSingleton<IZigbeeClient, ZigbeeClient>();
+            //Implement all as Transient bump
 
 
             //Repository

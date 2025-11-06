@@ -8,12 +8,8 @@ using Elijah.Logic.Abstract;
 
 namespace Elijah.Logic.Concrete;
 
-public  class SendService : ISendService
+public class SendService(IMqttConnectionService mqtt) : ISendService//bump <-IMqttConnect
 {
-    private readonly MqttConnectionService _mqtt;
-
-    public SendService(MqttConnectionService mqtt) => _mqtt = mqtt;
-
     public async Task SendReportConfigAsync(List<ReportConfig> configs)
     {
         foreach (var cfg in configs)
@@ -36,7 +32,7 @@ public  class SendService : ISendService
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build();
 
-            await _mqtt.Client.PublishAsync(msg);
+            await mqtt.Client.PublishAsync(msg);
         }
     }
 
@@ -59,7 +55,7 @@ public  class SendService : ISendService
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build();
 
-            await _mqtt.Client.PublishAsync(msg);
+            await mqtt.Client.PublishAsync(msg);
         }
     }
     
@@ -80,9 +76,10 @@ public  class SendService : ISendService
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
-        await _mqtt.Client.PublishAsync(msg);
+        await mqtt.Client.PublishAsync(msg);
     }
 
+    //send the config to the ESP while it stays awake for a bit
     public async Task SetBrightnessAsync(string address, int brightness)
     {
         var payload = JsonSerializer.Serialize(new { brightness });
@@ -93,7 +90,7 @@ public  class SendService : ISendService
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
-        await _mqtt.Client.PublishAsync(msg);
+        await mqtt.Client.PublishAsync(msg);
     }
     public async Task PermitJoinAsync(int seconds)
     {
@@ -106,7 +103,7 @@ public  class SendService : ISendService
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
-        await _mqtt.Client.PublishAsync(msg);
+        await mqtt.Client.PublishAsync(msg);
     }
 
     public async Task CloseJoinAsync()
@@ -118,6 +115,6 @@ public  class SendService : ISendService
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
-        await _mqtt.Client.PublishAsync(msg);
+        await mqtt.Client.PublishAsync(msg);
     }
 }

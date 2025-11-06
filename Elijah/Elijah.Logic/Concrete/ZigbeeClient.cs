@@ -9,10 +9,10 @@ using MQTTnet.Protocol;
 
 namespace Elijah.Logic.Concrete;
 
-public class ZigbeeClient : IZigbeeClient
+public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _sub,) : IZigbeeClient
 {
-    private readonly MqttConnectionService _conn;
-    private readonly SubscriptionService _sub;
+  
+   
     private readonly SendService _send;
     private readonly ReceiveService _recv;
     private readonly IDeviceService _device;
@@ -26,7 +26,6 @@ public class ZigbeeClient : IZigbeeClient
     /* ---------- public façade ---------- */
     public async Task ConnectToMqtt()
     {
-        Console.WriteLine("你有脑癌吗?");
         await _conn.ConnectAsync();
     }
 

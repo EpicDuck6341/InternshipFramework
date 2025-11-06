@@ -6,18 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class DeviceService : IDeviceService
+public class DeviceService(IExampleRepository repo) : IDeviceService
 {
     
-    private readonly ApplicationDbContext _db;
-
-    public DeviceService(IExampleRepository repo)
-    {
-        _db = repo.DbContext;  
-    }
     
     public async Task<string?> QueryDeviceNameAsync(string modelId)
     {
+        repo.Query<Device>().FirstOrDefaultAsync(d => d.modelId == modelId).name;//bump
         return await _db.Devices
             .Where(d => d.ModelId == modelId)
             .Select(d => d.Name)
@@ -99,6 +94,7 @@ public class DeviceService : IDeviceService
     
     public async Task NewDeviceEntryAsync(string modelID, string newName, string address)
     {
+        // .createAsync() bump
         var newDevice = new Device
         {
             ModelId = modelID,
