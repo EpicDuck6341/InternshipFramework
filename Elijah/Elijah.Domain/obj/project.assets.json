@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
       "projectName": "Elijah.Domain",
-      "projectPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
       "packagesPath": "/home/vboxuser/.nuget/packages/",
-      "outputPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Domain/obj/",
+      "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/vboxuser/.nuget/NuGet/NuGet.Config"

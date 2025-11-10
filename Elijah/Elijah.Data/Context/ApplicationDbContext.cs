@@ -9,7 +9,7 @@ namespace Elijah.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        // ---- expose each table ----
+        // expose each table
         public DbSet<Device> Devices { get; set; }
         public DbSet<ConfiguredReporting> ConfiguredReportings { get; set; }
         public DbSet<DeviceFilter> DeviceFilters { get; set; }
@@ -84,23 +84,23 @@ namespace Elijah.Data
                 .IsUnique();
 
             modelBuilder.Entity<ConfiguredReporting>()
-                .HasIndex(x => new { x.Id})
+                .HasIndex(x => new { x.Address})
                 .IsUnique();
 
             modelBuilder.Entity<Option>()
-                .HasIndex(x => new { x.Id})
+                .HasIndex(x => new { x.Address})
                 .IsUnique();
             
             modelBuilder.Entity<Device>()
-                .HasIndex(x => new { x.Address, x.Name })
+                .HasIndex(x => new {x.Name })
                 .IsUnique();
             
             modelBuilder.Entity<DeviceTemplate>()
-                .HasIndex(x => new { x.ModelId })
+                .HasIndex(x => new {x.Name })
                 .IsUnique();
             
             modelBuilder.Entity<ReportTemplate>()
-                .HasIndex(x => new { x.Id})
+                .HasIndex(x => new {x.ModelId})
                 .IsUnique();
 
             // -----------------------

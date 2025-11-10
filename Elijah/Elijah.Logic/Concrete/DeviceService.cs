@@ -6,102 +6,96 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class DeviceService(IExampleRepository repo) : IDeviceService
+public class DeviceService(IZigbeeRepository repo) : IDeviceService
 {
     
     
     public async Task<string?> QueryDeviceNameAsync(string modelId)
     {
-        repo.Query<Device>().FirstOrDefaultAsync(d => d.modelId == modelId).name;//bump
-        return await _db.Devices
-            .Where(d => d.ModelId == modelId)
-            .Select(d => d.Name)
-            .FirstOrDefaultAsync();
+         return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.ModelId == modelId))?.Name; //CHECK
+
     }
     
-    public async Task<string?> QueryDeviceAddressAsync(string name)
+    public async Task<string?> QueryDeviceAddressAsync(string name)//CHECK
     {
-        return await _db.Devices
-            .Where(d => d.Name == name)
-            .Select(d => d.Address)
-            .FirstOrDefaultAsync();
+       return  (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Name == name))?.Address;
     }
     
     public async Task<string?> QueryModelIDAsync(string address)
     {
-        return await _db.Devices
-            .Where(d => d.Address == address)
-            .Select(d => d.ModelId)
-            .FirstOrDefaultAsync();
+        return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address))?.ModelId;
     }
     
     public async Task SetActiveStatusAsync(bool active, string address)
     {
-        var device = await _db.Devices.FirstOrDefaultAsync(d => d.Address == address);
+        var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
         if (device != null)
         {
             device.Active = active;
-            await _db.SaveChangesAsync();
+            await repo.SaveChangesAsync();
         }
     }
-    
+
     public async Task SetSubscribedStatusAsync(bool subscribed, string address)
     {
-        var device = await _db.Devices.FirstOrDefaultAsync(d => d.Address == address);
+        var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
         if (device != null)
         {
             device.Subscribed = subscribed;
-            await _db.SaveChangesAsync();
+            await repo.SaveChangesAsync();
         }
     }
+
     
     public async Task<bool> DevicePresentAsync(string modelID, string address)
     {
-        bool exists = await _db.Devices.AnyAsync(d => d.Address == address);
+        bool exists = await repo.Query<Device>().AnyAsync(d => d.Address == address);
         Console.WriteLine(exists ? "Device already present" : "Device not yet present");
         if (!exists) await ModelPresentAsync(modelID, address);
         return exists;
     }
-    
+
     public async Task<bool> ModelPresentAsync(string modelID, string address)
     {
-        bool exists = await _db.Devices.AnyAsync(d => d.ModelId == modelID);
+        bool exists = await repo.Query<Device>().AnyAsync(d => d.ModelId == modelID);
         Console.WriteLine(exists ? "Model already present" : "Model not yet present");
         return exists;
     }
-    
+
     public async Task UnsubOnExitAsync()
     {
-        await _db.Devices.ForEachAsync(d => d.Subscribed = false);
-        await _db.SaveChangesAsync();
+        await repo.Query<Device>().ForEachAsync(d => d.Subscribed = false);
+        await repo.SaveChangesAsync();
         Console.WriteLine("All devices unsubscribed.");
     }
+
     public async Task<List<string>> GetUnsubscribedAddressesAsync()
     {
-        return await _db.Devices
+        return await repo.Query<Device>()
             .Where(d => !d.Subscribed)
             .Select(d => d.Address)
             .ToListAsync();
     }
-    
+
     public async Task<List<string>> GetSubscribedAddressesAsync()
     {
-        return await _db.Devices
+        return await repo.Query<Device>()
             .Where(d => d.Subscribed)
             .Select(d => d.Address)
             .ToListAsync();
     }
-    
+
     public async Task NewDeviceEntryAsync(string modelID, string newName, string address)
     {
-        // .createAsync() bump
         var newDevice = new Device
         {
             ModelId = modelID,
             Name = newName,
             Address = address
         };
-        _db.Devices.Add(newDevice);
-        await _db.SaveChangesAsync();
+        
+        repo.CreateAsync(newDevice); //Save changes CHECK
+        await repo.SaveChangesAsync();
     }
+
 }

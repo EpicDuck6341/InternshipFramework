@@ -4,16 +4,9 @@ using MQTTnet.Protocol;
 
 namespace Elijah.Logic.Concrete;
 
-public class SubscriptionService : ISubscriptionService
+public class SubscriptionService(IMqttConnectionService _mqtt, IDeviceService _devices) : ISubscriptionService
 {
-    private readonly MqttConnectionService _mqtt;
-    private readonly IDeviceService _devices;
-
-    public SubscriptionService(MqttConnectionService mqtt, IDeviceService devices)
-    {
-        _mqtt = mqtt;
-        _devices = devices;
-    }
+  
 
     public async Task SubscribeExistingAsync()
     {

@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace Elijah.Data.Repository;
 
-public interface IExampleRepository : IRepository<ApplicationDbContext>;
+public interface IZigbeeRepository : IRepository<ApplicationDbContext>;
 
 
-public class ExampleRepository(
+public class ZigbeeRepository(
     ApplicationDbContext dbContext,
     IHttpContextAccessor httpContextAccessor,
     HistorySettings? historySettings
 )
     : Repository<ApplicationDbContext>(dbContext, httpContextAccessor, historySettings),
-        IExampleRepository
+        IZigbeeRepository
 {
 }

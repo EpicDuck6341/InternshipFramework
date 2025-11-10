@@ -27,21 +27,20 @@ namespace Elijah.Logic.Injection
             // services.InitialiseFsLogging(configuration);
 
             // Services
-            services.AddSingleton<IMqttConnectionService, MqttConnectionService>(); // if you use the interface
+            services.AddTransient<IMqttConnectionService, MqttConnectionService>();
 
-// 2. Domain services (the ones you already have)
-            services.AddScoped<IDeviceService, DeviceService>();
-            services.AddScoped<IDeviceFilterService, DeviceFilterService>();
-            services.AddScoped<IConfiguredReportingsService, ConfiguredReportingsService>();
-            services.AddScoped<IOptionService, OptionService>();
-            services.AddScoped<IDeviceTemplateService, DeviceTemplateService>();
+            services.AddTransient<IDeviceService, DeviceService>();
+            services.AddTransient<IDeviceFilterService, DeviceFilterService>();
+            services.AddTransient<IConfiguredReportingsService, ConfiguredReportingsService>();
+            services.AddTransient<IOptionService, OptionService>();
+            services.AddTransient<IDeviceTemplateService, DeviceTemplateService>();
 
-// 3. MQTT helper services
-            services.AddScoped<ISubscriptionService, SubscriptionService>();
-            services.AddScoped<ISendService, SendService>();
-            services.AddScoped<IReceiveService, ReceiveService>();
+            services.AddTransient<ISubscriptionService, SubscriptionService>();
+            services.AddTransient<ISendService, SendService>();
+            services.AddTransient<IReceiveService, ReceiveService>();
 
-// 4. Façade (depends on all above)
+
+
 
 
             // Zigbee client
@@ -50,7 +49,7 @@ namespace Elijah.Logic.Injection
 
 
             //Repository
-            services.AddGenericRepository<ApplicationDbContext, IExampleRepository, ExampleRepository>();
+            services.AddGenericRepository<ApplicationDbContext, IZigbeeRepository, ZigbeeRepository>();
 
             // Batch settings
             //services.AddSingleton(configuration.GetSection("BatchSettings").Get<BatchSettings>());

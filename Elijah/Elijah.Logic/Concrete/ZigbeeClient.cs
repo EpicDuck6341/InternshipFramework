@@ -6,20 +6,21 @@ using Elijah.Logic.Abstract;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Protocol;
+using System.IO.Ports;
 
 namespace Elijah.Logic.Concrete;
 
-public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _sub,) : IZigbeeClient
+public class ZigbeeClient(
+    IMqttConnectionService _conn,
+    ISubscriptionService _sub,
+    SerialPort _serialPort,
+    ISendService _send,
+    IReceiveService _recv,
+    IDeviceService _device,
+    IConfiguredReportingsService _configuredReportings,
+    IOptionService _option,
+    IDeviceTemplateService _template) : IZigbeeClient
 {
-  
-   
-    private readonly SendService _send;
-    private readonly ReceiveService _recv;
-    private readonly IDeviceService _device;
-    private readonly IConfiguredReportingsService _configuredReportings;
-    private readonly IOptionService _option;
-    private readonly IDeviceTemplateService _template;
-
     public bool IsReady { get; private set; }
 
 
@@ -57,16 +58,15 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
 
     public async Task AllowJoinAndListen(int seconds)
     {
-        // --- 1. open network for joining ---
         await _conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
         await _send.PermitJoinAsync(seconds);
 
-        // --- 2. queues for devices discovered during the window ---
+
         var joinedDevice = new Queue<(string address, string model)>();
         var targetData = new Queue<(string address, string model,
             List<string> props, List<string> descs)>();
 
-        // --- 3. temporary handler for interview events ---
+
         async Task OnInterviewAsync(MqttApplicationMessageReceivedEventArgs e)
         {
             if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/event")
@@ -86,14 +86,14 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
 
             Console.WriteLine($"Device joined: {address} ({model})");
 
-            // --- 4. persist device if new ---
+
             if (!await _device.DevicePresentAsync(model, address))
             {
                 await _device.NewDeviceEntryAsync(model, address, address);
                 await _template.NewDVTemplateEntryAsync(model, address);
             }
 
-            // --- 5. collect exposes & options ---
+
             var exposes = data.GetProperty("definition").GetProperty("exposes");
             var options = data.GetProperty("definition").GetProperty("options");
 
@@ -126,17 +126,17 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
 
         _conn.Client.ApplicationMessageReceivedAsync += OnInterviewAsync;
 
-        // --- 6. wait for the join window ---
+
         await Task.Delay(seconds * 1000);
 
-        // --- 7. close the network ---
+
         await _send.CloseJoinAsync();
 
-        // --- 8. process every device that joined ---
+
         while (joinedDevice.Count > 0)
         {
             var (addr, mdl) = joinedDevice.Dequeue();
-            await GetDeviceDetails(addr, mdl); // you already have this method stub
+            await GetDeviceDetails(addr, mdl);
             await _sub.SubscribeAsync(addr);
         }
 
@@ -146,10 +146,10 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
             await GetOptionDetails(addr, mdl, props, descs);
         }
 
-        // --- 9. detach the temporary handler ---
+
         _conn.Client.ApplicationMessageReceivedAsync -= OnInterviewAsync;
     }
-    
+
 
     public async Task RemoveDevice(string name)
     {
@@ -161,10 +161,43 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
 
     public void StartProcessingMessages() => _recv.StartMessageLoop();
 
-    /* ---------- serial / ESP stuff stays here ---------- */
+
     public async Task ESPConnect()
     {
-        /* unchanged */
+        _serialPort = new SerialPort("/dev/ttyUSB1", 115200);
+        _serialPort.ReadTimeout = 2000;
+        _serialPort.WriteTimeout = 2000;
+
+        _serialPort.Open();
+        Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
+        await Task.Delay(4000);
+
+        string response = "";
+        int attempts = 0;
+
+        while (!response.Contains("ESP_READY") && attempts < 20)
+        {
+            try
+            {
+                Console.WriteLine(attempts);
+                response += _serialPort.ReadExisting();
+                await Task.Delay(200);
+                attempts++;
+            }
+            catch (TimeoutException)
+            {
+            }
+        }
+
+        if (response.Contains("ESP_READY"))
+        {
+            Console.WriteLine("ESP_READY received!");
+            _serialPort.WriteLine("test"); // \r\n automatically added
+        }
+        else
+        {
+            Console.WriteLine("Failed to receive ESP_READY");
+        }
     }
 
     public async Task sendESPConfig(int b)
@@ -279,7 +312,7 @@ public class ZigbeeClient(IMqttConnectionService _conn, ISubscriptionService _su
                 var desc = descriptions[i];
                 if (node[prop] != null)
                 {
-                    await _option.SetOptionsAsync(address,  desc, node[prop]!.ToJsonString(), prop);
+                    await _option.SetOptionsAsync(address, desc, node[prop]!.ToJsonString(), prop);
                     Console.WriteLine($"Option: {prop} = {node[prop]}");
                 }
             }

@@ -3719,11 +3719,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+      "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
       "projectName": "Elijah.Logic",
-      "projectPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
       "packagesPath": "/home/vboxuser/.nuget/packages/",
-      "outputPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Logic/obj/",
+      "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/vboxuser/.nuget/NuGet/NuGet.Config"
@@ -3739,11 +3739,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Data/Elijah.Data.csproj": {
-              "projectPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Data/Elijah.Data.csproj"
+            "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+              "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
             },
-            "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-              "projectPath": "/home/vboxuser/Downloads/Elijah (1)/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+            "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+              "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
             }
           }
         }
@@ -3799,5 +3799,13 @@
         "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json."
+    }
+  ]
 }

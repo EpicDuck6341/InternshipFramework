@@ -5,20 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class DeviceTemplateService : IDeviceTemplateService
+public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateService
 {
-    private readonly ApplicationDbContext _db;
-
-    public DeviceTemplateService(IExampleRepository repo)
-    {
-        _db = repo.DbContext;  
-    }
-    
     public async Task CopyModelTemplateAsync(string modelID, string address)
     {
         // Get the device template by model ID
-        var template = await _db.DeviceTemplates
-            .FirstOrDefaultAsync(t => t.ModelId == modelID);
+        var template = await repo.Query<DeviceTemplate>()
+                                 .FirstOrDefaultAsync(t => t.ModelId == modelID);
 
         if (template == null)
             return;
@@ -32,20 +25,20 @@ public class DeviceTemplateService : IDeviceTemplateService
             Address = address
         };
 
-        _db.Devices.Add(newDevice);
+        repo.CreateAsync(newDevice);
 
         // Increment the number of active devices in the template
         template.NumberOfActive++;
-        await _db.SaveChangesAsync();
+        await repo.SaveChangesAsync();
 
         // Copy report templates into configured reports
-        var templateReports = await _db.ReportTemplates
-            .Where(r => r.ModelId == modelID)
-            .ToListAsync();
+        var templateReports = await repo.Query<ReportTemplate>()
+                                        .Where(r => r.ModelId == modelID)
+                                        .ToListAsync();
 
         foreach (var r in templateReports)
         {
-            _db.ConfiguredReportings.Add(new ConfiguredReporting
+            repo.CreateAsync(new ConfiguredReporting
             {
                 Address = address,
                 Cluster = r.Cluster,
@@ -57,18 +50,17 @@ public class DeviceTemplateService : IDeviceTemplateService
             });
         }
 
-        await _db.SaveChangesAsync();
+        await repo.SaveChangesAsync();
     }
 
     public async Task NewDVTemplateEntryAsync(string modelID, string name)
     {
-        _db.DeviceTemplates.Add(new DeviceTemplate
+        repo.CreateAsync(new DeviceTemplate
         {
             ModelId = modelID,
             Name = name,
             NumberOfActive = 1
         });
-        await _db.SaveChangesAsync();
+        await repo.SaveChangesAsync();
     }
-
 }

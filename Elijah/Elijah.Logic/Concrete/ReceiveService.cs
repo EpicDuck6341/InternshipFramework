@@ -6,20 +6,11 @@ using MQTTnet;
 
 namespace Elijah.Logic.Concrete;
 
-public class ReceiveService : IReceiveService
+public class ReceiveService(IMqttConnectionService _mqtt,
+    IDeviceService _devices,
+    IDeviceFilterService _filters) : IReceiveService
 {
-    private readonly MqttConnectionService _mqtt;
-    private readonly IDeviceService      _devices;
-    private readonly IDeviceFilterService _filters;
-
-    public ReceiveService(MqttConnectionService mqtt,
-        IDeviceService devices,
-        IDeviceFilterService filters)
-    {
-        _mqtt    = mqtt;
-        _devices = devices;
-        _filters = filters;
-    }
+    
 
     public void StartMessageLoop()
     {

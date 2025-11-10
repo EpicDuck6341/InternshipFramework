@@ -6,59 +6,51 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class OptionService : IOptionService
+public class OptionService(IZigbeeRepository repo) : IOptionService
 {
-    
-    private readonly ApplicationDbContext _db;
-
-    public OptionService(IExampleRepository repo)
-    {
-        _db = repo.DbContext;  
-    }
-    
     public async Task SetOptionsAsync(string address, string description, string currentValue, string property)
+    {
+        repo.CreateAsync(new Option
         {
-            _db.Options.Add(new Option()
-            {
-                Address = address,
-                Description = description,
-                CurrentValue = currentValue,
-                Property = property
-            });
-            await _db.SaveChangesAsync();
-        }
-    
-        public async Task AdjustOptionValueAsync(string address, string property, string currentValue)
+            Address = address,
+            Description = description,
+            CurrentValue = currentValue,
+            Property = property
+        });
+
+        await repo.SaveChangesAsync();
+    }
+
+    public async Task AdjustOptionValueAsync(string address, string property, string currentValue)
+    {
+        var option = await repo.Query<Option>()
+            .FirstOrDefaultAsync(o => o.Address == address && o.Property == property);
+
+        if (option != null)
         {
-            var option = await _db.Options.FirstOrDefaultAsync(o =>
-                o.Address == address && o.Property == property);
-
-            if (option != null)
-            {
-                option.CurrentValue = currentValue;
-                option.Changed = true;
-                await _db.SaveChangesAsync();
-            }
-        
+            option.CurrentValue = currentValue;
+            option.Changed = true;
+            await repo.SaveChangesAsync();
         }
-    
-        public async Task<List<ChangedOption>> GetChangedOptionValuesAsync(List<string> subscribedAddresses)
-        {
-            if (subscribedAddresses == null || subscribedAddresses.Count == 0)
-                return null;
+    }
 
-            var changed = await _db.Options
-                .Where(o => o.Changed && subscribedAddresses.Contains(o.Address))
-                .ToListAsync();
+    public async Task<List<ChangedOption>> GetChangedOptionValuesAsync(List<string> subscribedAddresses)
+    {
+        if (subscribedAddresses == null || subscribedAddresses.Count == 0)
+            return null;
 
-            List<ChangedOption> result = changed.Select(o => new ChangedOption(o.Address, o.Property, o.CurrentValue)).ToList();
+        var changed = await repo.Query<Option>()
+            .Where(o => o.Changed && subscribedAddresses.Contains(o.Address))
+            .ToListAsync();
 
-            foreach (var o in changed)
-                o.Changed = false;
+        List<ChangedOption> result = changed
+            .Select(o => new ChangedOption(o.Address, o.Property, o.CurrentValue))
+            .ToList();
 
-            await _db.SaveChangesAsync();
-            return result;
-        }
+        foreach (var o in changed)
+            o.Changed = false;
 
-
+        await repo.SaveChangesAsync();
+        return result;
+    }
 }
