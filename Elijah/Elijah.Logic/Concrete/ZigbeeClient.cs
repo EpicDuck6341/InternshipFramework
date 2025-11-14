@@ -155,7 +155,7 @@ public class ZigbeeClient(
     {
         var addr = await _device.QueryDeviceAddressAsync(name);
         await _device.SetSubscribedStatusAsync(false, addr);
-        await _device.SetActiveStatusAsync(false, addr);
+        // await _device.SetActiveStatusAsync(false, addr); REMINDER SET TO ACTIVE BUILT IN PARAMETER
         await _send.RemoveDeviceAsync(addr);
     }
 
@@ -236,20 +236,7 @@ public class ZigbeeClient(
                             foreach (var rep in reportings.EnumerateArray())
                             {
                                 await _configuredReportings.NewConfigRepEntryAsync(
-                                    "configuredreportings",
                                     address,
-                                    modelID,
-                                    rep.GetProperty("cluster").GetString(),
-                                    rep.GetProperty("attribute").GetString(),
-                                    rep.GetProperty("maximum_report_interval").GetInt32().ToString(),
-                                    rep.GetProperty("minimum_report_interval").GetInt32().ToString(),
-                                    rep.GetProperty("reportable_change").ToString(),
-                                    ep.Name);
-
-                                await _configuredReportings.NewConfigRepEntryAsync(
-                                    "reporttemplate",
-                                    address,
-                                    modelID,
                                     rep.GetProperty("cluster").GetString(),
                                     rep.GetProperty("attribute").GetString(),
                                     rep.GetProperty("maximum_report_interval").GetInt32().ToString(),

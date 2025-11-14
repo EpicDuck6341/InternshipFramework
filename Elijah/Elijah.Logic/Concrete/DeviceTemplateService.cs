@@ -9,48 +9,63 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
 {
     public async Task CopyModelTemplateAsync(string modelID, string address)
     {
-        // Get the device template by model ID
+        
         var template = await repo.Query<DeviceTemplate>()
                                  .FirstOrDefaultAsync(t => t.ModelId == modelID);
 
         if (template == null)
-            return;
+            throw new Exception($"DeviceTemplate with ModelId '{modelID}' not found.");
 
-        // Create the new device directly here
-        string newName = $"{template.Name}{template.NumberOfActive}";
+        
+        string newName = $"{template.Name}{template.NumberOfActive + 1}";
         var newDevice = new Device
         {
-            ModelId = modelID,
+            TemplateId = template.Id,  
             Name = newName,
             Address = address
         };
+        
+        await repo.CreateAsync(newDevice);
 
-        repo.CreateAsync(newDevice);
-
-        // Increment the number of active devices in the template
+     
         template.NumberOfActive++;
+
+      
         await repo.SaveChangesAsync();
 
-        // Copy report templates into configured reports
-        var templateReports = await repo.Query<ReportTemplate>()
-                                        .Where(r => r.ModelId == modelID)
+       
+        var templateReports = await repo.Query<ConfiguredReporting>()
+                                        .Where(r => r.IsTemplate && r.Device.DeviceTemplate.ModelId == modelID)
                                         .ToListAsync();
-
-        foreach (var r in templateReports)
+        
+        foreach (var templateReport in templateReports)
         {
-            repo.CreateAsync(new ConfiguredReporting
+            await repo.CreateAsync(new ConfiguredReporting
             {
-                Address = address,
-                Cluster = r.Cluster,
-                Attribute = r.Attribute,
-                MaximumReportInterval = r.MaximumReportInterval,
-                MinimumReportInterval = r.MinimumReportInterval,
-                ReportableChange = r.ReportableChange,
-                Endpoint = r.Endpoint
+                DeviceId = newDevice.Id,
+                Cluster = templateReport.Cluster,
+                Attribute = templateReport.Attribute,
+                MaximumReportInterval = templateReport.MaximumReportInterval,
+                MinimumReportInterval = templateReport.MinimumReportInterval,
+                ReportableChange = templateReport.ReportableChange,
+                Endpoint = templateReport.Endpoint,
+                IsTemplate = false  
             });
         }
-
+        
         await repo.SaveChangesAsync();
+    }
+
+    
+    public async Task<bool> EnsureTemplateExistsAsync(string modelID)
+    {
+        bool exists = await repo.Query<DeviceTemplate>().AnyAsync(d => d.ModelId == modelID);
+        if (!exists)
+        {
+            Console.WriteLine($"Model {modelID} not present. Creating placeholder template.");
+            await NewDVTemplateEntryAsync(modelID, $"Model {modelID}");
+        }
+        return exists;
     }
 
     public async Task NewDVTemplateEntryAsync(string modelID, string name)
@@ -62,5 +77,12 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
             NumberOfActive = 1
         });
         await repo.SaveChangesAsync();
+    }
+    
+    public async Task<bool> ModelPresentAsync(string modelID)
+    {
+        bool exists = await repo.Query<DeviceTemplate>().AnyAsync(d => d.ModelId == modelID);
+        Console.WriteLine(exists ? "Model already present" : "Model not yet present");
+        return exists;
     }
 }

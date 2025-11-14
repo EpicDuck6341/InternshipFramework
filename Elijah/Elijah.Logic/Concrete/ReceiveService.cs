@@ -25,7 +25,7 @@ public class ReceiveService(IMqttConnectionService _mqtt,
         if (topic.Contains("zigbee2mqtt/bridge")) return; // handled elsewhere
 
         var deviceAddress = topic.Replace("zigbee2mqtt/", "");
-        var modelId = await _devices.QueryDeviceNameAsync(deviceAddress);
+        var modelId = await _devices.QueryModelIDAsync(deviceAddress);
         var keys    = await _filters.QueryDataFilterAsync(modelId);
 
         var node = JsonNode.Parse(payload)?.AsObject();
@@ -37,6 +37,6 @@ public class ReceiveService(IMqttConnectionService _mqtt,
                 filtered[k] = node[k]!.DeepClone();
 
         Console.WriteLine(
-            $"[{await _devices.QueryDeviceNameAsync(modelId)},{modelId}]{filtered.ToJsonString()}");
+            $"[{await _devices.QueryDeviceNameAsync(deviceAddress)},{modelId}]{filtered.ToJsonString()}");
     }
 }

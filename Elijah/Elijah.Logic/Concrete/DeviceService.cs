@@ -6,13 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class DeviceService(IZigbeeRepository repo) : IDeviceService
+public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _deviceTemplate) : IDeviceService
 {
-    
-    
-    public async Task<string?> QueryDeviceNameAsync(string modelId)
+    public async Task<int> AddressToIdAsync(string address)
     {
-         return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.ModelId == modelId))?.Name; //CHECK
+        return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address)).Id; //CHECK
+    }
+
+
+    public async Task<string?> QueryDeviceNameAsync(string address)
+    {
+         return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address))?.Name; //CHECK
 
     }
     
@@ -23,18 +27,25 @@ public class DeviceService(IZigbeeRepository repo) : IDeviceService
     
     public async Task<string?> QueryModelIDAsync(string address)
     {
-        return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address))?.ModelId;
+      
+        return (await repo.Query<Device>()
+            .Include(d => d.DeviceTemplate)  
+            .FirstOrDefaultAsync(d => d.Address == address))?.DeviceTemplate?.ModelId;
     }
     
-    public async Task SetActiveStatusAsync(bool active, string address)
-    {
-        var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
-        if (device != null)
-        {
-            device.Active = active;
-            await repo.SaveChangesAsync();
-        }
-    }
+    
+    //Now make use of the removed modifier REMINDER
+    
+    
+    // public async Task SetActiveStatusAsync(bool active, string address)
+    // {
+    //     var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
+    //     if (device != null)
+    //     {
+    //         device.Active = active;
+    //         await repo.SaveChangesAsync();
+    //     }
+    // }
 
     public async Task SetSubscribedStatusAsync(bool subscribed, string address)
     {
@@ -51,16 +62,11 @@ public class DeviceService(IZigbeeRepository repo) : IDeviceService
     {
         bool exists = await repo.Query<Device>().AnyAsync(d => d.Address == address);
         Console.WriteLine(exists ? "Device already present" : "Device not yet present");
-        if (!exists) await ModelPresentAsync(modelID, address);
+        if (!exists) await _deviceTemplate.ModelPresentAsync(modelID);
         return exists;
     }
 
-    public async Task<bool> ModelPresentAsync(string modelID, string address)
-    {
-        bool exists = await repo.Query<Device>().AnyAsync(d => d.ModelId == modelID);
-        Console.WriteLine(exists ? "Model already present" : "Model not yet present");
-        return exists;
-    }
+ 
 
     public async Task UnsubOnExitAsync()
     {
@@ -87,14 +93,23 @@ public class DeviceService(IZigbeeRepository repo) : IDeviceService
 
     public async Task NewDeviceEntryAsync(string modelID, string newName, string address)
     {
+     
+        var templateId = await repo.Query<DeviceTemplate>()
+            .Where(t => t.ModelId == modelID)
+            .Select(t => t.Id)
+            .FirstOrDefaultAsync();
+    
+        if (templateId == 0)
+            throw new Exception($"DeviceTemplate with ModelId '{modelID}' not found.");
+
         var newDevice = new Device
         {
-            ModelId = modelID,
+            TemplateId = templateId, 
             Name = newName,
             Address = address
         };
-        
-        repo.CreateAsync(newDevice); //Save changes CHECK
+    
+        await repo.CreateAsync(newDevice);  
         await repo.SaveChangesAsync();
     }
 

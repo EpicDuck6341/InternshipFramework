@@ -1,4 +1,4 @@
-
+using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
@@ -7,9 +7,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 [Table("DeviceTemplate", Schema = "dbo")]
-public class DeviceTemplate
+public class DeviceTemplate: BaseType
 {
     [Key]
+    public int Id { get; set; }
     public string ModelId { get; set; }
 
     [Required]
@@ -17,8 +18,8 @@ public class DeviceTemplate
 
     public string Image { get; set; }
     public int NumberOfActive { get; set; }
+    
 
     // Navigation
     public ICollection<Device> Devices { get; set; }
-    public ICollection<ReportTemplate> ReportTemplates { get; set; }
 }

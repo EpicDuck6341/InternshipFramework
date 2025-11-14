@@ -1,18 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
-public class Option
+[Table("Option", Schema = "dbo")]
+public class Option : BaseType
 {
-    [Key]
+    [Key] 
     public int Id { get; set; }
-    public string Address { get; set; } // Foreign Key
     public string Description { get; set; }
     public string CurrentValue { get; set; }
     public string Property { get; set; }
-    public bool Changed { get; set; }
-
-    [ForeignKey(nameof(Address))]
-    public virtual Device Device { get; set; }
+    public bool IsProcessed { get; set; }
+    
+    public int DeviceId { get; set; }
+    [ForeignKey(nameof(DeviceId))] 
+    public Device Device { get; set; }
 }

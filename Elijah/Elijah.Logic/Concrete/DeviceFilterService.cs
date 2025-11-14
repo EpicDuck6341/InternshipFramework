@@ -7,23 +7,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class DeviceFilterService(IZigbeeRepository repo): IDeviceFilterService
+public class DeviceFilterService(IZigbeeRepository repo,IDeviceService _device) : IDeviceFilterService
 {
- 
-    
     public async Task<List<string>?> QueryDataFilterAsync(string address)
-    {
-        var result = await repo.Query<DeviceFilter>().FirstOrDefault(f => f.Address == address)?.FilterValue.ToDynamicListAsync<String>()!;
-        return result.Any() ? result : null;
-    }
-    
+        => await repo.Query<DeviceFilter>().Where(filter => filter.Device.Address == address)
+            .Select(filter => filter.FilterValue).ToListAsync(); //bump
+
+
     public async Task NewFilterEntryAsync(string address, string filterValue, bool active)
     {
-        repo.CreateAsync(new DeviceFilter
+        
+        var deviceId = await _device.AddressToIdAsync(address);
+        if (deviceId == null)
+            throw new Exception($"Device with address '{address}' not found.");
+
+        
+        await repo.CreateAsync(new DeviceFilter
         {
-            Address = address,
+            DeviceId = deviceId, 
             FilterValue = filterValue,
-            Active = active
+            IsActive = active  //Staat het filter aan ja of nee....
         });
 
         await repo.SaveChangesAsync();

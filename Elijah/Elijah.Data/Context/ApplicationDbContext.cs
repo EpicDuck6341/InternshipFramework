@@ -15,7 +15,6 @@ namespace Elijah.Data
         public DbSet<DeviceFilter> DeviceFilters { get; set; }
         public DbSet<DeviceTemplate> DeviceTemplates { get; set; }
         public DbSet<Option> Options { get; set; }
-        public DbSet<ReportTemplate> ReportTemplates { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -70,72 +69,29 @@ namespace Elijah.Data
             // Entity configurations
             // -----------------------
             modelBuilder.Entity<ConfiguredReporting>();
-            modelBuilder.Entity<Device>().HasIndex(x => x.Address).IsUnique();
-            modelBuilder.Entity<DeviceFilter>();
             modelBuilder.Entity<DeviceTemplate>();
-            modelBuilder.Entity<Option>();
-            modelBuilder.Entity<ReportTemplate>();
-
+            
             // -----------------------
             // Unique indexes
             // -----------------------
-            modelBuilder.Entity<DeviceFilter>()
-                .HasIndex(x => new { x.Address})
-                .IsUnique();
+            modelBuilder.Entity<Device>(entity =>
+            {
+                entity.HasIndex(x => x.Address).IsUnique();
+                entity.HasIndex(x => x.Name).IsUnique();
+            });
 
-            modelBuilder.Entity<ConfiguredReporting>()
-                .HasIndex(x => new { x.Address})
-                .IsUnique();
-
-            modelBuilder.Entity<Option>()
-                .HasIndex(x => new { x.Address})
+            modelBuilder.Entity<DeviceTemplate>(entity =>
+            {
+                entity.HasIndex(x => x.Name).IsUnique();
+                entity.HasIndex(x => x.ModelId).IsUnique();
+            });
+            
+            modelBuilder.Entity<DeviceFilter>().HasIndex(x => new { x.DeviceId, x.FilterType })
+                .IsUnique(); //bump unqiue per device
+            
+            modelBuilder.Entity<Option>().HasIndex(x => new { x.DeviceId, x.Property })
                 .IsUnique();
             
-            modelBuilder.Entity<Device>()
-                .HasIndex(x => new {x.Name })
-                .IsUnique();
-            
-            modelBuilder.Entity<DeviceTemplate>()
-                .HasIndex(x => new {x.Name })
-                .IsUnique();
-            
-            modelBuilder.Entity<ReportTemplate>()
-                .HasIndex(x => new {x.ModelId})
-                .IsUnique();
-
-            // -----------------------
-            // Relationships
-            // -----------------------
-            modelBuilder.Entity<Device>()
-                .HasOne(d => d.DeviceTemplate)
-                .WithMany(t => t.Devices)
-                .HasForeignKey(d => d.ModelId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<DeviceFilter>()
-                .HasOne(df => df.Device)
-                .WithMany(d => d.DeviceFilters)
-                .HasForeignKey(df => df.Address)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<ConfiguredReporting>()
-                .HasOne(cr => cr.Device)
-                .WithMany(d => d.ConfiguredReportings)
-                .HasForeignKey(cr => cr.Address)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Option>()
-                .HasOne(o => o.Device)
-                .WithMany(d => d.Options)
-                .HasForeignKey(o => o.Address)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            modelBuilder.Entity<ReportTemplate>()
-                .HasOne(rt => rt.DeviceTemplate)
-                .WithMany(d => d.ReportTemplates)
-                .HasForeignKey(rt => rt.ModelId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // -----------------------
             // Soft delete filter
             // -----------------------

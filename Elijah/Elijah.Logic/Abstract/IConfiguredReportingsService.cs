@@ -4,11 +4,8 @@ namespace Elijah.Logic.Abstract;
 
 public interface IConfiguredReportingsService
 {
-    Task<List<ReportConfig>> QueryReportIntervalAsync(string address, string table);
     Task NewConfigRepEntryAsync(
-        string tableName,
         string address,
-        string modelID,
         string cluster,
         string attribute,
         string maxInterval,

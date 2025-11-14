@@ -1,17 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
-public class DeviceFilter
+[Table("DeviceFilter", Schema = "dbo")]
+public class DeviceFilter : BaseType //bump
 {
-    [Key]
+    [Key] 
     public int Id { get; set; }
-    public string Address { get; set; } // Foreign Key
-    public string Type { get; set; }
-    public string FilterValue { get; set; }
-    public bool Active { get; set; }
-
-    [ForeignKey(nameof(Address))]
-    public virtual Device Device { get; set; }
+    public string FilterType { get; set; }
+    public string FilterValue { get; set; } //Active wordt removed
+    
+    public bool IsActive { get; set; }
+    
+    public int DeviceId { get; set; }
+    [ForeignKey(nameof(DeviceId))]
+    public Device Device { get; set; }
 }

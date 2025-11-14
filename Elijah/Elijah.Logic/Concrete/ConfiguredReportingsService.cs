@@ -6,96 +6,64 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class ConfiguredReportingsService(ZigbeeRepository repo) : IConfiguredReportingsService
+public class ConfiguredReportingsService(ZigbeeRepository repo,IDeviceService _device) : IConfiguredReportingsService
 {
     
 
-    public async Task<List<ReportConfig>> QueryReportIntervalAsync(string address, string table)
-{
-    List<ReportConfig> configList = new List<ReportConfig>();
-
-    if (table == "A") // ConfiguredReportings
+    public async Task<List<ReportConfig>> QueryReportIntervalAsync(string address)
     {
+        
+        var deviceId = await _device.AddressToIdAsync(address);
+        if (deviceId == null) 
+            return new List<ReportConfig>();
+
+       
         var configs = await repo.Query<ConfiguredReporting>()
-                                .Where(r => r.Address == address)
-                                .ToListAsync();
+            .Where(r => r.DeviceId == deviceId)  
+            .ToListAsync();
 
-        foreach (var r in configs)
-        {
-            configList.Add(new ReportConfig(
-                r.Address,
-                r.Cluster,
-                r.Attribute,
-                r.MaximumReportInterval.ToString(),
-                r.MinimumReportInterval.ToString(),
-                r.ReportableChange,
-                r.Endpoint
-            ));
-        }
+        
+        return configs.Select(r => new ReportConfig(
+            address,  
+            r.Cluster,
+            r.Attribute,
+            r.MaximumReportInterval, 
+            r.MinimumReportInterval,  
+            r.ReportableChange,
+            r.Endpoint
+        )).ToList();
     }
-    else // ReportTemplate
+    
+    public async Task NewConfigRepEntryAsync(  // REMINDER: Fixed for new schema
+        string address,     
+        string cluster,
+        string attribute,
+        string maxInterval,
+        string minInterval,
+        string reportableChange,
+        string endpoint)
     {
-        var templates = await repo.Query<ReportTemplate>().ToListAsync();
+        
+        var deviceId = await _device.AddressToIdAsync(address);
+        if (deviceId == null)
+            throw new Exception($"Device not found: {address}");
 
-        foreach (var r in templates)
+      
+        await repo.CreateAsync(new ConfiguredReporting
         {
-            configList.Add(new ReportConfig(
-                null,
-                r.Cluster,
-                r.Attribute,
-                r.MaximumReportInterval.ToString(),
-                r.MinimumReportInterval.ToString(),
-                r.ReportableChange,
-                r.Endpoint
-            ));
-        }
-    }
-
-    return configList;
-}
-
-public async Task NewConfigRepEntryAsync(
-    string tableName,
-    string address,
-    string modelID,
-    string cluster,
-    string attribute,
-    string maxInterval,
-    string minInterval,
-    string reportableChange,
-    string endpoint)
-{
-    tableName = tableName.ToLower();
-    if (tableName == "reporttemplate")
-    {
-        repo.CreateAsync(new ReportTemplate
-        {
-            ModelId = modelID,
+            DeviceId = deviceId,
             Cluster = cluster,
             Attribute = attribute,
             MaximumReportInterval = maxInterval,
             MinimumReportInterval = minInterval,
             ReportableChange = reportableChange,
-            Endpoint = endpoint
+            Endpoint = endpoint,
+            IsTemplate = true,  
+            Changed = false
         });
-    }
-    else if (tableName == "configuredreportings")
-    {
-        repo.CreateAsync(new ConfiguredReporting
-        {
-            Address = address,
-            Cluster = cluster,
-            Attribute = attribute,
-            MaximumReportInterval = maxInterval,
-            MinimumReportInterval = minInterval,
-            ReportableChange = reportableChange,
-            Endpoint = endpoint
-        });
-    }
-    else throw new ArgumentException("Invalid table name specified.");
 
-    await repo.SaveChangesAsync();
-}
+        await repo.SaveChangesAsync();
+    }
 
 public async Task AdjustRepConfigAsync(
     string address,
@@ -106,12 +74,15 @@ public async Task AdjustRepConfigAsync(
     string reportableChange,
     string endpoint)
 {
+    var deviceId = await _device.AddressToIdAsync(address);
+    if (deviceId == null) return; 
+
     var report = await repo.Query<ConfiguredReporting>()
-                           .FirstOrDefaultAsync(r =>
-                               r.Address == address &&
-                               r.Cluster == cluster &&
-                               r.Attribute == attribute &&
-                               r.Endpoint == endpoint);
+        .FirstOrDefaultAsync(r =>
+            r.DeviceId == deviceId && 
+            r.Cluster == cluster &&
+            r.Attribute == attribute &&
+            r.Endpoint == endpoint);
 
     if (report != null)
     {
@@ -125,23 +96,28 @@ public async Task AdjustRepConfigAsync(
 
 public async Task<List<ReportConfig>> GetChangedReportConfigsAsync(List<string> subscribedAddresses)
 {
-    if (subscribedAddresses == null || subscribedAddresses.Count == 0)
+    if (subscribedAddresses == null || !subscribedAddresses.Any())
         return new List<ReportConfig>();
 
+  
     var changed = await repo.Query<ConfiguredReporting>()
-                            .Where(r => r.Changed && subscribedAddresses.Contains(r.Address))
-                            .ToListAsync();
+        .Include(r => r.Device)
+        .Where(r => r.Changed)
+        .Where(r => subscribedAddresses.Contains(r.Device.Address)) 
+        .ToListAsync();
 
+ 
     var configs = changed.Select(r => new ReportConfig(
-        r.Address,
+        r.Device.Address,
         r.Cluster,
         r.Attribute,
-        r.MaximumReportInterval.ToString(),
-        r.MinimumReportInterval.ToString(),
+        r.MaximumReportInterval,
+        r.MinimumReportInterval,
         r.ReportableChange,
         r.Endpoint
     )).ToList();
 
+   
     foreach (var r in changed)
         r.Changed = false;
 
