@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elijah.Data", "Elijah.Data\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elijah.Logic", "Elijah.Logic\Elijah.Logic.csproj", "{42E2D2F5-D4F9-4402-812E-9915CA5F1AA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elijah.Test", "Elijah.Test\Elijah.Test.csproj", "{FFCA5D60-9559-43C6-B6D6-A39AED7B97BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{42E2D2F5-D4F9-4402-812E-9915CA5F1AA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E2D2F5-D4F9-4402-812E-9915CA5F1AA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E2D2F5-D4F9-4402-812E-9915CA5F1AA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFCA5D60-9559-43C6-B6D6-A39AED7B97BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFCA5D60-9559-43C6-B6D6-A39AED7B97BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFCA5D60-9559-43C6-B6D6-A39AED7B97BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFCA5D60-9559-43C6-B6D6-A39AED7B97BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

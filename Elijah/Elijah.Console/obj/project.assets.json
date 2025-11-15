@@ -2896,13 +2896,5 @@
         "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json."
-    }
-  ]
+  }
 }

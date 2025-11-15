@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
-public class ConfiguredReportingsService(ZigbeeRepository repo,IDeviceService _device) : IConfiguredReportingsService
+public class ConfiguredReportingsService(IZigbeeRepository repo,IDeviceService _device) : IConfiguredReportingsService
 {
     
 
@@ -51,7 +51,7 @@ public class ConfiguredReportingsService(ZigbeeRepository repo,IDeviceService _d
       
         await repo.CreateAsync(new ConfiguredReporting
         {
-            DeviceId = deviceId,
+            DeviceId = (int)deviceId,
             Cluster = cluster,
             Attribute = attribute,
             MaximumReportInterval = maxInterval,

@@ -8,7 +8,7 @@ namespace Elijah.Logic.Concrete;
 
 public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _deviceTemplate) : IDeviceService
 {
-    public async Task<int> AddressToIdAsync(string address)
+    public async Task<int?> AddressToIdAsync(string address)
     {
         return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address)).Id; //CHECK
     }

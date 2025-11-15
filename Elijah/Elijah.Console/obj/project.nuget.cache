@@ -47,15 +47,5 @@
     "/home/vboxuser/.nuget/packages/system.linq.dynamic.core/1.6.6/system.linq.dynamic.core.1.6.6.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/system.text.encodings.web/4.5.0/system.text.encodings.web.4.5.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json.",
-      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Console/Elijah.Console.csproj",
-      "warningLevel": 1,
-      "filePath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Console/Elijah.Console.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

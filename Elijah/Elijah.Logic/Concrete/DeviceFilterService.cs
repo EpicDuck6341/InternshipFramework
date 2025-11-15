@@ -24,7 +24,7 @@ public class DeviceFilterService(IZigbeeRepository repo,IDeviceService _device) 
         
         await repo.CreateAsync(new DeviceFilter
         {
-            DeviceId = deviceId, 
+            DeviceId = (int)deviceId, 
             FilterValue = filterValue,
             IsActive = active  //Staat het filter aan ja of nee....
         });
