@@ -1,34 +1,40 @@
 {
   "format": 1,
   "restore": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {}
+    "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Test\\Elijah.Test.csproj": {}
   },
   "projects": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+    "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
+        "projectUniqueName": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj",
         "projectName": "Elijah.Data",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
-        "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/obj/",
+        "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj",
+        "packagesPath": "C:\\Users\\Elijah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Elijah\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj"
               }
             }
           }
@@ -89,28 +95,34 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.415/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+    "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
         "projectName": "Elijah.Domain",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
-        "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/",
+        "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
+        "packagesPath": "C:\\Users\\Elijah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Elijah\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -148,38 +160,44 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.415/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
+    "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+        "projectUniqueName": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj",
         "projectName": "Elijah.Logic",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
-        "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/obj/",
+        "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj",
+        "packagesPath": "C:\\Users\\Elijah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Elijah\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj"
               }
             }
           }
@@ -232,41 +250,47 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.415/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {
+    "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Test\\Elijah.Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
+        "projectUniqueName": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Test\\Elijah.Test.csproj",
         "projectName": "Elijah.Test",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
-        "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/obj/",
+        "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Test\\Elijah.Test.csproj",
+        "packagesPath": "C:\\Users\\Elijah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Test\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Elijah\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Data\\Elijah.Data.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj"
+              "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj": {
+                "projectPath": "C:\\Users\\Elijah\\Documents\\GitHub\\InternshipFramework\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj"
               }
             }
           }
@@ -331,7 +355,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.415/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

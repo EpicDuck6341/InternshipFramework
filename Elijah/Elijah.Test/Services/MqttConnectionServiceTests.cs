@@ -18,7 +18,7 @@ public class MqttConnectionServiceTests
     {
         _configMock = new Mock<IConfiguration>();
         _clientMock = new Mock<IMqttClient>();
-        
+
         var section = new Mock<IConfigurationSection>();
         section.Setup(s => s["Hostname"]).Returns("localhost");
         section.Setup(s => s["Port"]).Returns("1883");
@@ -31,10 +31,8 @@ public class MqttConnectionServiceTests
     [Fact]
     public async Task ConnectAsync_CallsClientConnect()
     {
-        // Arrange
         var client = new Mock<IMqttClient>();
 
-        // Act & Assert - Verified through integration test
         await Task.CompletedTask;
     }
 }
