@@ -1,61 +1,100 @@
-// using System.Text;
-// using System.Text.Json.Nodes;
-// using System.Threading.Tasks;
-// using Elijah.Logic.Abstract;
-// using Elijah.Logic.Concrete;
-// using MQTTnet;
-// using Moq;
-// using Xunit;
-//
-// namespace Elijah.Logic.Tests.Services;
-//
-// public class ReceiveServiceTests
-// {
-//     private readonly Mock<IMqttConnectionService> _mqttMock;
-//     private readonly Mock<IDeviceService> _deviceMock;
-//     private readonly Mock<IDeviceFilterService> _filterMock;
-//     private readonly ReceiveService _sut;
-//     private readonly Mock<IMqttClient> _clientMock;
-//
-//     public ReceiveServiceTests()
-//     {
-//         _mqttMock = new Mock<IMqttConnectionService>();
-//         _deviceMock = new Mock<IDeviceService>();
-//         _filterMock = new Mock<IDeviceFilterService>();
-//         _sut = new ReceiveService(_mqttMock.Object, _deviceMock.Object, _filterMock.Object);
-//         _clientMock = new Mock<IMqttClient>();
-//         _mqttMock.Setup(m => m.Client).Returns(_clientMock.Object);
-//     }
-//
-//     [Fact]
-//     public void StartMessageLoop_AttachesHandler()
-//     {
-//         // Act
-//         _sut.StartMessageLoop();
-//
-//         // Assert
-//         _clientMock.VerifySet(c => c.ApplicationMessageReceivedAsync = It.IsAny<Func<MqttApplicationMessageReceivedEventArgs, Task>>());
-//     }
-//
-//     [Fact]
-//     public async Task OnMessageAsync_BridgeMessage_Ignores()
-//     {
-//         // Arrange
-//         _sut.StartMessageLoop();
-//         
-//         var message = new MqttApplicationMessage 
-//         { 
-//             Topic = "zigbee2mqtt/bridge/devices",
-//             Payload = Encoding.UTF8.GetBytes("{}")
-//         };
-//         var args = new MqttApplicationMessageReceivedEventArgs("test", message, null);
-//
-//         // Act
-//         var handler = _clientMock.Invocations[0].Arguments[0] as Func<MqttApplicationMessageReceivedEventArgs, Task>;
-//         await handler(args);
-//
-//         // Assert
-//         _deviceMock.Verify(d => d.QueryModelIDAsync(It.IsAny<string>()), Times.Never);
-//         _filterMock.Verify(f => f.QueryDataFilterAsync(It.IsAny<string>()), Times.Never);
-//     }
-// }
+using System;
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
+using Elijah.Logic.Abstract;
+using Elijah.Logic.Concrete;
+using Moq;
+using MQTTnet;
+using MQTTnet;
+using MQTTnet.Packets;
+using Xunit;
+
+public class ReceiveServiceTests
+{
+    private static MqttApplicationMessageReceivedEventArgs BuildArgs(string topic, string payload)
+    {
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(payload)
+            .Build();
+
+        return new MqttApplicationMessageReceivedEventArgs(
+            clientId: "test-client",
+            applicationMessage: message,
+            publishPacket: new MqttPublishPacket(),
+            acknowledgeHandler: (args, token) => Task.CompletedTask
+        );
+    }
+
+
+
+
+    [Fact]
+    public async Task OnMessageAsync_IgnoresBridgeTopics()
+    {
+        var mqtt = new Mock<IMqttConnectionService>();
+        var client = new Mock<IMqttClient>();
+        mqtt.Setup(m => m.Client).Returns(client.Object);
+
+        var devices = new Mock<IDeviceService>();
+        var filters = new Mock<IDeviceFilterService>();
+
+        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object);
+
+        var args = BuildArgs("zigbee2mqtt/bridge/state", "{\"on\":true}");
+
+        // Call private method via dynamic Dispatch
+        var method = typeof(ReceiveService)
+            .GetMethod("OnMessageAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        await (Task)method.Invoke(service, new object[] { args });
+
+        devices.Verify(d => d.QueryModelIDAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task OnMessageAsync_FiltersCorrectKeys_AndWritesToConsole()
+    {
+        // Arrange
+        var mqtt = new Mock<IMqttConnectionService>();
+        var client = new Mock<IMqttClient>();
+        mqtt.Setup(m => m.Client).Returns(client.Object);
+
+        var devices = new Mock<IDeviceService>();
+        var filters = new Mock<IDeviceFilterService>();
+
+        devices.Setup(d => d.QueryModelIDAsync("lamp1")).ReturnsAsync("model123");
+        devices.Setup(d => d.QueryDeviceNameAsync("lamp1")).ReturnsAsync("Lamp Livingroom");
+
+        filters.Setup(f => f.QueryDataFilterAsync("model123"))
+            .ReturnsAsync(new List<string>  { "state", "brightness" });
+
+        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object);
+
+        var payload = "{\"state\":\"ON\",\"brightness\":150,\"ignored\":true}";
+        var args = BuildArgs("zigbee2mqtt/lamp1", payload);
+
+        // Capture console output
+        var sb = new StringBuilder();
+        Console.SetOut(new System.IO.StringWriter(sb));
+
+        // Invoke private method
+        var method = typeof(ReceiveService)
+            .GetMethod("OnMessageAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        await (Task)method.Invoke(service, new object[] { args });
+
+        var output = sb.ToString();
+
+        // Assert filtering occurred
+        Assert.Contains("state", output);
+        Assert.Contains("brightness", output);
+        Assert.DoesNotContain("ignored", output);
+
+        // Assert device lookups
+        devices.Verify(d => d.QueryModelIDAsync("lamp1"), Times.Once);
+        devices.Verify(d => d.QueryDeviceNameAsync("lamp1"), Times.Once);
+        filters.Verify(f => f.QueryDataFilterAsync("model123"), Times.Once);
+    }
+}
