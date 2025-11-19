@@ -28,8 +28,6 @@ public class ReceiveServiceTests
     }
 
 
-
-
     [Fact]
     public async Task OnMessageAsync_IgnoresBridgeTopics()
     {
@@ -44,9 +42,10 @@ public class ReceiveServiceTests
 
         var args = BuildArgs("zigbee2mqtt/bridge/state", "{\"on\":true}");
 
-        // Call private method via dynamic Dispatch
+
         var method = typeof(ReceiveService)
-            .GetMethod("OnMessageAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            .GetMethod("OnMessageAsync",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         await (Task)method.Invoke(service, new object[] { args });
 
@@ -56,7 +55,6 @@ public class ReceiveServiceTests
     [Fact]
     public async Task OnMessageAsync_FiltersCorrectKeys_AndWritesToConsole()
     {
-        // Arrange
         var mqtt = new Mock<IMqttConnectionService>();
         var client = new Mock<IMqttClient>();
         mqtt.Setup(m => m.Client).Returns(client.Object);
@@ -68,31 +66,31 @@ public class ReceiveServiceTests
         devices.Setup(d => d.QueryDeviceNameAsync("lamp1")).ReturnsAsync("Lamp Livingroom");
 
         filters.Setup(f => f.QueryDataFilterAsync("model123"))
-            .ReturnsAsync(new List<string>  { "state", "brightness" });
+            .ReturnsAsync(new List<string> { "state", "brightness" });
 
         var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object);
 
         var payload = "{\"state\":\"ON\",\"brightness\":150,\"ignored\":true}";
         var args = BuildArgs("zigbee2mqtt/lamp1", payload);
 
-        // Capture console output
+
         var sb = new StringBuilder();
         Console.SetOut(new System.IO.StringWriter(sb));
 
-        // Invoke private method
+
         var method = typeof(ReceiveService)
-            .GetMethod("OnMessageAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            .GetMethod("OnMessageAsync",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         await (Task)method.Invoke(service, new object[] { args });
 
         var output = sb.ToString();
 
-        // Assert filtering occurred
+
         Assert.Contains("state", output);
         Assert.Contains("brightness", output);
         Assert.DoesNotContain("ignored", output);
 
-        // Assert device lookups
         devices.Verify(d => d.QueryModelIDAsync("lamp1"), Times.Once);
         devices.Verify(d => d.QueryDeviceNameAsync("lamp1"), Times.Once);
         filters.Verify(f => f.QueryDataFilterAsync("model123"), Times.Once);

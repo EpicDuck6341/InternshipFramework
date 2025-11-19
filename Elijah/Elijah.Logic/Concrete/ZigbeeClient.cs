@@ -24,7 +24,7 @@ public class ZigbeeClient(
     public bool IsReady { get; private set; }
 
 
-    /* ---------- public façade ---------- */
+    
     public async Task ConnectToMqtt()
     {
         await _conn.ConnectAsync();

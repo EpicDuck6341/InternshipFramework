@@ -14,7 +14,6 @@ public class SendServiceTests
     [Fact]
     public async Task SendReportConfigAsync_PublishesMessages()
     {
-        // Arrange
         var mqttMock = new Mock<IMqttConnectionService>();
         var mqttClientMock = new Mock<IMqttClient>();
         mqttMock.Setup(m => m.Client).Returns(mqttClientMock.Object);
@@ -27,19 +26,18 @@ public class SendServiceTests
 
         var service = new SendService(mqttMock.Object);
 
-        // Act
+
         await service.SendReportConfigAsync(configs);
 
-        // Assert
+
         mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/bridge/request/device/configure_reporting"),
+                msg.Topic == "zigbee2mqtt/bridge/request/device/configure_reporting"),
             default), Times.Exactly(2));
     }
 
     [Fact]
     public async Task SendDeviceOptionsAsync_PublishesConvertedValues()
     {
-        // Arrange
         var mqttMock = new Mock<IMqttConnectionService>();
         var mqttClientMock = new Mock<IMqttClient>();
         mqttMock.Setup(m => m.Client).Returns(mqttClientMock.Object);
@@ -52,10 +50,10 @@ public class SendServiceTests
 
         var service = new SendService(mqttMock.Object);
 
-        // Act
+
         await service.SendDeviceOptionsAsync(opts);
 
-        // Assert
+
         mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
             msg.Topic == "zigbee2mqtt/dev1/set"), default), Times.Once);
 

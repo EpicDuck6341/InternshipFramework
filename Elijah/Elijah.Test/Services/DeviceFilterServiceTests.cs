@@ -26,20 +26,21 @@ public class DeviceFilterServiceTests
     [Fact]
     public async Task QueryDataFilterAsync_ReturnsFiltersForDevice()
     {
-        // Arrange
         _deviceServiceMock
             .Setup(d => d.AddressToIdAsync("0x1234"))
             .ReturnsAsync(42);
 
         var filters = new List<DeviceFilter>
         {
-            new() {
+            new()
+            {
                 DeviceId = 42,
                 FilterValue = "temperature",
                 IsActive = true,
                 Device = new Device { Id = 42, Address = "0x1234" }
             },
-            new() {
+            new()
+            {
                 DeviceId = 42,
                 FilterValue = "humidity",
                 IsActive = true,
@@ -52,10 +53,10 @@ public class DeviceFilterServiceTests
         _repoMock.Setup(r => r.Query<DeviceFilter>())
             .Returns(mockSet.Object);
 
-        // Act
+
         var result = await _sut.QueryDataFilterAsync("0x1234");
 
-        // Assert
+
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
@@ -64,20 +65,17 @@ public class DeviceFilterServiceTests
     [Fact]
     public async Task NewFilterEntryAsync_DeviceNotFound_ThrowsException()
     {
-        // Arrange
         _deviceServiceMock.Setup(d => d.AddressToIdAsync("nonexistent"))
             .ReturnsAsync(null as int?);
 
 
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>(() => 
+        await Assert.ThrowsAsync<Exception>(() =>
             _sut.NewFilterEntryAsync("nonexistent", "temperature", true));
     }
 
     [Fact]
     public async Task NewFilterEntryAsync_ValidData_CreatesFilter()
     {
-        // Arrange
         _deviceServiceMock.Setup(d => d.AddressToIdAsync("0x1234"))
             .ReturnsAsync(42);
 
@@ -88,10 +86,10 @@ public class DeviceFilterServiceTests
 
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
-        // Act
+
         await _sut.NewFilterEntryAsync("0x1234", "temperature", true);
 
-        // Assert
+
         Assert.NotNull(captured);
         Assert.Equal(42, captured.DeviceId);
         Assert.Equal("temperature", captured.FilterValue);

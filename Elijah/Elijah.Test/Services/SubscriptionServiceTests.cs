@@ -20,7 +20,7 @@ public class SubscriptionServiceTests
         _mqttMock = new Mock<IMqttConnectionService>();
         _mqttClientMock = new Mock<IMqttClient>();
         _deviceServiceMock = new Mock<IDeviceService>();
-        
+
         _mqttMock.Setup(m => m.Client).Returns(_mqttClientMock.Object);
         _sut = new SubscriptionService(_mqttMock.Object, _deviceServiceMock.Object);
     }
@@ -28,18 +28,17 @@ public class SubscriptionServiceTests
     [Fact]
     public async Task SubscribeExistingAsync_SubscribesToAllUnsubscribed()
     {
-        // Arrange
         var unsubscribed = new List<string> { "device1", "device2" };
         _deviceServiceMock.Setup(d => d.GetUnsubscribedAddressesAsync())
             .ReturnsAsync(unsubscribed);
-        
+
         _deviceServiceMock.Setup(d => d.SetSubscribedStatusAsync(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
-        // Act
+
         await _sut.SubscribeExistingAsync();
 
-        // Assert
+
         _deviceServiceMock.Verify(d => d.SetSubscribedStatusAsync(true, "device1"), Times.Once);
         _deviceServiceMock.Verify(d => d.SetSubscribedStatusAsync(true, "device2"), Times.Once);
     }
@@ -47,15 +46,13 @@ public class SubscriptionServiceTests
     [Fact]
     public async Task SubscribeAsync_SingleDevice_WorksCorrectly()
     {
-        // Arrange
         _deviceServiceMock.Setup(d => d.SetSubscribedStatusAsync(true, "abc123"))
             .Returns(Task.CompletedTask);
 
-        // Act
+
         await _sut.SubscribeAsync("abc123");
 
-        // Assert
+
         _deviceServiceMock.Verify(d => d.SetSubscribedStatusAsync(true, "abc123"), Times.Once);
-        
     }
 }
