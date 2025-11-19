@@ -15,6 +15,8 @@ namespace Elijah.Data
         public DbSet<DeviceFilter> DeviceFilters { get; set; }
         public DbSet<DeviceTemplate> DeviceTemplates { get; set; }
         public DbSet<Option> Options { get; set; }
+        public DbSet<OpenTherm> OpenTherm { get; set; }
+
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

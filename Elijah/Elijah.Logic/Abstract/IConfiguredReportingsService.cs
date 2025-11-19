@@ -21,4 +21,5 @@ public interface IConfiguredReportingsService
         string reportableChange,
         string endpoint);
     Task<List<ReportConfig>> GetChangedReportConfigsAsync(List<string> subscribedAddresses);
+    Task<List<ReportConfig>> QueryReportIntervalAsync(string address);
 }

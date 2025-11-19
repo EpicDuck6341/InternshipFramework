@@ -6,14 +6,13 @@ using Elijah.Logic.Abstract;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Protocol;
-using System.IO.Ports;
+
 
 namespace Elijah.Logic.Concrete;
 
 public class ZigbeeClient(
     IMqttConnectionService _conn,
     ISubscriptionService _sub,
-    SerialPort _serialPort,
     ISendService _send,
     IReceiveService _recv,
     IDeviceService _device,
@@ -24,7 +23,7 @@ public class ZigbeeClient(
     public bool IsReady { get; private set; }
 
 
-    
+    /* ---------- public façade ---------- */
     public async Task ConnectToMqtt()
     {
         await _conn.ConnectAsync();
@@ -162,48 +161,7 @@ public class ZigbeeClient(
     public void StartProcessingMessages() => _recv.StartMessageLoop();
 
 
-    public async Task ESPConnect()
-    {
-        _serialPort = new SerialPort("/dev/ttyUSB1", 115200);
-        _serialPort.ReadTimeout = 2000;
-        _serialPort.WriteTimeout = 2000;
-
-        _serialPort.Open();
-        Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
-        await Task.Delay(4000);
-
-        string response = "";
-        int attempts = 0;
-
-        while (!response.Contains("ESP_READY") && attempts < 20)
-        {
-            try
-            {
-                Console.WriteLine(attempts);
-                response += _serialPort.ReadExisting();
-                await Task.Delay(200);
-                attempts++;
-            }
-            catch (TimeoutException)
-            {
-            }
-        }
-
-        if (response.Contains("ESP_READY"))
-        {
-            Console.WriteLine("ESP_READY received!");
-            _serialPort.WriteLine("test"); // \r\n automatically added
-        }
-        else
-        {
-            Console.WriteLine("Failed to receive ESP_READY");
-        }
-    }
-
-    public async Task sendESPConfig(int b)
-    {
-        await _send.SetBrightnessAsync("0xe4b323fffe9e2d38", b);
-    }
+    
 
 
     public async Task GetDeviceDetails(string address, string modelID)
@@ -321,5 +279,10 @@ public class ZigbeeClient(
 
         if (completed != tcs.Task)
             Console.WriteLine($"Timeout while getting options for {address}");
+    }
+    
+    public async Task sendESPConfig(int b)
+    {
+        await _send.SetBrightnessAsync("0xe4b323fffe9e2d38", b);
     }
 }

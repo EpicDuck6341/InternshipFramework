@@ -32,13 +32,14 @@ public class ReceiveServiceTests
     public async Task OnMessageAsync_IgnoresBridgeTopics()
     {
         var mqtt = new Mock<IMqttConnectionService>();
+        var config = new Mock<IConfiguredReportingsService>();
         var client = new Mock<IMqttClient>();
         mqtt.Setup(m => m.Client).Returns(client.Object);
 
         var devices = new Mock<IDeviceService>();
         var filters = new Mock<IDeviceFilterService>();
 
-        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object);
+        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object,config.Object);
 
         var args = BuildArgs("zigbee2mqtt/bridge/state", "{\"on\":true}");
 
@@ -56,6 +57,7 @@ public class ReceiveServiceTests
     public async Task OnMessageAsync_FiltersCorrectKeys_AndWritesToConsole()
     {
         var mqtt = new Mock<IMqttConnectionService>();
+        var config = new Mock<IConfiguredReportingsService>();
         var client = new Mock<IMqttClient>();
         mqtt.Setup(m => m.Client).Returns(client.Object);
 
@@ -68,7 +70,7 @@ public class ReceiveServiceTests
         filters.Setup(f => f.QueryDataFilterAsync("model123"))
             .ReturnsAsync(new List<string> { "state", "brightness" });
 
-        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object);
+        var service = new ReceiveService(mqtt.Object, devices.Object, filters.Object,config.Object);
 
         var payload = "{\"state\":\"ON\",\"brightness\":150,\"ignored\":true}";
         var args = BuildArgs("zigbee2mqtt/lamp1", payload);

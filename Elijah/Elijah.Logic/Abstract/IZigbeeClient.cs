@@ -20,7 +20,6 @@ namespace Elijah.Logic.Abstract
         Task GetDeviceDetails(string address, string modelID);
         Task GetOptionDetails(string address, string model, List<string> readableProps, List<string> description);
         
-        Task ESPConnect();
         Task sendESPConfig(int brightness);
     }
 }
