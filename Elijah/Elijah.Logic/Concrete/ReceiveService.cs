@@ -8,16 +8,14 @@ using System.Threading.Tasks;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
+using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Protocol;
 
 namespace Elijah.Logic.Concrete;
 
 public class ReceiveService(
-    IMqttConnectionService _mqtt,
-    IDeviceService _devices,
-    IDeviceFilterService _filters,
-    IConfiguredReportingsService _config) : IReceiveService
+    IMqttConnectionService _mqtt, IServiceScopeFactory _scopeFactory) : IReceiveService
 {
     public void StartMessageLoop()
     {
@@ -26,6 +24,11 @@ public class ReceiveService(
 
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
+        
+        using var scope = _scopeFactory.CreateScope();
+        var _devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var _filters = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
+        
         var topic = arg.ApplicationMessage.Topic;
         var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
 
@@ -85,6 +88,9 @@ public class ReceiveService(
     /// </summary>
     private async Task HandleZeroSensorValuesAsync(string deviceAddress)
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+        
         Console.WriteLine($"⚠️ ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
         
         var configs = await _config.QueryReportIntervalAsync(deviceAddress);

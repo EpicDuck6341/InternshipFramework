@@ -1,4 +1,5 @@
-﻿using Elijah.Logic.Abstract;
+﻿using Elijah.Data;
+using Elijah.Logic.Abstract;
 using Elijah.Logic.Injection;
 using LogManager;
 using Microsoft.Extensions.Configuration;
@@ -19,48 +20,16 @@ ServiceMapper.ConfigureServices(services, configuration);
 //Generate a provider object from all registered services
 ServiceProvider serviceProvider = services.BuildServiceProvider();
 IZigbeeClient zigbeeClient = serviceProvider.GetService<IZigbeeClient>();
-zigbeeClient.ConnectToMqtt();
+await zigbeeClient.ConnectToMqtt();
 
-// //Fire application using the provider containing all dependencies
-// await StartRequestedFunction(args, serviceProvider.GetService<IService>());
-//
-//
-// static async Task StartRequestedFunction(string[] args, IService facilicomTemplateService)
-// {
-//     DateTime start = DateTime.Now;
-//
-//     //for testing:
-//     args = ["functionname"];
-//
-//     if (args != null && args.Any())
-//         try
-//         {
-//             switch (args.FirstOrDefault()?.ToLower())
-//             {
-//                 case "functionname":
-//                     Log.Info("Starting FunctionName");
-//                     await  facilicomTemplateService.FunctionName();
-//                     Log.Info("FunctionName successfully ended");
-//                     break;
-//                 default:
-//                     NoParamFound();
-//                     return;
-//             }
-//         }
-//         catch (Exception ex)
-//         {
-//             Log.SendError($"Fout bij uitvoeren van {args.FirstOrDefault()} functie.", ex);
-//         }
-//     else
-//     {
-//         Log.Error("FOUT! geen parameter aangeleverd");
-//         throw new Exception("No Params");
-//     }
-//     Log.Info($"Duration: {DateTime.Now - start}");
-// }
-//
-// static void NoParamFound()
-// {
-//     Log.Warning("FOUT! geen correcte parameter aangeleverd");
-//     throw new Exception("No correct Param");
-// }
+// Auto-create tables if they don't exist
+// var dbContext = serviceProvider.GetService<ApplicationDbContext>();
+// await dbContext.Database.EnsureCreatedAsync();
+// Console.WriteLine("Database tables ensured created");
+
+Task.Delay(1000);
+await zigbeeClient.AllowJoinAndListen(20);
+Task.Delay(1000);
+await zigbeeClient.RemoveDevice("0xd44867fffe2a920a");
+
+

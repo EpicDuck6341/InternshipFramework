@@ -24,10 +24,10 @@ namespace Elijah.Logic.Injection
                     .EnableDetailedErrors());
 
             // Logging
-            // services.InitialiseFsLogging(configuration);
+            services.AddSingleton(configuration);
 
             // Services
-            services.AddTransient<IMqttConnectionService, MqttConnectionService>();
+            services.AddSingleton<IMqttConnectionService, MqttConnectionService>();
 
             services.AddTransient<IDeviceService, DeviceService>();
             services.AddTransient<IDeviceFilterService, DeviceFilterService>();
@@ -38,11 +38,8 @@ namespace Elijah.Logic.Injection
             services.AddTransient<ISubscriptionService, SubscriptionService>();
             services.AddTransient<ISendService, SendService>();
             services.AddTransient<IReceiveService, ReceiveService>();
-
-
-
-
-
+            services.AddTransient<IOpenThermService, OpenThermService>();
+            
             // Zigbee client
             services.AddSingleton<IZigbeeClient, ZigbeeClient>();
             //Implement all as Transient bump

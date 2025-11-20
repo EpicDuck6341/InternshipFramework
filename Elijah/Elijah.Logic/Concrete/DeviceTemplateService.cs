@@ -68,16 +68,34 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         return exists;
     }
 
-    public async Task NewDVTemplateEntryAsync(string modelID, string name)
+    public async Task<DeviceTemplate> NewDVTemplateEntryAsync(string modelID, string name)
     {
-        repo.CreateAsync(new DeviceTemplate
+        
+        var template = new DeviceTemplate
         {
             ModelId = modelID,
             Name = name,
-            NumberOfActive = 1
-        });
-        await repo.SaveChangesAsync();
+            NumberOfActive = 1, 
+        };
+        Console.WriteLine("Before create");
+        try
+        {
+            await repo.CreateAsync(template, true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        // Console.WriteLine("After create, before save");
+        // // await repo.SaveChangesAsync();
+        // Console.WriteLine("After save");
+
+    
+        Console.WriteLine($"Template created: {name} ({modelID}) with ID {template.Id}");
+        return template;  
     }
+    
     
     public async Task<bool> ModelPresentAsync(string modelID)
     {

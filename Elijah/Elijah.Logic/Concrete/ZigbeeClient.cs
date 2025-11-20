@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Elijah.Data.Repository;
 using Elijah.Logic.Abstract;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Protocol;
 
@@ -14,11 +15,7 @@ public class ZigbeeClient(
     IMqttConnectionService _conn,
     ISubscriptionService _sub,
     ISendService _send,
-    IReceiveService _recv,
-    IDeviceService _device,
-    IConfiguredReportingsService _configuredReportings,
-    IOptionService _option,
-    IDeviceTemplateService _template) : IZigbeeClient
+    IReceiveService _recv,IServiceScopeFactory _scopeFactory) : IZigbeeClient
 {
     public bool IsReady { get; private set; }
 
@@ -43,6 +40,10 @@ public class ZigbeeClient(
 
     public async Task SendReportConfig()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+        
         var changed = await _configuredReportings.GetChangedReportConfigsAsync(
             await _device.GetSubscribedAddressesAsync());
         await _send.SendReportConfigAsync(changed);
@@ -50,6 +51,10 @@ public class ZigbeeClient(
 
     public async Task SendDeviceOptions()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
+        
         var changed = await _option.GetChangedOptionValuesAsync(
             await _device.GetSubscribedAddressesAsync());
         await _send.SendDeviceOptionsAsync(changed);
@@ -57,7 +62,12 @@ public class ZigbeeClient(
 
     public async Task AllowJoinAndListen(int seconds)
     {
+        
+        using var scope = _scopeFactory.CreateScope();
+        var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        
         await _conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
+        Console.WriteLine("Subscribed to bridge");
         await _send.PermitJoinAsync(seconds);
 
 
@@ -89,7 +99,7 @@ public class ZigbeeClient(
             if (!await _device.DevicePresentAsync(model, address))
             {
                 await _device.NewDeviceEntryAsync(model, address, address);
-                await _template.NewDVTemplateEntryAsync(model, address);
+                // await _template.NewDVTemplateEntryAsync(model, address);
             }
 
 
@@ -152,6 +162,9 @@ public class ZigbeeClient(
 
     public async Task RemoveDevice(string name)
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        
         var addr = await _device.QueryDeviceAddressAsync(name);
         await _device.SetSubscribedStatusAsync(false, addr);
         // await _device.SetActiveStatusAsync(false, addr); REMINDER SET TO ACTIVE BUILT IN PARAMETER
@@ -166,6 +179,8 @@ public class ZigbeeClient(
 
     public async Task GetDeviceDetails(string address, string modelID)
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
         var tcs = new TaskCompletionSource<bool>();
 
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)
@@ -240,6 +255,8 @@ public class ZigbeeClient(
         List<string> readableProps,
         List<string> descriptions)
     {
+        using var scope = _scopeFactory.CreateScope();
+        var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
         var tcs = new TaskCompletionSource<bool>();
 
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)

@@ -15,8 +15,7 @@ public class DeviceTemplate: BaseType
 
     [Required]
     public string Name { get; set; }
-
-    public string Image { get; set; }
+    
     public int NumberOfActive { get; set; }
     
 

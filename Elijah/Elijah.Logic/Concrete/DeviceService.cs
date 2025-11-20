@@ -16,27 +16,25 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
 
     public async Task<string?> QueryDeviceNameAsync(string address)
     {
-         return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address))?.Name; //CHECK
+        return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address))?.Name; //CHECK
+    }
 
-    }
-    
-    public async Task<string?> QueryDeviceAddressAsync(string name)//CHECK
+    public async Task<string?> QueryDeviceAddressAsync(string name) //CHECK
     {
-       return  (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Name == name))?.Address;
+        return (await repo.Query<Device>().FirstOrDefaultAsync(d => d.Name == name))?.Address;
     }
-    
+
     public async Task<string?> QueryModelIDAsync(string address)
     {
-      
         return (await repo.Query<Device>()
-            .Include(d => d.DeviceTemplate)  
+            .Include(d => d.DeviceTemplate)
             .FirstOrDefaultAsync(d => d.Address == address))?.DeviceTemplate?.ModelId;
     }
-    
-    
+
+
     //Now make use of the removed modifier REMINDER
-    
-    
+
+
     // public async Task SetActiveStatusAsync(bool active, string address)
     // {
     //     var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
@@ -57,7 +55,7 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
         }
     }
 
-    
+
     public async Task<bool> DevicePresentAsync(string modelID, string address)
     {
         bool exists = await repo.Query<Device>().AnyAsync(d => d.Address == address);
@@ -66,7 +64,6 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
         return exists;
     }
 
- 
 
     public async Task UnsubOnExitAsync()
     {
@@ -91,26 +88,22 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
             .ToListAsync();
     }
 
-    public async Task NewDeviceEntryAsync(string modelID, string newName, string address)
+    public async Task NewDeviceEntryAsync(string modelID, string deviceName, string address)
     {
-     
-        var templateId = await repo.Query<DeviceTemplate>()
-            .Where(t => t.ModelId == modelID)
-            .Select(t => t.Id)
-            .FirstOrDefaultAsync();
-    
-        if (templateId == 0)
-            throw new Exception($"DeviceTemplate with ModelId '{modelID}' not found.");
-
+        var template = await _deviceTemplate.NewDVTemplateEntryAsync(modelID, deviceName);
+        Console.WriteLine($"DteId");
         var newDevice = new Device
         {
-            TemplateId = templateId, 
-            Name = newName,
+            TemplateId = template.Id,
+            Name = deviceName,
             Address = address
         };
-    
-        await repo.CreateAsync(newDevice);  
+        Console.WriteLine($"DteId");
+        await repo.CreateAsync(newDevice);
+        Console.WriteLine($"DteId");
         await repo.SaveChangesAsync();
-    }
+        Console.WriteLine($"DteId");
 
+        Console.WriteLine($"Device '{deviceName}' created with TemplateId {template.Id}");
+    }
 }

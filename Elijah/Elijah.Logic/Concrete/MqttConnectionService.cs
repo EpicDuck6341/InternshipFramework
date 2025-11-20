@@ -24,7 +24,24 @@ public class MqttConnectionService : IMqttConnectionService
 
     public async Task ConnectAsync()
     {
-        await _client.ConnectAsync(_options, CancellationToken.None);
+        try
+        {
+            Console.WriteLine("Connecting to MQTT...");
+            await _client.ConnectAsync(_options, CancellationToken.None);
+        
+            if (_client.IsConnected)
+            {
+                Console.WriteLine("MQTT connection successful");
+            }
+            else
+            {
+                Console.WriteLine("MQTT connection failed: Client not connected after attempt");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($" MQTT connection failed: {ex.Message}");
+        }
     }
 
     public async Task DisconnectAsync()
