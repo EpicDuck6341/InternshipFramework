@@ -35,15 +35,15 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
     //Now make use of the removed modifier REMINDER
 
 
-    // public async Task SetActiveStatusAsync(bool active, string address)
-    // {
-    //     var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
-    //     if (device != null)
-    //     {
-    //         device.Active = active;
-    //         await repo.SaveChangesAsync();
-    //     }
-    // }
+    public async Task SetActiveStatusAsync(bool active, string address)
+    {
+        var device = await repo.Query<Device>().FirstOrDefaultAsync(d => d.Address == address);
+        if (device != null)
+        {
+            device.SysRemoved = active;
+            await repo.SaveChangesAsync();
+        }
+    }
 
     public async Task SetSubscribedStatusAsync(bool subscribed, string address)
     {
@@ -60,7 +60,12 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
     {
         bool exists = await repo.Query<Device>().AnyAsync(d => d.Address == address);
         Console.WriteLine(exists ? "Device already present" : "Device not yet present");
-        if (!exists) await _deviceTemplate.ModelPresentAsync(modelID);
+        if (!exists) await _deviceTemplate.ModelPresentAsync(modelID,address);
+        else
+        {
+            SetActiveStatusAsync(true, address);
+        }
+
         return exists;
     }
 
@@ -91,18 +96,22 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
     public async Task NewDeviceEntryAsync(string modelID, string deviceName, string address)
     {
         var template = await _deviceTemplate.NewDVTemplateEntryAsync(modelID, deviceName);
-        Console.WriteLine($"DteId");
         var newDevice = new Device
         {
             TemplateId = template.Id,
             Name = deviceName,
             Address = address
         };
-        Console.WriteLine($"DteId");
-        await repo.CreateAsync(newDevice);
-        Console.WriteLine($"DteId");
+        try
+        {
+            await repo.CreateAsync(newDevice);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         await repo.SaveChangesAsync();
-        Console.WriteLine($"DteId");
 
         Console.WriteLine($"Device '{deviceName}' created with TemplateId {template.Id}");
     }

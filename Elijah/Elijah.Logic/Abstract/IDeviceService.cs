@@ -7,6 +7,7 @@ public interface IDeviceService
     Task<string?> QueryModelIDAsync(string address);
     // Task SetActiveStatusAsync(bool active, string address);
     Task SetSubscribedStatusAsync(bool subscribed, string address);
+    Task SetActiveStatusAsync(bool active, string address);
     Task<bool> DevicePresentAsync(string modelID, string address);
     Task UnsubOnExitAsync();
     Task<List<string>> GetUnsubscribedAddressesAsync();

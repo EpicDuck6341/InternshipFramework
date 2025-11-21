@@ -10,10 +10,8 @@ public class OptionService(IZigbeeRepository repo) : IOptionService
     public async Task SetOptionsAsync(string address, string description, string currentValue, string property)//bump
     {
         var device = await repo.Query<Device>().FirstOrDefaultAsync(device => device.Address == address);
-        
         if(device == null)
             throw new Exception($"Device not found for address: {address}");
-        
         await repo.CreateAsync(new Option
         {
             DeviceId = device.Id,

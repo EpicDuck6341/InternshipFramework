@@ -9,13 +9,12 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
 {
     public async Task CopyModelTemplateAsync(string modelID, string address)
     {
-        
         var template = await repo.Query<DeviceTemplate>()
                                  .FirstOrDefaultAsync(t => t.ModelId == modelID);
-
+       
         if (template == null)
             throw new Exception($"DeviceTemplate with ModelId '{modelID}' not found.");
-
+      
         
         string newName = $"{template.Name}{template.NumberOfActive + 1}";
         var newDevice = new Device
@@ -24,15 +23,19 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
             Name = newName,
             Address = address
         };
+        try
+        {
+            await repo.CreateAsync(newDevice,false);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         
-        await repo.CreateAsync(newDevice);
-
-     
         template.NumberOfActive++;
-
-      
+        
         await repo.SaveChangesAsync();
-
        
         var templateReports = await repo.Query<ConfiguredReporting>()
                                         .Where(r => r.IsTemplate && r.Device.DeviceTemplate.ModelId == modelID)
@@ -97,10 +100,11 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
     }
     
     
-    public async Task<bool> ModelPresentAsync(string modelID)
+    public async Task<bool> ModelPresentAsync(string modelID,string address)
     {
         bool exists = await repo.Query<DeviceTemplate>().AnyAsync(d => d.ModelId == modelID);
         Console.WriteLine(exists ? "Model already present" : "Model not yet present");
+        if (exists) await CopyModelTemplateAsync(modelID, address);
         return exists;
     }
 }

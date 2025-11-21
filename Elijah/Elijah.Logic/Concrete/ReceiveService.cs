@@ -41,7 +41,7 @@ public class ReceiveService(
         var node = JsonNode.Parse(payload)?.AsObject();
         if (node == null) return;
 
-        // NEW: Check for all-zero sensor values
+        //Check for all-zero sensor values
         if (node.ContainsKey("temperature") && node.ContainsKey("co2") && node.ContainsKey("humidity"))
         {
             var tempNode = node["temperature"];
@@ -91,7 +91,7 @@ public class ReceiveService(
         using var scope = _scopeFactory.CreateScope();
         var _config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
         
-        Console.WriteLine($"⚠️ ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
+        Console.WriteLine($"ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
         
         var configs = await _config.QueryReportIntervalAsync(deviceAddress);
         if (!configs.Any())
@@ -124,7 +124,7 @@ public class ReceiveService(
         
         await SendConfigValueAsync(deviceAddress, "co2ReportableChange", co2Change);
         
-        Console.WriteLine($"✅ Completed reconfiguration for {deviceAddress}");
+        Console.WriteLine($"Completed reconfiguration for {deviceAddress}");
     }
 
     /// <summary>

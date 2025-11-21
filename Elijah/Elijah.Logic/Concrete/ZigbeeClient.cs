@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -15,7 +16,8 @@ public class ZigbeeClient(
     IMqttConnectionService _conn,
     ISubscriptionService _sub,
     ISendService _send,
-    IReceiveService _recv,IServiceScopeFactory _scopeFactory) : IZigbeeClient
+    IReceiveService _recv,
+    IServiceScopeFactory _scopeFactory) : IZigbeeClient
 {
     public bool IsReady { get; private set; }
 
@@ -43,9 +45,8 @@ public class ZigbeeClient(
         using var scope = _scopeFactory.CreateScope();
         var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
-        
-        var changed = await _configuredReportings.GetChangedReportConfigsAsync(
-            await _device.GetSubscribedAddressesAsync());
+
+        var changed = await _configuredReportings.GetChangedReportConfigsAsync(await _device.GetSubscribedAddressesAsync());
         await _send.SendReportConfigAsync(changed);
     }
 
@@ -54,7 +55,7 @@ public class ZigbeeClient(
         using var scope = _scopeFactory.CreateScope();
         var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
-        
+
         var changed = await _option.GetChangedOptionValuesAsync(
             await _device.GetSubscribedAddressesAsync());
         await _send.SendDeviceOptionsAsync(changed);
@@ -62,10 +63,9 @@ public class ZigbeeClient(
 
     public async Task AllowJoinAndListen(int seconds)
     {
-        
         using var scope = _scopeFactory.CreateScope();
         var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        
+
         await _conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
         Console.WriteLine("Subscribed to bridge");
         await _send.PermitJoinAsync(seconds);
@@ -106,8 +106,10 @@ public class ZigbeeClient(
             var exposes = data.GetProperty("definition").GetProperty("exposes");
             var options = data.GetProperty("definition").GetProperty("options");
 
+
             var props = new List<string>();
             var descs = new List<string>();
+
 
             foreach (var ex in exposes.EnumerateArray())
             {
@@ -126,6 +128,7 @@ public class ZigbeeClient(
                 {
                     props.Add(opt.GetProperty("property").GetString());
                     descs.Add(opt.GetProperty("description").GetString());
+                    Console.WriteLine(opt.GetProperty("property").GetString());
                 }
             }
 
@@ -149,6 +152,7 @@ public class ZigbeeClient(
             await _sub.SubscribeAsync(addr);
         }
 
+        await Task.Delay(500);
         while (targetData.Count > 0)
         {
             var (addr, mdl, props, descs) = targetData.Dequeue();
@@ -164,17 +168,14 @@ public class ZigbeeClient(
     {
         using var scope = _scopeFactory.CreateScope();
         var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        
+
         var addr = await _device.QueryDeviceAddressAsync(name);
         await _device.SetSubscribedStatusAsync(false, addr);
-        // await _device.SetActiveStatusAsync(false, addr); REMINDER SET TO ACTIVE BUILT IN PARAMETER
+        await _device.SetActiveStatusAsync(false, addr);
         await _send.RemoveDeviceAsync(addr);
     }
 
     public void StartProcessingMessages() => _recv.StartMessageLoop();
-
-
-    
 
 
     public async Task GetDeviceDetails(string address, string modelID)
@@ -257,49 +258,52 @@ public class ZigbeeClient(
     {
         using var scope = _scopeFactory.CreateScope();
         var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
-        var tcs = new TaskCompletionSource<bool>();
+        var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)
         {
-            if (e.ApplicationMessage.Topic != $"zigbee2mqtt/{address}")
+            
+            string topic = e.ApplicationMessage.Topic;
+            if (topic != $"zigbee2mqtt/{address}")
                 return;
 
-            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-            var node = JsonNode.Parse(payload)?.AsObject();
-            if (node == null) return;
+            string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+            Console.WriteLine($"Received payload from {address}: {payload}");
+
+            JsonNode? node = JsonNode.Parse(payload);
+            if (node == null)
+                return;
 
             for (int i = 0; i < readableProps.Count; i++)
             {
                 var prop = readableProps[i];
-                var desc = descriptions[i];
-                if (node[prop] != null)
-                {
-                    await _option.SetOptionsAsync(address, desc, node[prop]!.ToJsonString(), prop);
-                    Console.WriteLine($"Option: {prop} = {node[prop]}");
-                }
+                var value = node[prop]?.ToJsonString() ?? "-";
+                await _option.SetOptionsAsync(address, descriptions[i], value, prop);
+                Console.WriteLine($"Option: {prop} = {value}");
             }
 
+            
             _conn.Client.ApplicationMessageReceivedAsync -= Handler;
-            tcs.TrySetResult(true);
-        }
-
+            var config = await _configuredReportings.ConfigByAddress(address);
+            await _send.SendReportConfigAsync(config);
+        };
+        var changed = await _configuredReportings.GetAllReportConfigsForAddressAsync(address);
+        await _send.SendReportConfigAsync(changed);
+        
+            
+        // Subscribe to the state topic
         _conn.Client.ApplicationMessageReceivedAsync += Handler;
 
-        await _conn.Client.PublishAsync(
-            new MqttApplicationMessageBuilder()
-                .WithTopic($"zigbee2mqtt/{address}")
-                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build());
-
-        var completed = await Task.WhenAny(tcs.Task, Task.Delay(10_000));
-        _conn.Client.ApplicationMessageReceivedAsync -= Handler;
-
-        if (completed != tcs.Task)
-            Console.WriteLine($"Timeout while getting options for {address}");
+        // Small delay to ensure subscription is active
+        await Task.Delay(50);
     }
-    
+
+
+
+
+
     public async Task sendESPConfig(int b)
     {
-        await _send.SetBrightnessAsync("0xe4b323fffe9e2d38", b);
+        await _send.SetBrightnessAsync("0xe4b323fffe9e2d38", b); //bump change address to fit ESP automatically
     }
 }

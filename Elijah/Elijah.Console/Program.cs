@@ -1,5 +1,6 @@
 ﻿using Elijah.Data;
 using Elijah.Logic.Abstract;
+using Elijah.Logic.Concrete;
 using Elijah.Logic.Injection;
 using LogManager;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,9 @@ ServiceMapper.ConfigureServices(services, configuration);
 //Generate a provider object from all registered services
 ServiceProvider serviceProvider = services.BuildServiceProvider();
 IZigbeeClient zigbeeClient = serviceProvider.GetService<IZigbeeClient>();
+IDeviceTemplateService deviceTemplateService = serviceProvider.GetService<IDeviceTemplateService>();
+
+// await deviceTemplateService.ModelPresentAsync("SNZB-03P", "testaddress");
 await zigbeeClient.ConnectToMqtt();
 
 // Auto-create tables if they don't exist
@@ -28,8 +32,11 @@ await zigbeeClient.ConnectToMqtt();
 // Console.WriteLine("Database tables ensured created");
 
 Task.Delay(1000);
-await zigbeeClient.AllowJoinAndListen(20);
-Task.Delay(1000);
-await zigbeeClient.RemoveDevice("0xd44867fffe2a920a");
+await zigbeeClient.AllowJoinAndListen(15);
+// Task.Delay(1000);
+// await zigbeeClient.RemoveDevice("0xa4c138024a75ffff");
+// await zigbeeClient.RemoveDevice("0xd44867fffe2a920a");
+
+
 
 

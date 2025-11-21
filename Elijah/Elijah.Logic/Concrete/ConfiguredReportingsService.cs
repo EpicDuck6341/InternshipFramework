@@ -125,4 +125,56 @@ public async Task<List<ReportConfig>> GetChangedReportConfigsAsync(List<string> 
     return configs;
 }
 
+public async Task<List<ReportConfig>> GetAllReportConfigsForAddressAsync(string deviceAddress)
+{
+    if (string.IsNullOrWhiteSpace(deviceAddress))
+        return new List<ReportConfig>();
+
+   
+    var configsForDevice = await repo.Query<ConfiguredReporting>()
+        .Include(r => r.Device)
+        .Where(r => r.Device.Address == deviceAddress)
+        .ToListAsync();
+
+    // Map to ReportConfig DTO
+    var configs = configsForDevice.Select(r => new ReportConfig(
+        r.Device.Address,
+        r.Cluster,
+        r.Attribute,
+        "0",
+        "0",
+        "0",
+        r.Endpoint
+    )).ToList();
+
+    return configs;
+}
+
+
+public async Task<List<ReportConfig>> ConfigByAddress(string deviceAddress)
+{
+    if (string.IsNullOrWhiteSpace(deviceAddress))
+        return new List<ReportConfig>();
+
+    // Query all configured reporting entries for this device
+    var configsForDevice = await repo.Query<ConfiguredReporting>()
+        .Include(r => r.Device)
+        .Where(r => r.Device.Address == deviceAddress)
+        .ToListAsync();
+
+    // Map to ReportConfig DTO
+    var configs = configsForDevice.Select(r => new ReportConfig(
+        r.Device.Address,
+        r.Cluster,
+        r.Attribute,
+        r.MaximumReportInterval,
+        r.MinimumReportInterval,
+        r.ReportableChange,
+        r.Endpoint
+    )).ToList();
+
+    return configs;
+}
+
+
 }
