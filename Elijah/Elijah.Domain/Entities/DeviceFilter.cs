@@ -9,10 +9,10 @@ public class DeviceFilter : BaseType //bump
 {
     [Key] 
     public int Id { get; set; }
-    public string FilterType { get; set; }
+    // public string FilterType { get; set; }
     public string FilterValue { get; set; } //Active wordt removed
     
-    public bool IsActive { get; set; }
+    // public bool IsActive { get; set; }
     
     public int DeviceId { get; set; }
     [ForeignKey(nameof(DeviceId))]

@@ -17,6 +17,11 @@ namespace Elijah.Logic.Concrete;
 public class ReceiveService(
     IMqttConnectionService _mqtt, IServiceScopeFactory _scopeFactory) : IReceiveService
 {
+    private bool _subscribed = false;
+    //List for all addresses which timed out on the receive option method
+    private readonly Dictionary<string, PendingOptionData> _lateOptions 
+        = new Dictionary<string, PendingOptionData>();
+
     public void StartMessageLoop()
     {
         _mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
@@ -25,23 +30,24 @@ public class ReceiveService(
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
         
+     
         using var scope = _scopeFactory.CreateScope();
         var _devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var _filters = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
         
         var topic = arg.ApplicationMessage.Topic;
         var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+        
 
         if (topic.Contains("zigbee2mqtt/bridge")) return;
 
         var deviceAddress = topic.Replace("zigbee2mqtt/", "");
         var modelId = await _devices.QueryModelIDAsync(deviceAddress);
-        var keys = await _filters.QueryDataFilterAsync(modelId);
+        var keys = await _filters.QueryDataFilterAsync(deviceAddress);
 
         var node = JsonNode.Parse(payload)?.AsObject();
         if (node == null) return;
-
-        //Check for all-zero sensor values
+        
         if (node.ContainsKey("temperature") && node.ContainsKey("co2") && node.ContainsKey("humidity"))
         {
             var tempNode = node["temperature"];
@@ -53,14 +59,50 @@ public class ReceiveService(
                 await HandleZeroSensorValuesAsync(deviceAddress);
             }
         }
-
+      
         var filtered = new JsonObject();
-        foreach (var k in keys)
-            if (node.ContainsKey(k))
-                filtered[k] = node[k]!.DeepClone();
 
+        if (keys != null && keys.Any())
+        {
+           
+            foreach (var k in keys)
+                if (node.ContainsKey(k))
+                    filtered[k] = node[k]!.DeepClone();
+        }
+        else
+        {
+            foreach (var kv in node)
+            {
+                Console.WriteLine(node.Count);
+                Console.WriteLine(kv.Key);
+                // filtered[kv.Key] = kv.Value!.DeepClone();
+                await _filters.NewFilterEntryAsync(deviceAddress, kv.Key);
+                Console.WriteLine("Wekt dit?");
+            }
+        }
+        
         Console.WriteLine(
             $"[{await _devices.QueryDeviceNameAsync(deviceAddress)},{modelId}]{filtered.ToJsonString()}");
+
+        
+        if (_lateOptions.TryGetValue(deviceAddress, out var pending))
+        {
+            Console.WriteLine($"Late options received for {deviceAddress}");
+
+            await LateOptionAsync(
+                payload,
+                pending.Address,
+                pending.Model,
+                pending.ReadableProps,
+                pending.Descriptions
+            );
+
+            // Remove once handled
+            _lateOptions.Remove(deviceAddress);
+        }
+
+        
+        
     }
 
     private bool IsZeroValue(JsonNode? node)
@@ -148,11 +190,58 @@ public class ReceiveService(
             .Build();
 
         await _mqtt.Client.PublishAsync(message);
-        Console.WriteLine($"📤 Sent config: {address} -> {parameterName}={value}");
+        Console.WriteLine($"Sent config: {address} -> {parameterName}={value}");
     }
 
     private bool IsAttributeMatch(ReportConfig config, string attributeName)
     {
         return config.attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
     }
+
+    private async Task LateOptionAsync(
+        string payload,
+        string address,
+        string model,
+        List<string> readableProps,
+        List<string> descriptions)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
+        var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+
+        var node = JsonNode.Parse(payload);
+        if (node == null) return;
+
+        for (int i = 0; i < readableProps.Count; i++)
+        {
+            var prop = readableProps[i];
+            var value = node[prop]?.ToJsonString() ?? "-";
+            await _option.SetOptionsAsync(address, descriptions[i], value, prop);
+            Console.WriteLine($"(LATE) Option: {prop} = {value}");
+        }
+
+        var config = await _configuredReportings.ConfigByAddress(address);
+        await _mqtt.Client.PublishAsync(
+            new MqttApplicationMessageBuilder()
+                .WithTopic($"zigbee2mqtt/{address}/get")
+                .WithPayload("{}")
+                .Build()
+        );
+    }
+
+    
+    public void RegisterLateOption(string address, string model,
+        List<string> props, List<string> descs)
+    {
+        _lateOptions[address] = new PendingOptionData
+        {
+            Address = address,
+            Model = model,
+            ReadableProps = props,
+            Descriptions = descs
+        };
+
+        Console.WriteLine($"Stored late options for {address}");
+    }
+
 }

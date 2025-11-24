@@ -32,6 +32,21 @@ public class SubscriptionService(IMqttConnectionService _mqtt,IServiceScopeFacto
         await _mqtt.Client.SubscribeAsync($"zigbee2mqtt/{address}");
         await _devices.SetSubscribedStatusAsync(true, address);
     }
+    public async Task SubscribeAllActiveDevicesAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var _devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+
+        // Get all active addresses
+        var addresses = await _devices.GetActiveAddressesAsync();
+
+        foreach (var addr in addresses)
+        {
+            await SubscribeAsync(addr); // your existing SubscribeAsync function
+            Console.WriteLine($"Subscribed to {addr}");
+        }
+    }
+
     
     
 }

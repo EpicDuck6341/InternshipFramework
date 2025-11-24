@@ -21,5 +21,6 @@ namespace Elijah.Logic.Abstract
         Task GetOptionDetails(string address, string model, List<string> readableProps, List<string> description);
         
         Task sendESPConfig(int brightness);
+        Task subscribeToAll();
     }
 }

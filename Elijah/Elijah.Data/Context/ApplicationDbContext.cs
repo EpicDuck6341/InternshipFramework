@@ -88,7 +88,7 @@ namespace Elijah.Data
                 entity.HasIndex(x => x.ModelId).IsUnique();
             });
             
-            modelBuilder.Entity<DeviceFilter>().HasIndex(x => new { x.DeviceId, x.FilterType })
+            modelBuilder.Entity<DeviceFilter>().HasIndex(x => new { x.DeviceId })// x.FilterType
                 .IsUnique(); //bump unqiue per device
             
             modelBuilder.Entity<Option>().HasIndex(x => new { x.DeviceId, x.Property })

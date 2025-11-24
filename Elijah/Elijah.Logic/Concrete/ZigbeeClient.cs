@@ -46,7 +46,8 @@ public class ZigbeeClient(
         var _device = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
-        var changed = await _configuredReportings.GetChangedReportConfigsAsync(await _device.GetSubscribedAddressesAsync());
+        var changed =
+            await _configuredReportings.GetChangedReportConfigsAsync(await _device.GetSubscribedAddressesAsync());
         await _send.SendReportConfigAsync(changed);
     }
 
@@ -256,13 +257,13 @@ public class ZigbeeClient(
         List<string> readableProps,
         List<string> descriptions)
     {
-        using var scope = _scopeFactory.CreateScope();
+       using var scope = _scopeFactory.CreateScope();
         var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
         var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+        var tcs = new TaskCompletionSource<bool>();
 
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)
         {
-            
             string topic = e.ApplicationMessage.Topic;
             if (topic != $"zigbee2mqtt/{address}")
                 return;
@@ -282,28 +283,45 @@ public class ZigbeeClient(
                 Console.WriteLine($"Option: {prop} = {value}");
             }
 
-            
+
             _conn.Client.ApplicationMessageReceivedAsync -= Handler;
             var config = await _configuredReportings.ConfigByAddress(address);
             await _send.SendReportConfigAsync(config);
-        };
+            tcs.TrySetResult(true);
+        }
+
+        ;
         var changed = await _configuredReportings.GetAllReportConfigsForAddressAsync(address);
         await _send.SendReportConfigAsync(changed);
-        
-            
+
+
         // Subscribe to the state topic
         _conn.Client.ApplicationMessageReceivedAsync += Handler;
 
         // Small delay to ensure subscription is active
         await Task.Delay(50);
+        var completed = await Task.WhenAny(tcs.Task, Task.Delay(15000));
+        if (completed != tcs.Task)
+        {
+            Console.WriteLine($"Timeout while getting options for {address}");
+
+            // Store for later handling
+            var recv = scope.ServiceProvider.GetRequiredService<IReceiveService>() 
+                as ReceiveService;
+
+            recv?.RegisterLateOption(address, model, readableProps, descriptions);
+
+            _conn.Client.ApplicationMessageReceivedAsync -= Handler;
+        }
+
     }
-
-
-
 
 
     public async Task sendESPConfig(int b)
     {
         await _send.SetBrightnessAsync("0xe4b323fffe9e2d38", b); //bump change address to fit ESP automatically
     }
+
+
+    public async Task subscribeToAll() => _sub.SubscribeAllActiveDevicesAsync();
 }

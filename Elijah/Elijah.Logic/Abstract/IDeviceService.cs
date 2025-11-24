@@ -15,4 +15,5 @@ public interface IDeviceService
     Task NewDeviceEntryAsync(string modelID, string newName, string address);
     
     Task<int?> AddressToIdAsync(string address);
+    Task<List<string>> GetActiveAddressesAsync();
 }

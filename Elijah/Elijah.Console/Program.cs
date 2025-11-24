@@ -31,8 +31,13 @@ await zigbeeClient.ConnectToMqtt();
 // await dbContext.Database.EnsureCreatedAsync();
 // Console.WriteLine("Database tables ensured created");
 
-Task.Delay(1000);
-await zigbeeClient.AllowJoinAndListen(15);
+await Task.Delay(1000);
+await zigbeeClient.subscribeToAll();
+await Task.Delay(1000);
+// await zigbeeClient.AllowJoinAndListen(15);
+// await Task.Delay(1000);
+zigbeeClient.StartProcessingMessages();
+await Task.Delay(Timeout.Infinite); 
 // Task.Delay(1000);
 // await zigbeeClient.RemoveDevice("0xa4c138024a75ffff");
 // await zigbeeClient.RemoveDevice("0xd44867fffe2a920a");

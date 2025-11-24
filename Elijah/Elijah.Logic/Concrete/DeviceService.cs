@@ -44,6 +44,8 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
             await repo.SaveChangesAsync();
         }
     }
+    
+    
 
     public async Task SetSubscribedStatusAsync(bool subscribed, string address)
     {
@@ -89,6 +91,14 @@ public class DeviceService(IZigbeeRepository repo, IDeviceTemplateService _devic
     {
         return await repo.Query<Device>()
             .Where(d => d.Subscribed)
+            .Select(d => d.Address)
+            .ToListAsync();
+    }
+    
+    public async Task<List<string>> GetActiveAddressesAsync()
+    {
+        return await repo.Query<Device>()
+            .Where(d => d.SysRemoved.Equals(false))
             .Select(d => d.Address)
             .ToListAsync();
     }
