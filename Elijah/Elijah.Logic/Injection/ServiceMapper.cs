@@ -27,6 +27,7 @@ namespace Elijah.Logic.Injection
             services.AddSingleton(configuration);
 
             // Services
+            //As singleton, since we only make on connection
             services.AddSingleton<IMqttConnectionService, MqttConnectionService>();
 
             services.AddTransient<IDeviceService, DeviceService>();
