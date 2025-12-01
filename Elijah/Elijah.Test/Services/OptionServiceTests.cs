@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MockQueryable.Moq;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Concrete;
+using MockQueryable.Moq;
 using Moq;
-using Xunit;
 
-namespace Elijah.Logic.Tests.Services;
+namespace Elijah.Test.Services;
 
 public class OptionServiceTests
 {
@@ -27,9 +23,9 @@ public class OptionServiceTests
         var devices = Enumerable.Empty<Device>().AsQueryable();
         _repoMock.Setup(r => r.Query<Device>()).Returns(devices.BuildMockDbSet().Object);
 
-
-        await Assert.ThrowsAsync<Exception>(() =>
-            _sut.SetOptionsAsync("nonexistent", "desc", "value", "prop"));
+        await Assert.ThrowsAsync<Exception>(
+            () => _sut.SetOptionsAsync("nonexistent", "desc", "value", "prop")
+        );
     }
 
     [Fact]
@@ -40,13 +36,14 @@ public class OptionServiceTests
         _repoMock.Setup(r => r.Query<Device>()).Returns(devices.BuildMockDbSet().Object);
 
         Option captured = null!;
-        _repoMock.Setup(r => r.CreateAsync(It.IsAny<Option>(), It.IsAny<bool>(), true, default))
-            .Callback<Option, bool, bool, System.Threading.CancellationToken>((o, _, _, _) => captured = o)
+        _repoMock
+            .Setup(r => r.CreateAsync(It.IsAny<Option>(), It.IsAny<bool>(), true, default))
+            .Callback<Option, bool, bool, System.Threading.CancellationToken>(
+                (o, _, _, _) => captured = o
+            )
             .Returns(Task.CompletedTask);
 
-
         await _sut.SetOptionsAsync("0x1234", "Temperature", "22.5", "temp");
-
 
         Assert.NotNull(captured);
         Assert.Equal(42, captured.DeviceId);
@@ -61,17 +58,18 @@ public class OptionServiceTests
         var device = new Device { Id = 42, Address = "0x1234" };
         var option = new Option
         {
-            DeviceId = 42, Property = "temp", CurrentValue = "20.0", IsProcessed = false,
-            Device = device
+            DeviceId = 42,
+            Property = "temp",
+            CurrentValue = "20.0",
+            IsProcessed = false,
+            Device = device,
         };
 
         var options = new List<Option> { option }.AsQueryable();
         _repoMock.Setup(r => r.Query<Option>()).Returns(options.BuildMockDbSet().Object);
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
-
         await _sut.AdjustOptionValueAsync("0x1234", "temp", "25.0");
-
 
         Assert.Equal("25.0", option.CurrentValue);
         Assert.True(option.IsProcessed);
@@ -82,7 +80,6 @@ public class OptionServiceTests
     public async Task GetChangedOptionValuesAsync_NoSubscribedAddresses_ReturnsEmpty()
     {
         var result = await _sut.GetChangedOptionValuesAsync(new List<string>());
-
 
         Assert.Empty(result);
     }
@@ -97,17 +94,18 @@ public class OptionServiceTests
         {
             new()
             {
-                DeviceId = 42, Device = device, Property = "temp",
-                CurrentValue = "25.0", IsProcessed = true
-            }
+                DeviceId = 42,
+                Device = device,
+                Property = "temp",
+                CurrentValue = "25.0",
+                IsProcessed = true,
+            },
         }.AsQueryable();
 
         _repoMock.Setup(r => r.Query<Option>()).Returns(options.BuildMockDbSet().Object);
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
-
         var result = await _sut.GetChangedOptionValuesAsync(subscribed);
-
 
         Assert.Single(result);
         Assert.Equal("0x1234", result[0].Address);

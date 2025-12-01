@@ -1,13 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 
-namespace Elijah.Data;
+namespace Elijah.Data.Context;
 
-//commands for creating and updating database:
-//1. add-migration initial       #initial is the name of the migration, for the first migration us initial
-//2. update-database
 public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {
     public ApplicationDbContext CreateDbContext(string[] args)

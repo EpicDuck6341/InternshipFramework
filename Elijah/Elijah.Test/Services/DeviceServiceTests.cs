@@ -1,15 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MockQueryable.Moq;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
 using Elijah.Logic.Concrete;
+using MockQueryable.Moq;
 using Moq;
-using Xunit;
 
-namespace Elijah.Logic.Tests.Services;
+namespace Elijah.Test.Services;
 
 public class DeviceServiceTests
 {
@@ -28,12 +24,12 @@ public class DeviceServiceTests
     public async Task AddressToIdAsync_ReturnsCorrectId()
     {
         var device = new Device { Id = 42, Address = "0x1234" };
-        var mockSet = new List<Device> { device }.AsQueryable().BuildMockDbSet();
+        var mockSet = new List<Device> { device }
+            .AsQueryable()
+            .BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
 
-
-        var result = await _sut.AddressToIdAsync("0x1234");
-
+        var result = await _sut.GetDeviceByAdressAsync("0x1234");
 
         Assert.Equal(42, result);
     }
@@ -42,12 +38,12 @@ public class DeviceServiceTests
     public async Task QueryDeviceNameAsync_ReturnsName()
     {
         var device = new Device { Address = "0x1234", Name = "Sensor1" };
-        var mockSet = new List<Device> { device }.AsQueryable().BuildMockDbSet();
+        var mockSet = new List<Device> { device }
+            .AsQueryable()
+            .BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
 
-
         var result = await _sut.QueryDeviceNameAsync("0x1234");
-
 
         Assert.Equal("Sensor1", result);
     }
@@ -56,7 +52,9 @@ public class DeviceServiceTests
     public async Task SetSubscribedStatusAsync_UpdatesStatus()
     {
         var device = new Device { Address = "0x1234", Subscribed = false };
-        var mockSet = new List<Device> { device }.AsQueryable().BuildMockDbSet();
+        var mockSet = new List<Device> { device }
+            .AsQueryable()
+            .BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
@@ -73,9 +71,7 @@ public class DeviceServiceTests
         var mockSet = devices.BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
 
-
         var result = await _sut.DevicePresentAsync("model123", "0x1234");
-
 
         Assert.True(result);
         _templateServiceMock.Verify(t => t.ModelPresentAsync(It.IsAny<string>()), Times.Never);
@@ -89,9 +85,7 @@ public class DeviceServiceTests
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
         _templateServiceMock.Setup(t => t.ModelPresentAsync("model123")).ReturnsAsync(false);
 
-
         var result = await _sut.DevicePresentAsync("model123", "0x1234");
-
 
         Assert.False(result);
         _templateServiceMock.Verify(t => t.ModelPresentAsync("model123"), Times.Once);
@@ -105,18 +99,19 @@ public class DeviceServiceTests
         _repoMock.Setup(r => r.Query<DeviceTemplate>()).Returns(templates.BuildMockDbSet().Object);
 
         Device captured = null!;
-        _repoMock.Setup(r => r.CreateAsync(It.IsAny<Device>(), It.IsAny<bool>(), true, default))
-            .Callback<Device, bool, bool, System.Threading.CancellationToken>((d, _, _, _) => captured = d)
+        _repoMock
+            .Setup(r => r.CreateAsync(It.IsAny<Device>(), It.IsAny<bool>(), true, default))
+            .Callback<Device, bool, bool, System.Threading.CancellationToken>(
+                (d, _, _, _) => captured = d
+            )
             .Returns(Task.CompletedTask);
 
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
-
         await _sut.NewDeviceEntryAsync("model123", "NewSensor", "0x1234");
 
-
         Assert.NotNull(captured);
-        Assert.Equal(10, captured.TemplateId);
+        Assert.Equal(10, captured.DeviceTemplateId);
         Assert.Equal("NewSensor", captured.Name);
         Assert.Equal("0x1234", captured.Address);
     }
@@ -127,15 +122,13 @@ public class DeviceServiceTests
         var devices = new List<Device>
         {
             new() { Address = "0x1234", Subscribed = false },
-            new() { Address = "0x5678", Subscribed = true }
+            new() { Address = "0x5678", Subscribed = true },
         }.AsQueryable();
 
         var mockSet = devices.BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
 
-
         var result = await _sut.GetUnsubscribedAddressesAsync();
-
 
         Assert.Single(result);
         Assert.Contains("0x1234", result);
@@ -147,15 +140,13 @@ public class DeviceServiceTests
         var devices = new List<Device>
         {
             new() { Address = "0x1234", Subscribed = false },
-            new() { Address = "0x5678", Subscribed = true }
+            new() { Address = "0x5678", Subscribed = true },
         }.AsQueryable();
 
         var mockSet = devices.BuildMockDbSet();
         _repoMock.Setup(r => r.Query<Device>()).Returns(mockSet.Object);
 
-
         var result = await _sut.GetSubscribedAddressesAsync();
-
 
         Assert.Single(result);
         Assert.Contains("0x5678", result);

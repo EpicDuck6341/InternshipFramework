@@ -7,7 +7,8 @@ namespace Elijah.Domain.Entities;
 [Table("Device", Schema = "dbo")]
 public class Device : BaseType
 {
-    [Key] public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
     public string Name { get; set; }
 
@@ -21,8 +22,9 @@ public class Device : BaseType
     /// </summary>
     public bool Subscribed { get; set; }
 
-    public int TemplateId { get; set; } //Active for removed
-    [ForeignKey(nameof(TemplateId))] 
+    public int DeviceTemplateId { get; set; }
+
+    [ForeignKey(nameof(DeviceTemplateId))]
     public DeviceTemplate DeviceTemplate { get; set; }
 
     public ICollection<ConfiguredReporting> ConfiguredReportings { get; set; }

@@ -1,14 +1,11 @@
-using System.Linq;
-using System.Threading.Tasks;
-using MockQueryable.Moq;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
 using Elijah.Logic.Concrete;
+using MockQueryable.Moq;
 using Moq;
-using Xunit;
 
-namespace Elijah.Logic.Tests.Services;
+namespace Elijah.Test.Services;
 
 public class DeviceFilterServiceTests
 {
@@ -26,9 +23,7 @@ public class DeviceFilterServiceTests
     [Fact]
     public async Task QueryDataFilterAsync_ReturnsFiltersForDevice()
     {
-        _deviceServiceMock
-            .Setup(d => d.AddressToIdAsync("0x1234"))
-            .ReturnsAsync(42);
+        _deviceServiceMock.Setup(d => d.GetDeviceByAdressAsync("0x1234")).ReturnsAsync(42);
 
         var filters = new List<DeviceFilter>
         {
@@ -37,58 +32,55 @@ public class DeviceFilterServiceTests
                 DeviceId = 42,
                 FilterValue = "temperature",
                 IsActive = true,
-                Device = new Device { Id = 42, Address = "0x1234" }
+                Device = new Device { Id = 42, Address = "0x1234" },
             },
             new()
             {
                 DeviceId = 42,
                 FilterValue = "humidity",
                 IsActive = true,
-                Device = new Device { Id = 42, Address = "0x1234" }
-            }
+                Device = new Device { Id = 42, Address = "0x1234" },
+            },
         }.AsQueryable();
 
         var mockSet = filters.BuildMockDbSet();
 
-        _repoMock.Setup(r => r.Query<DeviceFilter>())
-            .Returns(mockSet.Object);
-
+        _repoMock.Setup(r => r.Query<DeviceFilter>()).Returns(mockSet.Object);
 
         var result = await _sut.QueryDataFilterAsync("0x1234");
-
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
 
-
     [Fact]
     public async Task NewFilterEntryAsync_DeviceNotFound_ThrowsException()
     {
-        _deviceServiceMock.Setup(d => d.AddressToIdAsync("nonexistent"))
+        _deviceServiceMock
+            .Setup(d => d.GetDeviceByAdressAsync("nonexistent"))
             .ReturnsAsync(null as int?);
 
-
-        await Assert.ThrowsAsync<Exception>(() =>
-            _sut.NewFilterEntryAsync("nonexistent", "temperature", true));
+        await Assert.ThrowsAsync<Exception>(
+            () => _sut.NewFilterEntryAsync("nonexistent", "temperature", true)
+        );
     }
 
     [Fact]
     public async Task NewFilterEntryAsync_ValidData_CreatesFilter()
     {
-        _deviceServiceMock.Setup(d => d.AddressToIdAsync("0x1234"))
-            .ReturnsAsync(42);
+        _deviceServiceMock.Setup(d => d.GetDeviceByAdressAsync("0x1234")).ReturnsAsync(42);
 
         DeviceFilter captured = null!;
-        _repoMock.Setup(r => r.CreateAsync(It.IsAny<DeviceFilter>(), It.IsAny<bool>(), true, default))
-            .Callback<DeviceFilter, bool, bool, System.Threading.CancellationToken>((df, _, _, _) => captured = df)
+        _repoMock
+            .Setup(r => r.CreateAsync(It.IsAny<DeviceFilter>(), It.IsAny<bool>(), true, default))
+            .Callback<DeviceFilter, bool, bool, System.Threading.CancellationToken>(
+                (df, _, _, _) => captured = df
+            )
             .Returns(Task.CompletedTask);
 
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
-
         await _sut.NewFilterEntryAsync("0x1234", "temperature", true);
-
 
         Assert.NotNull(captured);
         Assert.Equal(42, captured.DeviceId);

@@ -153,3 +153,12 @@
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.Core.dll
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.EntityFrameworkCore.dll
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.Moq.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\bin\Debug\net8.0\CoverletSourceRootsMapping_Elijah.Test
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.csproj.AssemblyReference.cache
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.GeneratedMSBuildEditorConfig.editorconfig
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.AssemblyInfoInputs.cache
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.AssemblyInfo.cs
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.csproj.CoreCompileInputs.cache
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\refint\Elijah.Test.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Test\obj\Debug\net8.0\Elijah.Test.pdb

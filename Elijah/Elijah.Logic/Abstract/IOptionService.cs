@@ -1,4 +1,4 @@
-using Elijah.Domain.Entities;
+using Elijah.Domain.Models;
 
 namespace Elijah.Logic.Abstract;
 

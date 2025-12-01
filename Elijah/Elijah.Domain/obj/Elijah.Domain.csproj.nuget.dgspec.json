@@ -1,25 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {}
+    "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {}
   },
   "projects": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+    "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+        "projectUniqueName": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
         "projectName": "Elijah.Domain",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
-        "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/",
+        "projectPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
+        "packagesPath": "C:\\Users\\YBastiaan\\.nuget\\packages\\",
+        "outputPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\YBastiaan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
         },
@@ -59,7 +62,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

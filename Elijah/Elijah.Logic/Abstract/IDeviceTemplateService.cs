@@ -1,10 +1,8 @@
-using Elijah.Domain.Entities;
-
-namespace Elijah.Logic.Concrete;
+namespace Elijah.Logic.Abstract;
 
 public interface IDeviceTemplateService
 {
-    Task CopyModelTemplateAsync(string modelID, string address);
-    Task<DeviceTemplate> NewDVTemplateEntryAsync(string modelID, string name);
-    public Task<bool> ModelPresentAsync(string modelID,string address);
+    Task CopyModelTemplateAsync(string modelId, string address);
+    Task NewDVTemplateEntryAsync(string modelId, string name);
+    public Task<bool> ModelPresentAsync(string modelId);
 }

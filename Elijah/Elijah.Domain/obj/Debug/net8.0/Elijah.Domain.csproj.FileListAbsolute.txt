@@ -43,3 +43,14 @@ C:/Users/kaijs/Downloads/Elijah/Elijah/Elijah.Domain/obj/Debug/net8.0/ref/Elijah
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/refint/Elijah.Domain.dll
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.pdb
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/ref/Elijah.Domain.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\bin\Debug\net8.0\Elijah.Domain.deps.json
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\bin\Debug\net8.0\Elijah.Domain.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\bin\Debug\net8.0\Elijah.Domain.pdb
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.AssemblyInfoInputs.cache
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.AssemblyInfo.cs
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.csproj.CoreCompileInputs.cache
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\refint\Elijah.Domain.dll
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\Elijah.Domain.pdb
+C:\GIT\FacilicomSolutions\Tools\bluebotlite\Elijah\Elijah.Domain\obj\Debug\net8.0\ref\Elijah.Domain.dll

@@ -1,13 +1,10 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Elijah.Domain.Entities;
+using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Elijah.Logic.Concrete;
 using Moq;
 using MQTTnet;
-using MQTTnet;
-using MQTTnet.Protocol;
-using Xunit;
+
+namespace Elijah.Test.Services;
 
 public class SendServiceTests
 {
@@ -21,18 +18,23 @@ public class SendServiceTests
         var configs = new List<ReportConfig>
         {
             new("dev1", "genOnOff", "state", "60", "1", "0", "1"),
-            new("dev2", "lighting", "brightness", "120", "5", "1", "2")
+            new("dev2", "lighting", "brightness", "120", "5", "1", "2"),
         };
 
         var service = new SendService(mqttMock.Object);
 
-
         await service.SendReportConfigAsync(configs);
 
-
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-                msg.Topic == "zigbee2mqtt/bridge/request/device/configure_reporting"),
-            default), Times.Exactly(2));
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg =>
+                        msg.Topic == "zigbee2mqtt/bridge/request/device/configure_reporting"
+                    ),
+                    default
+                ),
+            Times.Exactly(2)
+        );
     }
 
     [Fact]
@@ -44,21 +46,41 @@ public class SendServiceTests
 
         var opts = new List<ChangedOption>
         {
-            new() { Address = "dev1", Property = "brightness", CurrentValue = "50" },
-            new() { Address = "dev2", Property = "temperature", CurrentValue = "20.5" }
+            new()
+            {
+                Address = "dev1",
+                Property = "brightness",
+                CurrentValue = "50",
+            },
+            new()
+            {
+                Address = "dev2",
+                Property = "temperature",
+                CurrentValue = "20.5",
+            },
         };
 
         var service = new SendService(mqttMock.Object);
 
-
         await service.SendDeviceOptionsAsync(opts);
 
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg => msg.Topic == "zigbee2mqtt/dev1/set"),
+                    default
+                ),
+            Times.Once
+        );
 
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/dev1/set"), default), Times.Once);
-
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/dev2/set"), default), Times.Once);
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg => msg.Topic == "zigbee2mqtt/dev2/set"),
+                    default
+                ),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -72,8 +94,16 @@ public class SendServiceTests
 
         await service.RemoveDeviceAsync("dev123");
 
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/bridge/request/device/remove"), default), Times.Once);
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg =>
+                        msg.Topic == "zigbee2mqtt/bridge/request/device/remove"
+                    ),
+                    default
+                ),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -87,8 +117,14 @@ public class SendServiceTests
 
         await service.SetBrightnessAsync("lamp123", 80);
 
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/lamp123/set"), default), Times.Once);
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg => msg.Topic == "zigbee2mqtt/lamp123/set"),
+                    default
+                ),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -101,8 +137,16 @@ public class SendServiceTests
         var service = new SendService(mqttMock.Object);
         await service.PermitJoinAsync(30);
 
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/bridge/request/permit_join"), default), Times.Once);
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg =>
+                        msg.Topic == "zigbee2mqtt/bridge/request/permit_join"
+                    ),
+                    default
+                ),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -115,7 +159,15 @@ public class SendServiceTests
         var service = new SendService(mqttMock.Object);
         await service.CloseJoinAsync();
 
-        mqttClientMock.Verify(m => m.PublishAsync(It.Is<MqttApplicationMessage>(msg =>
-            msg.Topic == "zigbee2mqtt/bridge/request/permit_join"), default), Times.Once);
+        mqttClientMock.Verify(
+            m =>
+                m.PublishAsync(
+                    It.Is<MqttApplicationMessage>(msg =>
+                        msg.Topic == "zigbee2mqtt/bridge/request/permit_join"
+                    ),
+                    default
+                ),
+            Times.Once
+        );
     }
 }

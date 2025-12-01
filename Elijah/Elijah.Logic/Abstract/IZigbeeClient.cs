@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace Elijah.Logic.Abstract
 {
     public interface IZigbeeClient
@@ -16,11 +13,15 @@ namespace Elijah.Logic.Abstract
         Task RemoveDevice(string name);
         void StartProcessingMessages();
 
-       
-        Task GetDeviceDetails(string address, string modelID);
-        Task GetOptionDetails(string address, string model, List<string> readableProps, List<string> description);
-        
+        Task GetDeviceDetails(string address, string modelId);
+        Task GetOptionDetails(
+            string address,
+            string model,
+            List<string> readableProps,
+            List<string> description
+        );
+
+        Task ESPConnect();
         Task sendESPConfig(int brightness);
-        Task subscribeToAll();
     }
 }
