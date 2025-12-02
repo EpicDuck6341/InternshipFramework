@@ -4,7 +4,7 @@ using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
-[Table("Option", Schema = "dbo")]
+[Table("Option")]
 public class Option : BaseType
 {
     [Key] 

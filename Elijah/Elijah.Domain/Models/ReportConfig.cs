@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace Elijah.Domain.Entities;
+namespace Elijah.Domain.Models;
 
 public class ReportConfig
 {
@@ -11,9 +9,16 @@ public class ReportConfig
     public string? minimum_report_interval { get; set; }
     public string? reportable_change { get; set; }
     public string? endpoint { get; set; }
-    
 
-    public ReportConfig(string? address, string? cluster, string? attribute, string? maximum_report_interval,string? minimum_report_interval,string? reportable_change,string? endpoint)
+    public ReportConfig(
+        string? address,
+        string? cluster,
+        string? attribute,
+        string? maximum_report_interval,
+        string? minimum_report_interval,
+        string? reportable_change,
+        string? endpoint
+    )
     {
         this.address = address;
         this.cluster = cluster;

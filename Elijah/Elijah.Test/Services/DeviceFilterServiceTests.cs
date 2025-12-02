@@ -36,14 +36,12 @@ public class DeviceFilterServiceTests
             {
                 DeviceId = 42,
                 FilterValue = "temperature",
-                IsActive = true,
                 Device = new Device { Id = 42, Address = "0x1234" }
             },
             new()
             {
                 DeviceId = 42,
                 FilterValue = "humidity",
-                IsActive = true,
                 Device = new Device { Id = 42, Address = "0x1234" }
             }
         }.AsQueryable();
@@ -70,7 +68,7 @@ public class DeviceFilterServiceTests
 
 
         await Assert.ThrowsAsync<Exception>(() =>
-            _sut.NewFilterEntryAsync("nonexistent", "temperature", true));
+            _sut.NewFilterEntryAsync("nonexistent", "temperature"));
     }
 
     [Fact]
@@ -87,13 +85,12 @@ public class DeviceFilterServiceTests
         _repoMock.Setup(r => r.SaveChangesAsync(true, default)).Returns(Task.FromResult(1));
 
 
-        await _sut.NewFilterEntryAsync("0x1234", "temperature", true);
+        await _sut.NewFilterEntryAsync("0x1234", "temperature");
 
 
         Assert.NotNull(captured);
         Assert.Equal(42, captured.DeviceId);
         Assert.Equal("temperature", captured.FilterValue);
-        Assert.True(captured.IsActive);
         _repoMock.Verify(r => r.SaveChangesAsync(true, default), Times.Once);
     }
 }

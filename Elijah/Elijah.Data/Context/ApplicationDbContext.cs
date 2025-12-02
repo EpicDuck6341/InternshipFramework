@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Elijah.Data
+namespace Elijah.Data.Context
 {
     public class ApplicationDbContext : DbContext
     {
@@ -72,7 +72,7 @@ namespace Elijah.Data
             // -----------------------
             modelBuilder.Entity<ConfiguredReporting>();
             modelBuilder.Entity<DeviceTemplate>();
-            
+
             // -----------------------
             // Unique indexes
             // -----------------------
@@ -87,12 +87,6 @@ namespace Elijah.Data
                 entity.HasIndex(x => x.Name).IsUnique();
                 entity.HasIndex(x => x.ModelId).IsUnique();
             });
-            
-            modelBuilder.Entity<DeviceFilter>().HasIndex(x => new { x.DeviceId })// x.FilterType
-                .IsUnique(); //bump unqiue per device
-            
-            modelBuilder.Entity<Option>().HasIndex(x => new { x.DeviceId, x.Property })
-                .IsUnique();
             
             // -----------------------
             // Soft delete filter

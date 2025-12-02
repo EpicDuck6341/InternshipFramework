@@ -153,3 +153,13 @@
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.Core.dll
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.EntityFrameworkCore.dll
 /home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/MockQueryable.Moq.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/bin/Debug/net8.0/CoverletSourceRootsMapping_Elijah.Test
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.csproj.AssemblyReference.cache
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.GeneratedMSBuildEditorConfig.editorconfig
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.AssemblyInfoInputs.cache
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.AssemblyInfo.cs
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.csproj.CoreCompileInputs.cache
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.sourcelink.json
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/refint/Elijah.Test.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/Debug/net8.0/Elijah.Test.pdb

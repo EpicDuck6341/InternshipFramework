@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {}
+    "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {}
   },
   "projects": {
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+    "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
+        "projectUniqueName": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
         "projectName": "Elijah.Data",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
+        "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj",
         "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/obj/",
+        "outputPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/vboxuser/.nuget/NuGet/NuGet.Config"
@@ -27,8 +27,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
               }
             }
           }
@@ -93,14 +93,14 @@
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+    "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+        "projectUniqueName": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
         "projectName": "Elijah.Domain",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+        "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
         "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/",
+        "outputPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/vboxuser/.nuget/NuGet/NuGet.Config"
@@ -152,14 +152,14 @@
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
+    "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+        "projectUniqueName": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
         "projectName": "Elijah.Logic",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+        "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
         "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/obj/",
+        "outputPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/vboxuser/.nuget/NuGet/NuGet.Config"
@@ -175,11 +175,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
               }
             }
           }
@@ -199,6 +199,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "FacilicomLogManager": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
             "GenericRepository": {
               "target": "Package",
               "version": "[3.3.0, )"
@@ -236,14 +240,14 @@
         }
       }
     },
-    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {
+    "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
+        "projectUniqueName": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
         "projectName": "Elijah.Test",
-        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
+        "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/Elijah.Test.csproj",
         "packagesPath": "/home/vboxuser/.nuget/packages/",
-        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Test/obj/",
+        "outputPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Test/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/vboxuser/.nuget/NuGet/NuGet.Config"
@@ -259,14 +263,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
               },
-              "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
-                "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj"
+              "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj": {
+                "projectPath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj"
               }
             }
           }

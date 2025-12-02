@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Elijah.Logic.Concrete;
 
 public class OpenThermService(
-    SerialPort _serialPort,
+    SerialPort serialPort,
     IZigbeeRepository repo) : IOpenThermService
 {
     // private readonly IRepository<OpenTherm> _openThermRepo = openThermRepo;
@@ -30,13 +30,13 @@ public class OpenThermService(
     public async Task ESPConnect()
     {
         // CAUTION: This replaces the injected SerialPort instance
-        _serialPort = new SerialPort("/dev/ttyUSB1", 115200)
+        serialPort = new SerialPort("/dev/ttyUSB1", 115200)
         {
             ReadTimeout = 2000,
             WriteTimeout = 2000
         };
 
-        _serialPort.Open();
+        serialPort.Open();
         Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
         await Task.Delay(4000);
 
@@ -47,7 +47,7 @@ public class OpenThermService(
             try
             {
                 Console.WriteLine(attempts);
-                response += _serialPort.ReadExisting();
+                response += serialPort.ReadExisting();
                 await Task.Delay(200);
                 attempts++;
             }
@@ -60,7 +60,7 @@ public class OpenThermService(
         if (response.Contains("ESP_READY"))
         {
             Console.WriteLine("ESP_READY received!");
-            _serialPort.WriteLine("test");
+            serialPort.WriteLine("test");
         }
         else
         {
@@ -74,7 +74,7 @@ public class OpenThermService(
     /// </summary>
     public async Task SendConfigToEspAsync()
     {
-        if (!_serialPort.IsOpen)
+        if (!serialPort.IsOpen)
             throw new InvalidOperationException("Serial port is not open. Call ESPConnect() first.");
 
         var configs = await repo.Query<OpenTherm>().ToListAsync();
@@ -91,8 +91,8 @@ public class OpenThermService(
 
         string json = JsonSerializer.Serialize(message, _jsonOptions) + "\n";
         var buffer = Encoding.UTF8.GetBytes(json);
-        await _serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
-        await _serialPort.BaseStream.FlushAsync();
+        await serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
+        await serialPort.BaseStream.FlushAsync();
         Console.WriteLine($"Sent config for {configs.Count} parameters");
     }
 
@@ -103,10 +103,10 @@ public class OpenThermService(
     public async IAsyncEnumerable<IOpenThermService.IncomingMessage> ListenForIncomingMessagesAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        if (!_serialPort.IsOpen)
+        if (!serialPort.IsOpen)
             throw new InvalidOperationException("Serial port is not open. Call ESPConnect() first.");
 
-        using var reader = new StreamReader(_serialPort.BaseStream, Encoding.UTF8, true, 1024, leaveOpen: true);
+        using var reader = new StreamReader(serialPort.BaseStream, Encoding.UTF8, true, 1024, leaveOpen: true);
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -154,15 +154,15 @@ public class OpenThermService(
     /// </summary>
     public async Task SendParameterAsync(string id, object value)
     {
-        if (!_serialPort.IsOpen)
+        if (!serialPort.IsOpen)
             throw new InvalidOperationException("Serial port is not open. Call ESPConnect() first.");
 
         var message = new IdValueMessage(id, value);
         string json = JsonSerializer.Serialize(message, _jsonOptions) + "\n";
 
         var buffer = Encoding.UTF8.GetBytes(json);
-        await _serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
-        await _serialPort.BaseStream.FlushAsync();
+        await serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
+        await serialPort.BaseStream.FlushAsync();
         Console.WriteLine($"Sent: ID={id}, VALUE={value}");
     }
     

@@ -1,4 +1,4 @@
-using Elijah.Domain.Entities;
+using Elijah.Domain.Models;
 
 namespace Elijah.Logic.Abstract;
 
@@ -11,7 +11,8 @@ public interface IConfiguredReportingsService
         string maxInterval,
         string minInterval,
         string reportableChange,
-        string endpoint);
+        string endpoint
+    );
     Task AdjustRepConfigAsync(
         string address,
         string cluster,
@@ -19,7 +20,8 @@ public interface IConfiguredReportingsService
         string maxInterval,
         string minInterval,
         string reportableChange,
-        string endpoint);
+        string endpoint
+    );
     Task<List<ReportConfig>> GetChangedReportConfigsAsync(List<string> subscribedAddresses);
     Task<List<ReportConfig>> QueryReportIntervalAsync(string address);
     Task<List<ReportConfig>> GetAllReportConfigsForAddressAsync(string deviceAddress);//Set to 0 for fast reporting

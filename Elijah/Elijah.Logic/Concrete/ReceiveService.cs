@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
+using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
@@ -15,7 +11,9 @@ using MQTTnet.Protocol;
 namespace Elijah.Logic.Concrete;
 
 public class ReceiveService(
-    IMqttConnectionService _mqtt, IServiceScopeFactory _scopeFactory) : IReceiveService
+    IServiceScopeFactory scopeFactory,
+    IMqttConnectionService mqtt
+    ) : IReceiveService
 {
     private bool _subscribed = false;
     //List for all addresses which timed out on the receive option method
@@ -24,30 +22,25 @@ public class ReceiveService(
 
     public void StartMessageLoop()
     {
-        _mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
+        mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
     }
 
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
         
-     
-        using var scope = _scopeFactory.CreateScope();
-        var _devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        var _filters = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
-        
+        using var scope = scopeFactory.CreateScope();
+        var devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var filters = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
         var topic = arg.ApplicationMessage.Topic;
         var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-        
-
-        if (topic.Contains("zigbee2mqtt/bridge")) return;
-
+        if (topic.Contains("zigbee2mqtt/bridge"))
+            return; 
         var deviceAddress = topic.Replace("zigbee2mqtt/", "");
-        var modelId = await _devices.QueryModelIDAsync(deviceAddress);
-        var keys = await _filters.QueryDataFilterAsync(deviceAddress);
-
+        var modelId = await devices.QueryModelIdAsync(deviceAddress);
+        var keys = await filters.QueryDataFilterAsync(deviceAddress);
         var node = JsonNode.Parse(payload)?.AsObject();
-        if (node == null) return;
-        
+        if (node == null) 
+            return;
         if (node.ContainsKey("temperature") && node.ContainsKey("co2") && node.ContainsKey("humidity"))
         {
             var tempNode = node["temperature"];
@@ -59,12 +52,9 @@ public class ReceiveService(
                 await HandleZeroSensorValuesAsync(deviceAddress);
             }
         }
-      
         var filtered = new JsonObject();
-
         if (keys != null && keys.Any())
         {
-           
             foreach (var k in keys)
                 if (node.ContainsKey(k))
                     filtered[k] = node[k]!.DeepClone();
@@ -76,13 +66,11 @@ public class ReceiveService(
                 Console.WriteLine(node.Count);
                 Console.WriteLine(kv.Key);
                 // filtered[kv.Key] = kv.Value!.DeepClone();
-                await _filters.NewFilterEntryAsync(deviceAddress, kv.Key);
-                Console.WriteLine("Wekt dit?");
+                await filters.NewFilterEntryAsync(deviceAddress, kv.Key);
             }
         }
-        
         Console.WriteLine(
-            $"[{await _devices.QueryDeviceNameAsync(deviceAddress)},{modelId}]{filtered.ToJsonString()}");
+            $"[{await devices.QueryDeviceNameAsync(deviceAddress)},{modelId}]{filtered.ToJsonString()}");
 
         
         if (_lateOptions.TryGetValue(deviceAddress, out var pending))
@@ -130,12 +118,12 @@ public class ReceiveService(
     /// </summary>
     private async Task HandleZeroSensorValuesAsync(string deviceAddress)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var _config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+        using var scope = scopeFactory.CreateScope();
+        var config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
         
         Console.WriteLine($"ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
         
-        var configs = await _config.QueryReportIntervalAsync(deviceAddress);
+        var configs = await config.QueryReportIntervalAsync(deviceAddress);
         if (!configs.Any())
         {
             Console.WriteLine($"No reporting configs found for device {deviceAddress}");
@@ -189,7 +177,7 @@ public class ReceiveService(
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
-        await _mqtt.Client.PublishAsync(message);
+        await mqtt.Client.PublishAsync(message);
         Console.WriteLine($"Sent config: {address} -> {parameterName}={value}");
     }
 
@@ -205,9 +193,9 @@ public class ReceiveService(
         List<string> readableProps,
         List<string> descriptions)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var _option = scope.ServiceProvider.GetRequiredService<IOptionService>();
-        var _configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+        using var scope = scopeFactory.CreateScope();
+        var option = scope.ServiceProvider.GetRequiredService<IOptionService>();
+        var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
         var node = JsonNode.Parse(payload);
         if (node == null) return;
@@ -216,12 +204,12 @@ public class ReceiveService(
         {
             var prop = readableProps[i];
             var value = node[prop]?.ToJsonString() ?? "-";
-            await _option.SetOptionsAsync(address, descriptions[i], value, prop);
+            await option.SetOptionsAsync(address, descriptions[i], value, prop);
             Console.WriteLine($"(LATE) Option: {prop} = {value}");
         }
 
-        var config = await _configuredReportings.ConfigByAddress(address);
-        await _mqtt.Client.PublishAsync(
+        var config = await configuredReportings.ConfigByAddress(address);
+        await mqtt.Client.PublishAsync(
             new MqttApplicationMessageBuilder()
                 .WithTopic($"zigbee2mqtt/{address}/get")
                 .WithPayload("{}")

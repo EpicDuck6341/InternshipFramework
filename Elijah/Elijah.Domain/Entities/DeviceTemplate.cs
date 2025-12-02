@@ -1,13 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-[Table("DeviceTemplate", Schema = "dbo")]
-public class DeviceTemplate: BaseType
+[Table("DeviceTemplate")]
+public class DeviceTemplate : BaseType
 {
     [Key]
     public int Id { get; set; }
@@ -17,8 +15,6 @@ public class DeviceTemplate: BaseType
     public string Name { get; set; }
     
     public int NumberOfActive { get; set; }
-    
 
-    // Navigation
     public ICollection<Device> Devices { get; set; }
 }

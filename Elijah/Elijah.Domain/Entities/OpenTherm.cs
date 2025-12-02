@@ -4,7 +4,7 @@ using Elijah.Domain.Entities.Abstract;
 
 namespace Elijah.Domain.Entities;
 
-[Table("OpenTherm", Schema = "dbo")]
+[Table("OpenTherm")]
 public class OpenTherm : BaseType //bump
 {
     [Key] 

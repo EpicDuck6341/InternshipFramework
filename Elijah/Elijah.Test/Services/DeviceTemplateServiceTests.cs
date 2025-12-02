@@ -111,7 +111,7 @@ public class DeviceTemplateServiceTests
         _repoMock.Setup(r => r.Query<DeviceTemplate>()).Returns(templates.BuildMockDbSet().Object);
 
 
-        var result = await _sut.ModelPresentAsync("model123");
+        var result = await _sut.ModelPresentAsync("model123","address123");
 
 
         Assert.True(result);

@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace Elijah.Domain.Entities;
+namespace Elijah.Domain.Models;
 
 public class ZigbeeDevice
 {
@@ -9,12 +7,14 @@ public class ZigbeeDevice
     public string? type { get; set; }
     public string? model_id { get; set; }
     public string? description { get; set; }
-    
-    
-    
 
-    public ZigbeeDevice(string? givenName, string? type, string? ieee_address, string? model_id,
-        string? description)
+    public ZigbeeDevice(
+        string? givenName,
+        string? type,
+        string? ieee_address,
+        string? model_id,
+        string? description
+    )
     {
         this.givenName = givenName ?? "";
         this.ieee_address = ieee_address ?? "";

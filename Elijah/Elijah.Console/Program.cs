@@ -24,7 +24,7 @@ IZigbeeClient zigbeeClient = serviceProvider.GetService<IZigbeeClient>();
 IDeviceTemplateService deviceTemplateService = serviceProvider.GetService<IDeviceTemplateService>();
 
 // await deviceTemplateService.ModelPresentAsync("SNZB-03P", "testaddress");
-await zigbeeClient.ConnectToMqtt();
+// await zigbeeClient.ConnectToMqtt();
 
 // Auto-create tables if they don't exist
 // var dbContext = serviceProvider.GetService<ApplicationDbContext>();
