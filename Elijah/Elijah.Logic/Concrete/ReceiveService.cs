@@ -15,8 +15,8 @@ public class ReceiveService(
     IMqttConnectionService mqtt
     ) : IReceiveService
 {
-    private bool _subscribed = false;
-    //List for all addresses which timed out on the receive option method
+    
+    //List for all addresses which timed out on the ReceiveOption method
     private readonly Dictionary<string, PendingOptionData> _lateOptions 
         = new Dictionary<string, PendingOptionData>();
 
@@ -35,8 +35,10 @@ public class ReceiveService(
         var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
         if (topic.Contains("zigbee2mqtt/bridge"))
             return; 
+        
         var deviceAddress = topic.Replace("zigbee2mqtt/", "");
-        var modelId = await devices.QueryModelIdAsync(deviceAddress);
+        var device = await devices.GetDeviceByAdressAsync(deviceAddress);
+        var modelId = device?.DeviceTemplate.ModelId;
         var keys = await filters.QueryDataFilterAsync(deviceAddress);
         var node = JsonNode.Parse(payload)?.AsObject();
         if (node == null) 
@@ -70,7 +72,7 @@ public class ReceiveService(
             }
         }
         Console.WriteLine(
-            $"[{await devices.QueryDeviceNameAsync(deviceAddress)},{modelId}]{filtered.ToJsonString()}");
+            $"[{device?.Name},{modelId}]{filtered.ToJsonString()}");
 
         
         if (_lateOptions.TryGetValue(deviceAddress, out var pending))
@@ -80,7 +82,6 @@ public class ReceiveService(
             await LateOptionAsync(
                 payload,
                 pending.Address,
-                pending.Model,
                 pending.ReadableProps,
                 pending.Descriptions
             );
@@ -123,7 +124,7 @@ public class ReceiveService(
         
         Console.WriteLine($"ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
         
-        var configs = await config.QueryReportIntervalAsync(deviceAddress);
+        var configs = await config.ConfigByAddress(deviceAddress);
         if (!configs.Any())
         {
             Console.WriteLine($"No reporting configs found for device {deviceAddress}");
@@ -183,19 +184,17 @@ public class ReceiveService(
 
     private bool IsAttributeMatch(ReportConfig config, string attributeName)
     {
-        return config.attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
+        return config.attribute != null && config.attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task LateOptionAsync(
         string payload,
         string address,
-        string model,
         List<string> readableProps,
         List<string> descriptions)
     {
         using var scope = scopeFactory.CreateScope();
         var option = scope.ServiceProvider.GetRequiredService<IOptionService>();
-        var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
         var node = JsonNode.Parse(payload);
         if (node == null) return;
@@ -207,8 +206,7 @@ public class ReceiveService(
             await option.SetOptionsAsync(address, descriptions[i], value, prop);
             Console.WriteLine($"(LATE) Option: {prop} = {value}");
         }
-
-        var config = await configuredReportings.ConfigByAddress(address);
+        
         await mqtt.Client.PublishAsync(
             new MqttApplicationMessageBuilder()
                 .WithTopic($"zigbee2mqtt/{address}/get")
@@ -219,14 +217,14 @@ public class ReceiveService(
 
     
     public void RegisterLateOption(string address, string model,
-        List<string> props, List<string> descs)
+        List<string> props, List<string> descriptions)
     {
         _lateOptions[address] = new PendingOptionData
         {
             Address = address,
             Model = model,
             ReadableProps = props,
-            Descriptions = descs
+            Descriptions = descriptions
         };
 
         Console.WriteLine($"Stored late options for {address}");

@@ -2,11 +2,9 @@ using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
-using GenericRepository.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
@@ -15,33 +13,24 @@ public class OpenThermService(
     SerialPort serialPort,
     IZigbeeRepository repo) : IOpenThermService
 {
-    // private readonly IRepository<OpenTherm> _openThermRepo = openThermRepo;
-    // private readonly IRepository<Device> _deviceRepo = deviceRepo;
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    /// <summary>
-    /// Establishes connection to ESP and waits for ready signal.
-    /// NOTE: This re-initializes the injected SerialPort instance. Consider injecting
-    /// serial port settings instead of the port itself for better DI practices.
-    /// </summary>
+    // ------------------------------------------------------------ //
+    // Establishes connection to ESP and waits for ready signal    //
+    // ------------------------------------------------------------ //
     public async Task ESPConnect()
     {
-        // CAUTION: This replaces the injected SerialPort instance
-        serialPort = new SerialPort("/dev/ttyUSB1", 115200)
-        {
-            ReadTimeout = 2000,
-            WriteTimeout = 2000
-        };
-
+        // CAUTION: Re-initializes injected SerialPort
         serialPort.Open();
         Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
         await Task.Delay(4000);
 
         string response = "";
         int attempts = 0;
+
         while (!response.Contains("ESP_READY") && attempts < 20)
         {
             try
@@ -57,21 +46,17 @@ public class OpenThermService(
             }
         }
 
+        Console.WriteLine(response.Contains("ESP_READY")
+            ? "ESP_READY received!"
+            : "Failed to receive ESP_READY");
+
         if (response.Contains("ESP_READY"))
-        {
-            Console.WriteLine("ESP_READY received!");
             serialPort.WriteLine("test");
-        }
-        else
-        {
-            Console.WriteLine("Failed to receive ESP_READY");
-        }
     }
 
-    /// <summary>
-    /// Queries all OpenTherm configs and sends them as JSON to ESP.
-    /// ESP expects: { "ID": "config", "values": { "1": {"interval":60,"threshold":1.5} } }
-    /// </summary>
+    // ------------------------------------------------------------ //
+    // Queries OpenTherm configs and sends them as JSON to ESP     //
+    // ------------------------------------------------------------ //
     public async Task SendConfigToEspAsync()
     {
         if (!serialPort.IsOpen)
@@ -96,10 +81,9 @@ public class OpenThermService(
         Console.WriteLine($"Sent config for {configs.Count} parameters");
     }
 
-    /// <summary>
-    /// Listens continuously for JSON messages from ESP.
-    /// Yields messages with ID and VALUE properties.
-    /// </summary>
+    // ----------------------------------------------- //
+    // Listens continuously for JSON messages from ESP //
+    // ----------------------------------------------- //
     public async IAsyncEnumerable<IOpenThermService.IncomingMessage> ListenForIncomingMessagesAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -111,47 +95,42 @@ public class OpenThermService(
         while (!cancellationToken.IsCancellationRequested)
         {
             string? line = null;
-            IOpenThermService.IncomingMessage? message = null;
+            IOpenThermService.IncomingMessage? message;
 
             try
             {
+                // ReSharper disable once MethodSupportsCancellation
                 line = await reader.ReadLineAsync().WaitAsync(cancellationToken);
-                if (line == null) break; 
+                if (line == null) break;
 
                 message = JsonSerializer.Deserialize<IOpenThermService.IncomingMessage>(line, _jsonOptions);
             }
             catch (OperationCanceledException)
             {
-                break; 
+                break;
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"JSON error: {ex.Message}");
-                Console.WriteLine($"Raw line: {line}");
-                continue; 
+                Console.WriteLine($"JSON error: {ex.Message}\nRaw line: {line}");
+                continue;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Serial error: {ex.Message}");
                 await Task.Delay(1000, cancellationToken);
-                continue; 
+                continue;
             }
 
-            
             if (message?.ID != null)
-            {
                 yield return message;
-            }
-            else if (line != null)
-            {
+            else
                 Console.WriteLine($"Malformed message: {line}");
-            }
         }
     }
 
-    /// <summary>
-    /// Sends a parameter update as ID/VALUE JSON pair.
-    /// </summary>
+    // ----------------------------------------------- //
+    // Sends a parameter update as ID/VALUE JSON pair  //
+    // ----------------------------------------------- //
     public async Task SendParameterAsync(string id, object value)
     {
         if (!serialPort.IsOpen)
@@ -165,10 +144,10 @@ public class OpenThermService(
         await serialPort.BaseStream.FlushAsync();
         Console.WriteLine($"Sent: ID={id}, VALUE={value}");
     }
-    
-    /// <summary>
-    /// Upserts (updates or creates) an OpenTherm configuration entry in the database.
-    /// </summary>
+
+    // -------------------------------------------------------- //
+    // Upserts an OpenTherm configuration entry in the database //
+    // -------------------------------------------------------- //
     public async Task UpdateOrCreateConfigAsync(int id, int intervalSec, float threshold)
     {
         var existingConfig = await repo.Query<OpenTherm>()
@@ -181,23 +160,16 @@ public class OpenThermService(
         }
         else
         {
-            // Create new
-            var newConfig = new OpenTherm
+            await repo.CreateAsync(new OpenTherm
             {
                 Id = id,
                 IntervalSec = intervalSec,
                 Threshold = threshold
-            };
-            await repo.CreateAsync(newConfig);
+            });
         }
 
-       
         await repo.SaveChangesAsync();
     }
 
-
-    // public record IncomingMessage(string ID, JsonElement VALUE);
-
-
-    private record IdValueMessage(string ID, object VALUE);
+    private record IdValueMessage(string Id, object Value);
 }

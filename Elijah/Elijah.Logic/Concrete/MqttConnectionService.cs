@@ -7,34 +7,33 @@ public class MqttConnectionService(IMqttClient client, MqttClientOptions options
     : IMqttConnectionService
 {
     public IMqttClient Client { get; } = client;
-
+    // --------------------------- //
+    // Connects to the MQTT broker //
+    // --------------------------- //
     public async Task ConnectAsync()
     {
         try
         {
             Console.WriteLine("Connecting to MQTT...");
-            await client.ConnectAsync(options, CancellationToken.None);
-        
-            if (client.IsConnected)
-            {
-                Console.WriteLine("MQTT connection successful");
-            }
-            else
-            {
-                Console.WriteLine("MQTT connection failed: Client not connected after attempt");
-            }
+            await Client.ConnectAsync(options, CancellationToken.None);
+            Console.WriteLine(Client.IsConnected
+                ? "MQTT connection successful"
+                : "MQTT connection failed: Client not connected after attempt");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($" MQTT connection failed: {ex.Message}");
+            Console.WriteLine($"MQTT connection failed: {ex.Message}");
         }
     }
 
+    // ------------------------------------------------------------ //
+    // Disconnects from the MQTT broker                              //
+    // ------------------------------------------------------------ //
     public async Task DisconnectAsync()
     {
-        if (client.IsConnected)
+        if (Client.IsConnected)
         {
-            await client.DisconnectAsync();
+            await Client.DisconnectAsync();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using Elijah.Data.Context;
 using Elijah.Data.Repository;
 using Elijah.Domain.Config;
@@ -24,6 +25,12 @@ public static class ServiceMapper
         );
 
             // Services
+            services.AddSingleton(new SerialPort("/dev/ttyUSB1", 115200)
+            {
+                ReadTimeout = 2000,
+                WriteTimeout = 2000
+            });
+            
             services.AddSingleton<IMqttConnectionService, MqttConnectionService>();
 
             services.AddTransient<IDeviceService, DeviceService>();
@@ -47,15 +54,15 @@ public static class ServiceMapper
         var mqttConfig = configuration.GetSection("MqttConfig").Get<MqttConfig>();
 
         // Register MqttClientOptions
-        services.AddSingleton(sp =>
+        services.AddSingleton(_ =>
             new MqttClientOptionsBuilder()
-                .WithTcpServer(mqttConfig.HostName, mqttConfig.Port)
-                .WithClientId(mqttConfig.ClientId)
+                .WithTcpServer(mqttConfig?.HostName, mqttConfig?.Port)
+                .WithClientId(mqttConfig?.ClientId)
                 .Build()
         );
 
         // Register IMqttClient
-        services.AddSingleton<IMqttClient>(sp => new MqttClientFactory().CreateMqttClient());
+        services.AddSingleton<IMqttClient>(_ => new MqttClientFactory().CreateMqttClient());
         #endregion
 
         //Repository

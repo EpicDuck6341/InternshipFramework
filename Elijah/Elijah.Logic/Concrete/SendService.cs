@@ -8,8 +8,11 @@ using Elijah.Logic.Abstract;
 
 namespace Elijah.Logic.Concrete;
 
-public class SendService(IMqttConnectionService mqtt) : ISendService //bump <-IMqttConnect
+public class SendService(IMqttConnectionService mqtt) : ISendService
 {
+    // ------------------------------------------------------------ //
+    // Sends all ReportConfig entries to Zigbee2MQTT                //
+    // ------------------------------------------------------------ //
     public async Task SendReportConfigAsync(List<ReportConfig> configs)
     {
         foreach (var cfg in configs)
@@ -36,40 +39,50 @@ public class SendService(IMqttConnectionService mqtt) : ISendService //bump <-IM
         }
     }
 
+    // ------------------------------------------------------------ //
+    // Sends changed device options converted to proper types       //
+    // ------------------------------------------------------------ //
     public async Task SendDeviceOptionsAsync(List<ChangedOption> opts)
     {
         foreach (var opt in opts)
         {
-            object value = opt.CurrentValue switch
+            object? value = opt.CurrentValue switch
             {
-                string s when int.TryParse(s, out var i) => i,
-                string s when double.TryParse(s, out var d) => d,
+                { } s when int.TryParse(s, out var i) => i,
+                { } s when double.TryParse(s, out var d) => d,
                 _ => opt.CurrentValue,
             };
 
-            var payload = new JsonObject { [opt.Property] = JsonValue.Create(value) };
+            if (opt.Property != null)
+            {
+                var payload = new JsonObject
+                {
+                    [opt.Property] = JsonValue.Create(value)
+                };
 
-            var msg = new MqttApplicationMessageBuilder()
-                .WithTopic($"zigbee2mqtt/{opt.Address}/set")
-                .WithPayload(payload.ToJsonString())
-                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build();
+                var msg = new MqttApplicationMessageBuilder()
+                    .WithTopic($"zigbee2mqtt/{opt.Address}/set")
+                    .WithPayload(payload.ToJsonString())
+                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+                    .Build();
 
-            await mqtt.Client.PublishAsync(msg);
+                await mqtt.Client.PublishAsync(msg);
+            }
         }
     }
 
+    // ----------------------------------------- //
+    // Removes a device from the Zigbee network  //
+    // ----------------------------------------- //
     public async Task RemoveDeviceAsync(string address)
     {
-        var payload = JsonSerializer.Serialize(
-            new
-            {
-                id = address,
-                force = true,
-                block = false,
-                transaction = Guid.NewGuid().ToString(),
-            }
-        );
+        var payload = JsonSerializer.Serialize(new
+        {
+            id = address,
+            force = true,
+            block = false,
+            transaction = Guid.NewGuid().ToString(),
+        });
 
         var msg = new MqttApplicationMessageBuilder()
             .WithTopic("zigbee2mqtt/bridge/request/device/remove")
@@ -79,25 +92,17 @@ public class SendService(IMqttConnectionService mqtt) : ISendService //bump <-IM
 
         await mqtt.Client.PublishAsync(msg);
     }
-
-    //send the config to the ESP while it stays awake for a bit
-    public async Task SetBrightnessAsync(string address, int brightness)
-    {
-        var payload = JsonSerializer.Serialize(new { brightness });
-
-        var msg = new MqttApplicationMessageBuilder()
-            .WithTopic($"zigbee2mqtt/{address}/set")
-            .WithPayload(payload)
-            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-            .Build();
-
-        await mqtt.Client.PublishAsync(msg);
-    }
-
+    
+    // ------------------------------------------- //
+    // Opens the Zigbee network for device joining //
+    // ------------------------------------------- //
     public async Task PermitJoinAsync(int seconds)
     {
-        var tx = Guid.NewGuid().ToString();
-        var payload = JsonSerializer.Serialize(new { time = seconds, transaction = tx });
+        var payload = JsonSerializer.Serialize(new
+        {
+            time = seconds,
+            transaction = Guid.NewGuid().ToString(),
+        });
 
         var msg = new MqttApplicationMessageBuilder()
             .WithTopic("zigbee2mqtt/bridge/request/permit_join")
@@ -108,11 +113,17 @@ public class SendService(IMqttConnectionService mqtt) : ISendService //bump <-IM
         await mqtt.Client.PublishAsync(msg);
     }
 
+    // -------------------------------------- //
+    // Closes the Zigbee network for joining  //
+    // -------------------------------------- //
     public async Task CloseJoinAsync()
     {
-        var payload = JsonSerializer.Serialize(
-            new { time = 0, transaction = Guid.NewGuid().ToString() }
-        );
+        var payload = JsonSerializer.Serialize(new
+        {
+            time = 0,
+            transaction = Guid.NewGuid().ToString(),
+        });
+
         var msg = new MqttApplicationMessageBuilder()
             .WithTopic("zigbee2mqtt/bridge/request/permit_join")
             .WithPayload(payload)

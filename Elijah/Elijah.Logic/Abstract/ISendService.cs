@@ -10,5 +10,4 @@ public interface ISendService
     Task PermitJoinAsync(int seconds);
     Task CloseJoinAsync();
     Task RemoveDeviceAsync(string address);
-    Task SetBrightnessAsync(string address, int brightness);
 }

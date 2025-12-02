@@ -1,20 +1,21 @@
-using Elijah.Data;
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
-using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
 public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateService
 {
+    // ------------------------------------------------------------ //
+    // Copies a device template to a new device with the given address //
+    // ------------------------------------------------------------ //
     public async Task CopyModelTemplateAsync(string modelId, string address)
     {
         var template = await repo.Query<DeviceTemplate>()
             .FirstOrDefaultAsync(t => t.ModelId == modelId);
 
         if (template == null)
-            throw new Exception($"DeviceTemplate with ModelId '{modelId}' not found.");
+            throw new KeyNotFoundException($"DeviceTemplate with ModelId '{modelId}' not found.");
 
         var newName = $"{template.Name}{template.NumberOfActive + 1}";
         var newDevice = new Device
@@ -52,18 +53,9 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         await repo.SaveChangesAsync();
     }
 
-    public async Task<bool> EnsureTemplateExistsAsync(string modelId)
-    {
-        var templateExists = await repo.Query<DeviceTemplate>().AnyAsync(d => d.ModelId == modelId);
-        if (!templateExists)
-        {
-            Console.WriteLine($"Model {modelId} not present. Creating placeholder template.");
-            await NewDvTemplateEntryAsync(modelId, $"Model {modelId}");
-        }
-
-        return templateExists;
-    }
-
+    // ------------------------------------------------------------ //
+    // Creates a new device template entry                           //
+    // ------------------------------------------------------------ //
     public async Task<DeviceTemplate> NewDvTemplateEntryAsync(string modelId, string name)
     {
         var template = new DeviceTemplate
@@ -73,19 +65,25 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
             NumberOfActive = 1,
         };
 
-        await repo.CreateAsync(template, true);
+        await repo.CreateAsync(template);
 
         Console.WriteLine($"Template created: {name} ({modelId}) with ID {template.Id}");
         return template;
     }
 
-
+    // ------------------------------------------------------------ //
+    // Checks if a model template exists; copies template if present //
+    // ------------------------------------------------------------ //
     public async Task<bool> ModelPresentAsync(string modelId, string address)
     {
-        bool templateExists = await repo.Query<DeviceTemplate>()
+        var templateExists = await repo.Query<DeviceTemplate>()
             .AnyAsync(d => d.ModelId == modelId);
+
         Console.WriteLine(templateExists ? "Model already present" : "Model not yet present");
-        if (templateExists) await CopyModelTemplateAsync(modelId, address);
+
+        if (templateExists)
+            await CopyModelTemplateAsync(modelId, address);
+
         return templateExists;
     }
 }

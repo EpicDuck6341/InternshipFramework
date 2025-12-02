@@ -6,32 +6,33 @@ namespace Elijah.Logic.Concrete;
 
 public class SubscriptionService(
     IMqttConnectionService mqtt,
-    IServiceScopeFactory scopeFactory,
-    IDeviceService device
-    ) : ISubscriptionService
+    IServiceScopeFactory scopeFactory
+) : ISubscriptionService
 {
     public async Task SubscribeExistingAsync()
     {
-        
         using var scope = scopeFactory.CreateScope();
-        var devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        
-        var unsubscribedAddresses = await devices.GetUnsubscribedAddressesAsync();
+        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+
+        var unsubscribedAddresses = await deviceService.GetUnsubscribedAddressesAsync();
 
         foreach (var addr in unsubscribedAddresses)
         {
             await mqtt.Client.SubscribeAsync($"zigbee2mqtt/{addr}");
-            await devices.SetSubscribedStatusAsync(true, addr);
+            var device = await deviceService.GetDeviceByAdressAsync(addr);
+            if (device != null) device.Subscribed = true;
         }
     }
 
     public async Task SubscribeAsync(string address)
     {
         using var scope = scopeFactory.CreateScope();
-        var devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         await mqtt.Client.SubscribeAsync($"zigbee2mqtt/{address}");
-        await devices.SetSubscribedStatusAsync(true, address);
+        var device = await deviceService.GetDeviceByAdressAsync(address);
+        if (device != null) device.Subscribed = true;
     }
+
     public async Task SubscribeAllActiveDevicesAsync()
     {
         using var scope = scopeFactory.CreateScope();
@@ -39,18 +40,10 @@ public class SubscriptionService(
 
         // Get all active addresses
         var addresses = await devices.GetActiveAddressesAsync();
-        if (addresses == null)
-        {
-            Console.WriteLine("No devices");
-        }
-
         foreach (var addr in addresses)
         {
             await SubscribeAsync(addr); // your existing SubscribeAsync function
             Console.WriteLine($"Subscribed to {addr}");
         }
     }
-
-    
-    
 }

@@ -1,13 +1,10 @@
-﻿using Elijah.Data.Context;
-using Elijah.Logic.Abstract;
-using Elijah.Logic.Concrete;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Elijah.Logic.Abstract;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Elijah.Logic;
 
-public class MainService(IZigbeeClient client, IDeviceTemplateService deviceTemplateService) : IHostedService
+public class MainService(IZigbeeClient client) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -15,9 +12,9 @@ public class MainService(IZigbeeClient client, IDeviceTemplateService deviceTemp
         
         // await client.AllowJoinAndListen(15);
         // await Task.Delay(1000);
-        await Task.Delay(1000);
-        client.subscribeToAll();
-        await Task.Delay(1000);
+        await Task.Delay(1000, cancellationToken);
+        await client.subscribeToAll();
+        await Task.Delay(1000, cancellationToken);
         client.StartProcessingMessages();
 
         // Task.Delay(1000);
