@@ -2,12 +2,16 @@ using System.Text.Json.Nodes;
 using MQTTnet;
 using MQTTnet.Protocol;
 using System.Text.Json;
-using Elijah.Domain.Entities;
 using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 
 namespace Elijah.Logic.Concrete;
 
+
+// --------------------------------------------------- //
+// MQTT message transmission service                   //
+// Handles all outbound communications to Zigbee2MQTT  //
+// --------------------------------------------------- //
 public class SendService(IMqttConnectionService mqtt) : ISendService
 {
     // ------------------------------------------------------------ //
@@ -19,14 +23,14 @@ public class SendService(IMqttConnectionService mqtt) : ISendService
         {
             var payload = new
             {
-                id = cfg.address,
-                device = cfg.address,
-                endpoint = cfg.endpoint,
-                cluster = cfg.cluster,
-                attribute = cfg.attribute,
-                minimum_report_interval = cfg.minimum_report_interval,
-                maximum_report_interval = cfg.maximum_report_interval,
-                reportable_change = cfg.reportable_change,
+                id = cfg.Address,
+                device = cfg.Address,
+                endpoint = cfg.Endpoint,
+                cluster = cfg.Cluster,
+                attribute = cfg.Attribute,
+                minimum_report_interval = cfg.MinimumReportInterval,
+                maximum_report_interval = cfg.MaximumReportInterval,
+                reportable_change = cfg.ReportableChange,
             };
 
             var msg = new MqttApplicationMessageBuilder()

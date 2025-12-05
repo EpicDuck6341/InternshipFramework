@@ -3,10 +3,18 @@ using MQTTnet;
 
 namespace Elijah.Logic.Concrete;
 
+// ----------------------------------------------------------- //
+// MQTT Broker connection management service                   //
+// Handles connect/disconnect operations with error handling   //
+// ----------------------------------------------------------- //
 public class MqttConnectionService(IMqttClient client, MqttClientOptions options)
     : IMqttConnectionService
 {
+    // --------------------------------------------------------- //
+    // Exposes the MQTT client instance for external operations  //
+    // --------------------------------------------------------- //
     public IMqttClient Client { get; } = client;
+    
     // --------------------------- //
     // Connects to the MQTT broker //
     // --------------------------- //
@@ -26,9 +34,9 @@ public class MqttConnectionService(IMqttClient client, MqttClientOptions options
         }
     }
 
-    // ------------------------------------------------------------ //
-    // Disconnects from the MQTT broker                              //
-    // ------------------------------------------------------------ //
+    // -------------------------------- //
+    // Disconnects from the MQTT broker //
+    // -------------------------------- //
     public async Task DisconnectAsync()
     {
         if (Client.IsConnected)

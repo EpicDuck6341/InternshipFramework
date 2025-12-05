@@ -13,7 +13,7 @@ public class MainService(IZigbeeClient client) : IHostedService
         // await client.AllowJoinAndListen(15);
         // await Task.Delay(1000);
         await Task.Delay(1000, cancellationToken);
-        await client.subscribeToAll();
+        await client.SubscribeToAll();
         await Task.Delay(1000, cancellationToken);
         client.StartProcessingMessages();
 

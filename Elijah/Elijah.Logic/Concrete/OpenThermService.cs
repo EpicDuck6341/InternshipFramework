@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+// ---------------------------------------------------- //
+// OpenTherm gateway communication service              //
+// Manages serial connection with ESP and data exchange //
+// ---------------------------------------------------- //
 public class OpenThermService(
     SerialPort serialPort,
     IZigbeeRepository repo) : IOpenThermService
@@ -18,12 +22,11 @@ public class OpenThermService(
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    // ------------------------------------------------------------ //
-    // Establishes connection to ESP and waits for ready signal    //
-    // ------------------------------------------------------------ //
-    public async Task ESPConnect()
+    // --------------------------------------------------------- //
+    // Establishes connection to ESP and waits for ready signal  //
+    // --------------------------------------------------------- //
+    public async Task EspConnect()
     {
-        // CAUTION: Re-initializes injected SerialPort
         serialPort.Open();
         Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
         await Task.Delay(4000);
@@ -42,7 +45,7 @@ public class OpenThermService(
             }
             catch (TimeoutException)
             {
-                // Expected during wait
+                
             }
         }
 
@@ -54,9 +57,9 @@ public class OpenThermService(
             serialPort.WriteLine("test");
     }
 
-    // ------------------------------------------------------------ //
-    // Queries OpenTherm configs and sends them as JSON to ESP     //
-    // ------------------------------------------------------------ //
+    // -------------------------------------------------------- //
+    // Queries OpenTherm configs and sends them as JSON to ESP  //
+    // -------------------------------------------------------- //
     public async Task SendConfigToEspAsync()
     {
         if (!serialPort.IsOpen)
@@ -121,7 +124,7 @@ public class OpenThermService(
                 continue;
             }
 
-            if (message?.ID != null)
+            if (message?.Id != null)
                 yield return message;
             else
                 Console.WriteLine($"Malformed message: {line}");

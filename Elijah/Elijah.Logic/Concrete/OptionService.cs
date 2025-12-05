@@ -1,10 +1,16 @@
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
+using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+
+// ------------------------------------------------ //
+// Device option management service                 //
+// Tracks and updates device configuration options  //
+// ------------------------------------------------ //
 public class OptionService(IZigbeeRepository repo, IDeviceService deviceService) : IOptionService
 {
     // ---------------------------------------- //
@@ -17,7 +23,7 @@ public class OptionService(IZigbeeRepository repo, IDeviceService deviceService)
         string property
     )
     {
-        var device = await deviceService.GetDeviceByAdressAsync(address);
+        var device = await deviceService.GetDeviceByAddressAsync(address);
 
         await repo.CreateAsync(
             new Option

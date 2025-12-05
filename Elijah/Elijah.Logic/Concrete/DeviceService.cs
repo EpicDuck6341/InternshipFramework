@@ -5,6 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+
+// ---------------------------------------------------------------- //
+// Core service for device management operations                    //
+// Handles device lifecycle, subscriptions, and address resolution  //
+// ---------------------------------------------------------------- //
 public class DeviceService(
     IZigbeeRepository repo,
     IDeviceTemplateService deviceTemplate
@@ -13,7 +18,7 @@ public class DeviceService(
     // ---------------------------------------------------------------------------------------- //
     // Returns a Device object based on address, can be used for all properties of said device  //
     // ---------------------------------------------------------------------------------------- //
-    public async Task<Device?> GetDeviceByAdressAsync(string address, bool allowNull = false)
+    public async Task<Device?> GetDeviceByAddressAsync(string address, bool allowNull = false)
     {
         var device = await repo.Query<Device>()
             .FirstOrDefaultAsync(d => d.Address == address);

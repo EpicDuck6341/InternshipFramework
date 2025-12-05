@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Elijah.Domain.Entities;
 using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,21 +9,32 @@ using MQTTnet.Protocol;
 
 namespace Elijah.Logic.Concrete;
 
+// --------------------------------------------------------- //
+// MQTT Message reception and processing service             //
+// Handles incoming device data and option synchronization   //
+// --------------------------------------------------------- //
 public class ReceiveService(
     IServiceScopeFactory scopeFactory,
     IMqttConnectionService mqtt
     ) : IReceiveService
 {
     
-    //List for all addresses which timed out on the ReceiveOption method
+     // ------------------------------------------------------------ //
+    //    // Tracks devices that timed out during option retrieval   //
+    //    // ------------------------------------------------------- //
     private readonly Dictionary<string, PendingOptionData> _lateOptions 
         = new Dictionary<string, PendingOptionData>();
 
+    // ---------------------------------------- //
+    // Starts the main message processing loop  //
+    // ---------------------------------------- //
     public void StartMessageLoop()
     {
         mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
     }
-
+    // ------------------------------------------ //
+    // Main message handler for all MQTT messages //
+    // ------------------------------------------ //
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
         
@@ -37,7 +47,7 @@ public class ReceiveService(
             return; 
         
         var deviceAddress = topic.Replace("zigbee2mqtt/", "");
-        var device = await devices.GetDeviceByAdressAsync(deviceAddress);
+        var device = await devices.GetDeviceByAddressAsync(deviceAddress);
         var modelId = device?.DeviceTemplate.ModelId;
         var keys = await filters.QueryDataFilterAsync(deviceAddress);
         var node = JsonNode.Parse(payload)?.AsObject();
@@ -67,7 +77,6 @@ public class ReceiveService(
             {
                 Console.WriteLine(node.Count);
                 Console.WriteLine(kv.Key);
-                // filtered[kv.Key] = kv.Value!.DeepClone();
                 await filters.NewFilterEntryAsync(deviceAddress, kv.Key);
             }
         }
@@ -85,8 +94,6 @@ public class ReceiveService(
                 pending.ReadableProps,
                 pending.Descriptions
             );
-
-            // Remove once handled
             _lateOptions.Remove(deviceAddress);
         }
 
@@ -94,6 +101,9 @@ public class ReceiveService(
         
     }
 
+    // ---------------------------------------------- //
+    // Checks if a JSON node represents a zero value  //
+    // ---------------------------------------------- //
     private bool IsZeroValue(JsonNode? node)
     {
         if (node == null) return false;
@@ -114,9 +124,10 @@ public class ReceiveService(
         return false;
     }
 
-    /// <summary>
-    /// Handles zero sensor values by sending reporting config values sequentially
-    /// </summary>
+
+    // --------------------------------------------------------------------------- //
+    // Handles zero sensor values by sending reporting config values sequentially  //
+    // --------------------------------------------------------------------------- //
     private async Task HandleZeroSensorValuesAsync(string deviceAddress)
     {
         using var scope = scopeFactory.CreateScope();
@@ -133,12 +144,12 @@ public class ReceiveService(
 
      
         var baseConfig = configs.First();
-        int minInterval = int.Parse(baseConfig.minimum_report_interval ?? "0");
-        int maxInterval = int.Parse(baseConfig.maximum_report_interval ?? "0");
+        int minInterval = int.Parse(baseConfig.MinimumReportInterval ?? "0");
+        int maxInterval = int.Parse(baseConfig.MaximumReportInterval ?? "0");
         
-        int tempChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "temperature"))?.reportable_change ?? "0");
-        int humidityChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "humidity"))?.reportable_change ?? "0");
-        int co2Change = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "co2"))?.reportable_change ?? "0");
+        int tempChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "temperature"))?.ReportableChange ?? "0");
+        int humidityChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "humidity"))?.ReportableChange ?? "0");
+        int co2Change = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "co2"))?.ReportableChange ?? "0");
 
         
         await SendConfigValueAsync(deviceAddress, "minimumReportInterval", minInterval);
@@ -157,10 +168,10 @@ public class ReceiveService(
         
         Console.WriteLine($"Completed reconfiguration for {deviceAddress}");
     }
-
-    /// <summary>
-    /// Sends a single configuration value to ESP via MQTT using proper JSON structure
-    /// </summary>
+    
+    // ------------------------------------------------------------------------------- //
+    // Sends a single configuration value to ESP via MQTT using proper JSON structure  //
+    // ------------------------------------------------------------------------------- //
     private async Task SendConfigValueAsync(string address, string parameterName, int value)
     {
         var payload = new
@@ -182,11 +193,18 @@ public class ReceiveService(
         Console.WriteLine($"Sent config: {address} -> {parameterName}={value}");
     }
 
+    // --------------------------------------------------- //
+    // Checks if a config matches the specified attribute  //
+    // --------------------------------------------------- //
     private bool IsAttributeMatch(ReportConfig config, string attributeName)
     {
-        return config.attribute != null && config.attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
+        return config.Attribute != null && config.Attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
     }
-
+    
+    
+    // ------------------------------------------------- //
+    // Processes option data that arrived after timeout  //
+    // ------------------------------------------------- //
     private async Task LateOptionAsync(
         string payload,
         string address,
@@ -215,7 +233,9 @@ public class ReceiveService(
         );
     }
 
-    
+    // ---------------------------------------------- //
+    // Registers a device for late option processing  //
+    // ---------------------------------------------- //
     public void RegisterLateOption(string address, string model,
         List<string> props, List<string> descriptions)
     {

@@ -8,6 +8,10 @@ using MQTTnet.Protocol;
 
 namespace Elijah.Logic.Concrete;
 
+// ----------------------------------------------- //
+// Main Zigbee client orchestrator                 //
+// Coordinates all services for device management  //
+// ----------------------------------------------- //
 public class ZigbeeClient(
     IMqttConnectionService conn,
     ISubscriptionService sub,
@@ -16,23 +20,31 @@ public class ZigbeeClient(
     IServiceScopeFactory scopeFactory
 ) : IZigbeeClient
 {
-    
+    // ----------------------------------- //
+    // Establishes MQTT broker connection  //
+    // ----------------------------------- //
     public async Task ConnectToMqtt()
     {
         await conn.ConnectAsync();
     }
     
+    // ------------------------------------------------------ //
+    // Sends changed reporting configurations to all devices  //
+    // ------------------------------------------------------ //
     public async Task SendReportConfig()
     {
         using var scope = scopeFactory.CreateScope();
         var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var configuredReportingsService = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
-        var changed =
-            await configuredReportingsService.GetChangedReportConfigsAsync(await deviceService.GetSubscribedAddressesAsync());
+        var changed = await configuredReportingsService.GetChangedReportConfigsAsync(
+            await deviceService.GetSubscribedAddressesAsync());
         await send.SendReportConfigAsync(changed);
     }
 
+    // ------------------------------------------------------- //
+    // Sends changed device options to all subscribed devices  //
+    // ------------------------------------------------------- //
     public async Task SendDeviceOptions()
     {
         using var scope = scopeFactory.CreateScope();
@@ -44,6 +56,9 @@ public class ZigbeeClient(
         await send.SendDeviceOptionsAsync(changed);
     }
 
+    // ------------------------------------------------------- //
+    // Enables device joining and processes interview results  //
+    // ------------------------------------------------------- //
     public async Task AllowJoinAndListen(int seconds)
     {
         using var scope = scopeFactory.CreateScope();
@@ -54,9 +69,8 @@ public class ZigbeeClient(
         await send.PermitJoinAsync(seconds);
 
         var joinedDevice = new Queue<(string address, string model)>();
-        var targetData =
-            new Queue<(string address, string model, List<string> props, List<string> descs)>();
-
+        var targetData = new Queue<(string address, string model, List<string> props, List<string> descs)>();
+        
         async Task OnInterviewAsync(MqttApplicationMessageReceivedEventArgs e)
         {
             if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/event")
@@ -66,10 +80,8 @@ public class ZigbeeClient(
             using var json = JsonDocument.Parse(payloadStr);
             var root = json.RootElement;
 
-            if (
-                root.GetProperty("type").GetString() != "device_interview"
-                || root.GetProperty("data").GetProperty("status").GetString() != "successful"
-            )
+            if (root.GetProperty("type").GetString() != "device_interview" ||
+                root.GetProperty("data").GetProperty("status").GetString() != "successful")
                 return;
 
             var data = root.GetProperty("data");
@@ -87,13 +99,13 @@ public class ZigbeeClient(
                 Console.WriteLine("Set to active");
             }
 
-
             var exposes = data.GetProperty("definition").GetProperty("exposes");
             var options = data.GetProperty("definition").GetProperty("options");
 
             var properties = new List<string>();
             var descriptions = new List<string>();
 
+            
             foreach (var ex in exposes.EnumerateArray())
             {
                 var access = ex.GetProperty("access").GetInt16();
@@ -101,7 +113,6 @@ public class ZigbeeClient(
                 {
                     properties.Add(ex.GetProperty("property").GetString() ?? "");
                     descriptions.Add(ex.GetProperty("description").GetString() ?? "");
-
                 }
             }
 
@@ -121,11 +132,10 @@ public class ZigbeeClient(
         }
 
         conn.Client.ApplicationMessageReceivedAsync += OnInterviewAsync;
-
         await Task.Delay(seconds * 1000);
-
         await send.CloseJoinAsync();
 
+        // Process joined devices
         while (joinedDevice.Count > 0)
         {
             var (addr, mdl) = joinedDevice.Dequeue();
@@ -134,6 +144,8 @@ public class ZigbeeClient(
         }
 
         await Task.Delay(500);
+
+        // Process device options
         while (targetData.Count > 0)
         {
             var (addr, mdl, props, descriptions) = targetData.Dequeue();
@@ -143,6 +155,9 @@ public class ZigbeeClient(
         conn.Client.ApplicationMessageReceivedAsync -= OnInterviewAsync;
     }
 
+    // ---------------------------------------------------- //
+    // Marks a device as removed and sends removal command  //
+    // ---------------------------------------------------- //
     public async Task RemoveDevice(string name)
     {
         using var scope = scopeFactory.CreateScope();
@@ -151,7 +166,7 @@ public class ZigbeeClient(
         var address = await deviceScope.QueryDeviceAddressAsync(name);
         if (address != null)
         {
-            var device  = await deviceScope.GetDeviceByAdressAsync(address);
+            var device = await deviceScope.GetDeviceByAddressAsync(address);
             if (device != null)
             {
                 device.SysRemoved = true;
@@ -162,23 +177,28 @@ public class ZigbeeClient(
         if (address != null) await send.RemoveDeviceAsync(address);
     }
 
+    // --------------------------------------------- //
+    // Starts the background message processing loop //
+    // --------------------------------------------- //
     public void StartProcessingMessages() => receive.StartMessageLoop();
 
-
+    // ---------------------------------------------------------- //
+    // Retrieves detailed reporting config for a specific device  //
+    // ---------------------------------------------------------- //
     public async Task GetDeviceDetails(string address, string modelId)
     {
         using var scope = scopeFactory.CreateScope();
         var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
         var tcs = new TaskCompletionSource<bool>();
 
+        // Handler for device details response
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)
         {
             if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/devices")
                 return;
 
-            using var doc = JsonDocument.Parse(
-                Encoding.UTF8.GetString(e.ApplicationMessage.Payload)
-            );
+            using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+            
             foreach (var device in doc.RootElement.EnumerateArray())
             {
                 if (device.GetProperty("ieee_address").GetString() != address)
@@ -189,14 +209,13 @@ public class ZigbeeClient(
 
                 foreach (var ep in endpoints.EnumerateObject())
                 {
-                    const int maxRetries = 5;
                     int retries = 0;
+                    const int maxRetries = 5;
+                    
                     while (retries < maxRetries)
                     {
-                        if (
-                            ep.Value.TryGetProperty("configured_reportings", out var reportings)
-                            && reportings.GetArrayLength() > 0
-                        )
+                        if (ep.Value.TryGetProperty("configured_reportings", out var reportings) &&
+                            reportings.GetArrayLength() > 0)
                         {
                             foreach (var rep in reportings.EnumerateArray())
                             {
@@ -204,12 +223,8 @@ public class ZigbeeClient(
                                     address,
                                     rep.GetProperty("cluster").GetString(),
                                     rep.GetProperty("attribute").GetString(),
-                                    rep.GetProperty("maximum_report_interval")
-                                        .GetInt32()
-                                        .ToString(),
-                                    rep.GetProperty("minimum_report_interval")
-                                        .GetInt32()
-                                        .ToString(),
+                                    rep.GetProperty("maximum_report_interval").GetInt32().ToString(),
+                                    rep.GetProperty("minimum_report_interval").GetInt32().ToString(),
                                     rep.GetProperty("reportable_change").ToString(),
                                     ep.Name
                                 );
@@ -222,14 +237,11 @@ public class ZigbeeClient(
 
                         retries++;
                         await Task.Delay(5_000);
+                        
                         await conn.Client.PublishAsync(
                             new MqttApplicationMessageBuilder()
                                 .WithTopic("zigbee2mqtt/bridge/request/devices")
-                                .WithPayload(
-                                    JsonSerializer.Serialize(
-                                        new { transaction = Guid.NewGuid().ToString() }
-                                    )
-                                )
+                                .WithPayload(JsonSerializer.Serialize(new { transaction = Guid.NewGuid().ToString() }))
                                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
                                 .Build()
                         );
@@ -244,9 +256,7 @@ public class ZigbeeClient(
         await conn.Client.PublishAsync(
             new MqttApplicationMessageBuilder()
                 .WithTopic("zigbee2mqtt/bridge/request/devices")
-                .WithPayload(
-                    JsonSerializer.Serialize(new { transaction = Guid.NewGuid().ToString() })
-                )
+                .WithPayload(JsonSerializer.Serialize(new { transaction = Guid.NewGuid().ToString() }))
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build()
         );
@@ -254,6 +264,9 @@ public class ZigbeeClient(
         await tcs.Task;
     }
 
+    // ---------------------------------------------- //
+    // Retrieves and processes device option details  //
+    // ---------------------------------------------- //
     public async Task GetOptionDetails(
         string address,
         string model,
@@ -266,6 +279,7 @@ public class ZigbeeClient(
         var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
         var tcs = new TaskCompletionSource<bool>();
 
+        // Handler for option details response
         async Task Handler(MqttApplicationMessageReceivedEventArgs e)
         {
             string topic = e.ApplicationMessage.Topic;
@@ -279,6 +293,7 @@ public class ZigbeeClient(
             if (node == null)
                 return;
 
+            // Process all readable properties
             for (int i = 0; i < readableProps.Count; i++)
             {
                 var prop = readableProps[i];
@@ -287,20 +302,17 @@ public class ZigbeeClient(
                 Console.WriteLine($"Option: {prop} = {value}");
             }
 
-
             conn.Client.ApplicationMessageReceivedAsync -= Handler;
             var config = await configuredReportings.ConfigByAddress(address);
             await send.SendReportConfigAsync(config);
             tcs.TrySetResult(true);
         }
 
+        // Send reporting config and wait for response
         var changed = await configuredReportings.GetAllReportConfigsForAddressAsync(address);
         await send.SendReportConfigAsync(changed);
 
-
-        // Subscribe to the state topic
         conn.Client.ApplicationMessageReceivedAsync += Handler;
-        
         await Task.Delay(50);
         
         var completed = await Task.WhenAny(tcs.Task, Task.Delay(15000));
@@ -308,16 +320,15 @@ public class ZigbeeClient(
         {
             Console.WriteLine($"Timeout while getting options for {address}");
 
-            // Store for later handling
-            var receiveService= scope.ServiceProvider.GetRequiredService<IReceiveService>()
-                as ReceiveService;
-
+            var receiveService = scope.ServiceProvider.GetRequiredService<IReceiveService>() as ReceiveService;
             receiveService?.RegisterLateOption(address, model, readableProps, descriptions);
 
             conn.Client.ApplicationMessageReceivedAsync -= Handler;
         }
     }
 
-    
-    public Task subscribeToAll() => Task.FromResult(sub.SubscribeAllActiveDevicesAsync());
+    // --------------------------------- //
+    // Subscribes to all active devices  //
+    // --------------------------------- //
+    public Task SubscribeToAll() => Task.FromResult(sub.SubscribeAllActiveDevicesAsync());
 }

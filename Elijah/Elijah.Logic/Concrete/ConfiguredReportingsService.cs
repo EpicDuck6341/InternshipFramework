@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+
+// ---------------------------------------------------------- //
+// Service for managing device reporting configurations       //
+// Handles CRUD operations for ConfiguredReporting entities   //
+// ---------------------------------------------------------- //
 public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService deviceService)
     : IConfiguredReportingsService
 {
@@ -49,7 +54,7 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         string endpoint
     )
     {
-        var device = await deviceService.GetDeviceByAdressAsync(address);
+        var device = await deviceService.GetDeviceByAddressAsync(address);
         if (device == null)
             return;
 
@@ -83,7 +88,7 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         string endpoint
     )
     {
-        var device = await deviceService.GetDeviceByAdressAsync(address, true);
+        var device = await deviceService.GetDeviceByAddressAsync(address, true);
         if (device == null)
             return;
 
@@ -114,18 +119,15 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
     {
         if (subscribedAddresses.Count == 0)
             return [];
-
+        
         var changed = await repo.Query<ConfiguredReporting>()
             .Include(r => r.Device)
             .Where(r => r.Changed && subscribedAddresses.Contains(r.Device.Address))
             .ToListAsync();
-
         
-
         return changed.Select(ToReportConfig).ToList();
     }
-
-
+    
     // ----------------------------------------------------------------------------------------- //
     // Used for setting the reporting time of a device to 0 for instant receival of its Options  //
     // ----------------------------------------------------------------------------------------- //
@@ -148,8 +150,7 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
             )
         ).ToList();
     }
-
-
+    
     // -------------------------------------------------------------------------------- //
     // Returns a list of ReportConfigs for all reporting entries related to an address  //
     // -------------------------------------------------------------------------------- //

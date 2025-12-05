@@ -5,6 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+
+// ---------------------------------------------------------------- //
+// Service for managing device data filters                         //
+// Controls which payload properties are processed for each device  //
+// ---------------------------------------------------------------- //
 public class DeviceFilterService(IZigbeeRepository repo, IDeviceService deviceService)
     : IDeviceFilterService
 {
@@ -27,7 +32,7 @@ public class DeviceFilterService(IZigbeeRepository repo, IDeviceService deviceSe
     // ------------------------------------------------------------ //
     public async Task NewFilterEntryAsync(string address, string filterValue)
     {
-        var device = await deviceService.GetDeviceByAdressAsync(address);
+        var device = await deviceService.GetDeviceByAddressAsync(address);
         if (device == null)
             return; 
 

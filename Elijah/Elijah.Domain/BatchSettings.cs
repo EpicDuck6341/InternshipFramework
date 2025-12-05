@@ -2,5 +2,5 @@
 
 public class BatchSettings
 {
-    public string ExampleSetting { get; set; }
+    public required string ExampleSetting { get; set; }
 }

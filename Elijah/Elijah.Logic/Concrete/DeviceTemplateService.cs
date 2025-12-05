@@ -1,14 +1,18 @@
 using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
+using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elijah.Logic.Concrete;
 
+// ------------------------------------------------------------ //
+// Service for managing device templates and model replication  //
+// ------------------------------------------------------------ //
 public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateService
 {
-    // ------------------------------------------------------------ //
-    // Copies a device template to a new device with the given address //
-    // ------------------------------------------------------------ //
+    // ---------------------------------------------------------------- //
+    // Copies a device template to a new device with the given address  //
+    // ---------------------------------------------------------------- //
     public async Task CopyModelTemplateAsync(string modelId, string address)
     {
         var template = await repo.Query<DeviceTemplate>()
@@ -53,9 +57,9 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         await repo.SaveChangesAsync();
     }
 
-    // ------------------------------------------------------------ //
-    // Creates a new device template entry                           //
-    // ------------------------------------------------------------ //
+    // ----------------------------------- //
+    // Creates a new device template entry //
+    // ----------------------------------- //
     public async Task<DeviceTemplate> NewDvTemplateEntryAsync(string modelId, string name)
     {
         var template = new DeviceTemplate
@@ -71,9 +75,9 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         return template;
     }
 
-    // ------------------------------------------------------------ //
+    // ------------------------------------------------------------- //
     // Checks if a model template exists; copies template if present //
-    // ------------------------------------------------------------ //
+    // ------------------------------------------------------------- //
     public async Task<bool> ModelPresentAsync(string modelId, string address)
     {
         var templateExists = await repo.Query<DeviceTemplate>()
