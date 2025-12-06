@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LogManager</name>
+    </assembly>
+    <members>
+        <member name="M:LogManager.DepencendyInjector.InitialiseFsLogging(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Be sure to set the correct config in the appsettings.json<para />
+            Example:<br/>
+            "LogSettings": {<br/>
+             "Directory": "\\\\ACCEPT01\\Data\\FS\\Logs\\[appName]",<br/>
+             "ApplicationName": "[appName]",<br/>
+             "Endpoint": "[log service baseURl]"<br/>
+            },
+            </summary>
+            <param name="service"></param>
+            <param name="configuration"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsUseAudit(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Creates an audit log for every request<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsUseAudit(Microsoft.AspNetCore.Builder.IApplicationBuilder,LogManager.Model.Audit.ExcludedRout)">
+            <summary>
+            Creates an audit log for every request except the excluded rout<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+            <param name="excludedRout"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsUseAudit(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Collections.Generic.List{LogManager.Model.Audit.ExcludedRout})">
+            <summary>
+            Creates an audit log for every request except the excluded routs<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+            <param name="excludedRouts"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsUseAudit(Microsoft.AspNetCore.Builder.IApplicationBuilder,LogManager.Model.Audit.IncludedRout)">
+            <summary>
+             Creates an audit log only for the given rout<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+            <param name="includedRout"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsUseAudit(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Collections.Generic.List{LogManager.Model.Audit.IncludedRout})">
+            <summary>
+             Creates an audit log only for the given routs<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+            <param name="includedRout"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsMonitorSuspiciousCalls(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+             Catches responses with the satusCodes 401, 403 and 404. these request will be logged<para />
+            401: Unauthorized<br/>
+            403: Forbidden<br/>
+            404: NotFound<br/><br/>
+             
+            IMPORTANT: add this middleware before authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsMonitorSuspiciousCalls(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Int32[])">
+            <summary>
+             Catches responses with the given satusCodes and logs the request<para />
+             
+            IMPORTANT: add this middleware after authorization/authentication!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware</summary>
+            <param name="app"></param>
+            <param name="statusCodes"></param>
+        </member>
+        <member name="M:LogManager.DepencendyInjector.FsExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Func{System.Exception,LogManager.Model.Exception.ResponseMessage})">
+            <summary>
+            This middleware will handle the exceptions, if no custom exceptions are added the exception will be send to the loggin service as an ERROR.<br/><br/>
+            
+            IMPORTANT: add this middleware as last, after FsMonitorSuspiciousCalls, FsUseAuth and FsUseAudit!<br/>
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware
+            </summary>
+            <param name="app"></param>
+            <param name="customExceptionHandler">function to handle the custom exceptions of your application. Return NULL in this function for default handeling</param>
+        </member>
+        <member name="M:LogManager.LogService.Info(System.String)">
+            <summary>
+            Write an information message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.LogService.Warning(System.String)">
+            <summary>
+            Write an warning message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.LogService.Error(System.String)">
+            <summary>
+            Write an error message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendInfo(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendInfo(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendInfo(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendWarning(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendWarning(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendWarning(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendError(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendError(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendError(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendLog(LogManager.Model.Log.LogMessage,System.String,System.String)">
+            <summary>
+            Sends the given log message tot the log service, while able to provide your own logType and\ore applicationName
+            </summary>
+            <param name="log"></param>
+            <param name="logType"></param>
+            <param name="applicationName"></param>
+        </member>
+        <member name="M:LogManager.LogService.SendLog(LogManager.Model.Log.LogMessage,System.Int32,System.String)">
+            <summary>
+            Sends the given log message tot the log service, while able to provide your own logType and\ore applicationName
+            </summary>
+            <param name="log"></param>
+            <param name="logType"></param>
+            <param name="applicationName"></param>
+        </member>
+        <member name="M:LogManager.Log.Info(System.String)">
+            <summary>
+            Write an information message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.Log.Warning(System.String)">
+            <summary>
+            Write an warning message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.Log.Error(System.String)">
+            <summary>
+            Write an error message to the text file.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="M:LogManager.Log.SendInfo(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.Log.SendInfo(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendInfo(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendWarning(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.Log.SendWarning(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendWarning(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendError(LogManager.Model.Log.LogMessage)">
+            <summary>
+            Sends the given log message tot the log service.
+            </summary>
+            <param name="log"></param>
+        </member>
+        <member name="M:LogManager.Log.SendError(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message to the log service
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="message"></param>
+            <param name="innerException"></param>
+            <param name="stackTrace"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendError(System.String,System.Exception,System.String,System.String,System.Nullable{System.Guid})">
+            <summary>
+            sends the given log message tot the log service, while using the exception as data for the message
+            </summary>
+            <param name="friendlyMessage"></param>
+            <param name="exception"></param>
+            <param name="userName"></param>
+            <param name="groupKey"></param>
+        </member>
+        <member name="M:LogManager.Log.SendLog(LogManager.Model.Log.LogMessage,System.String,System.String)">
+            <summary>
+            Sends the given log message tot the log service, while able to provide your own logType and\ore applicationName
+            </summary>
+            <param name="log"></param>
+            <param name="logType"></param>
+            <param name="applicationName"></param>
+        </member>
+        <member name="M:LogManager.Log.SendLog(LogManager.Model.Log.LogMessage,System.Int32,System.String)">
+            <summary>
+            Sends the given log message tot the log service, while able to provide your own logType and\ore applicationName
+            </summary>
+            <param name="log"></param>
+            <param name="logType"></param>
+            <param name="applicationName"></param>
+        </member>
+        <member name="T:LogManager.Audit.FsAuditMiddleware">
+            <summary>
+            IMPORTANT: addmiddleware after authorization/authentication!
+            Be sure to call the InitialiseFsLogging in the ConfigureServices function before using this audit middleware.
+            </summary>
+        </member>
+        <member name="P:LogManager.Model.Audit.Rout.Method">
+             <summary>
+            The HTTP method<para />
+            System.Net.Http.HttpMethod.[verb]
+             </summary>
+        </member>
+        <member name="P:LogManager.Model.Audit.Rout.Path">
+             <summary>
+            The path after the base URL (don't use a / at the start).<para />
+            For specifying an action use [controller]/[action]<br/>
+            For specifying an whole controller use [controller]
+             </summary>
+        </member>
+    </members>
+</doc>

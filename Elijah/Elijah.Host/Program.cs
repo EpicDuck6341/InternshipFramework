@@ -58,4 +58,8 @@ using (var scope = host.Services.CreateScope())
 
 
 // Run the host
-await host.RunAsync();
+using var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
+
+var edge = await EdgeAdapter.InitialiseAsync(cts.Token);
+await host.RunAsync(cts.Token);   // existing code keeps running

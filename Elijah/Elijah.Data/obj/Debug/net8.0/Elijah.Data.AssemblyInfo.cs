@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Elijah.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1da4e529e09e18e2aa05dd60cb34bdc67b5b23cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a377ffcac91a482c02b67302484f1b56100f818a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Elijah.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Elijah.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -19,3 +19,5 @@ build_property.RootNamespace = Elijah
 build_property.ProjectDir = /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
