@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  elijah:
+    build:
+      context: .
+      dockerfile: Elijah.Host/Dockerfile
+    container_name: elijah
+    depends_on:
+      - postgres
+    environment:
+      ConnectionStrings__DefaultConnection: ${DEFAULT_CONNECTION}
+      MqttConfig__Hostname: ${MQTT_HOST}
+      MqttConfig__Port: "${MQTT_PORT}"
+    ports:
+      - "8884:8883"
+    restart: always
+
+volumes:
+  pgdata:
+

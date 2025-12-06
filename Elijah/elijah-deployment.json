@@ -1,0 +1,76 @@
+{
+  "modulesContent": {
+    "$edgeAgent": {
+      "properties.desired": {
+        "schemaVersion": "1.1",
+        "runtime": {
+          "type": "docker",
+          "settings": {
+            "registryCredentials": {
+              "elijah-deployment": {
+                "address": "elijahreg.azurecr.io",
+                "username": "${ACR_USERNAME}",
+                "password": "${ACR_PASSWORD}"
+              }
+            }
+          }
+        },
+        "systemModules": {
+          "edgeAgent": {
+            "type": "docker",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.5"
+            }
+          },
+          "edgeHub": {
+            "type": "docker",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.5",
+              "createOptions": "{}"
+            }
+          }
+        },
+        "modules": {
+          "postgres": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "postgres:16-alpine",
+              "createOptions": "{}"
+            },
+            "env": {
+              "POSTGRES_USER": {"value": "elijah"},
+              "POSTGRES_PASSWORD": {"value": "Passw0rd!"},
+              "POSTGRES_DB": {"value": "elijah_db"}
+            }
+          },
+          "elijah": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "elijahreg.azurecr.io/elijah:1.6",
+              "createOptions": "{}"
+            },
+            "env": {
+              "ConnectionStrings__DefaultConnection": {
+                "value": "Host=postgres;Port=5432;Database=elijah_db;Username=elijah;Password=Passw0rd!"
+              },
+              "MqttConfig__Hostname": {"value": "edgeHub"},
+              "MqttConfig__Port": {"value": "8883"}
+            }
+          }
+        }
+      }
+    },
+    "$edgeHub": {
+      "properties.desired": {
+        "schemaVersion": "1.1",
+        "storeAndForwardConfiguration": {"timeToLiveSecs": 7200},
+        "routes": {}
+      }
+    }
+  }
+}

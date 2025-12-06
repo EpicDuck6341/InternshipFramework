@@ -16,13 +16,31 @@ RUN dotnet build "Elijah.Host.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # ---------- PUBLISH ----------
 FROM build AS publish
-RUN dotnet publish "Elijah.Host.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Elijah.Host.csproj" \
+    -c $BUILD_CONFIGURATION \
+    -o /app/publish \
+    --self-contained true \
+    -r linux-x64
 
 # ---------- RUNTIME ----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 RUN mkdir -p /app/config && chmod 777 /app/config
+
+# Install PostgreSQL client for pg_isready
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 8883
 USER root
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Elijah.Host.dll"]
+
+# Copy the published app
+COPY --from=publish /app/publish ./
+
+# Copy the wait script
+COPY Elijah.Host/wait-for-postgres.sh ./
+RUN chmod +x wait-for-postgres.sh
+
+ENTRYPOINT ["./wait-for-postgres.sh"]
+
+
+
