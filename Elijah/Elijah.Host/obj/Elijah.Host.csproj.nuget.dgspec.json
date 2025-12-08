@@ -228,6 +228,10 @@
               "target": "Package",
               "version": "[9.0.9, )"
             },
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": {
+              "target": "Package",
+              "version": "[9.0.9, )"
+            },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
               "version": "[9.0.9, )"
@@ -315,6 +319,10 @@
             "LogManager": {
               "target": "Package",
               "version": "[1.0.2, )"
+            },
+            "Microsoft.Azure.Devices.Client": {
+              "target": "Package",
+              "version": "[1.42.3, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

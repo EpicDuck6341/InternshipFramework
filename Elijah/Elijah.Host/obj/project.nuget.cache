@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "6O7mVkdfhE8=",
+  "dgSpecHash": "RQX6xZ7KAGU=",
   "success": true,
   "projectFilePath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/Elijah.Host.csproj",
   "expectedPackageFiles": [
@@ -43,6 +43,7 @@
     "/home/vboxuser/.nuget/packages/microsoft.extensions.configuration/9.0.9/microsoft.extensions.configuration.9.0.9.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.extensions.configuration.abstractions/9.0.9/microsoft.extensions.configuration.abstractions.9.0.9.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.extensions.configuration.binder/9.0.4/microsoft.extensions.configuration.binder.9.0.4.nupkg.sha512",
+    "/home/vboxuser/.nuget/packages/microsoft.extensions.configuration.environmentvariables/9.0.9/microsoft.extensions.configuration.environmentvariables.9.0.9.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.extensions.dependencyinjection/9.0.9/microsoft.extensions.dependencyinjection.9.0.9.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/9.0.9/microsoft.extensions.dependencyinjection.abstractions.9.0.9.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.extensions.dependencymodel/9.0.9/microsoft.extensions.dependencymodel.9.0.9.nupkg.sha512",

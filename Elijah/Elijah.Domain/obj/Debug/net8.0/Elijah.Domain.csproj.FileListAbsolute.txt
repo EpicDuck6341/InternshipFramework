@@ -54,9 +54,6 @@ C:/GIT/FacilicomSolutions/Tools/bluebotlite/Elijah/Elijah.Domain/obj/Debug/net8.
 C:/GIT/FacilicomSolutions/Tools/bluebotlite/Elijah/Elijah.Domain/obj/Debug/net8.0/refint/Elijah.Domain.dll
 C:/GIT/FacilicomSolutions/Tools/bluebotlite/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.pdb
 C:/GIT/FacilicomSolutions/Tools/bluebotlite/Elijah/Elijah.Domain/obj/Debug/net8.0/ref/Elijah.Domain.dll
-/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.dll
-/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/refint/Elijah.Domain.dll
-/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.pdb
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/bin/Debug/net8.0/Elijah.Domain.deps.json
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/bin/Debug/net8.0/Elijah.Domain.dll
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/bin/Debug/net8.0/Elijah.Domain.pdb
@@ -65,4 +62,7 @@ C:/GIT/FacilicomSolutions/Tools/bluebotlite/Elijah/Elijah.Domain/obj/Debug/net8.
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.AssemblyInfo.cs
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.csproj.CoreCompileInputs.cache
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.sourcelink.json
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/refint/Elijah.Domain.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/Elijah.Domain.pdb
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Domain/obj/Debug/net8.0/ref/Elijah.Domain.dll

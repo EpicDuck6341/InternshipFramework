@@ -31,6 +31,14 @@ public static class ServiceMapper
                 WriteTimeout = 2000
             });
             
+            // Add these registrations:
+            services.AddSingleton<IAzureIoTHubService, AzureIoTHubService>();
+            services.AddHostedService<ZigbeeCommandService>();
+
+            
+            // Ensure ModuleClient is available:
+            services.AddSingleton(provider => EdgeAdapter.ModuleClient); // Expose the static client
+            
             services.AddSingleton<IMqttConnectionService, MqttConnectionService>();
 
             services.AddTransient<IDeviceService, DeviceService>();

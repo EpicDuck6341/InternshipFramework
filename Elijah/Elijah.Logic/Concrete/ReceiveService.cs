@@ -15,13 +15,14 @@ namespace Elijah.Logic.Concrete;
 // --------------------------------------------------------- //
 public class ReceiveService(
     IServiceScopeFactory scopeFactory,
-    IMqttConnectionService mqtt
+    IMqttConnectionService mqtt,
+    IAzureIoTHubService azureService
     ) : IReceiveService
 {
     
-     // ------------------------------------------------------------ //
-    //    // Tracks devices that timed out during option retrieval   //
-    //    // ------------------------------------------------------- //
+    // ------------------------------------------------------- //
+    // Tracks devices that timed out during option retrieval   //
+    // ------------------------------------------------------- //
     private readonly Dictionary<string, PendingOptionData> _lateOptions 
         = new Dictionary<string, PendingOptionData>();
 
@@ -82,8 +83,12 @@ public class ReceiveService(
         }
         Console.WriteLine(
             $"[{device?.Name},{modelId}]{filtered.ToJsonString()}");
+        foreach (var ft in filtered)
+        {
+            await azureService.SendTelemetryAsync(deviceAddress, ft.Key, ft.Value);
+        }
 
-        
+
         if (_lateOptions.TryGetValue(deviceAddress, out var pending))
         {
             Console.WriteLine($"Late options received for {deviceAddress}");

@@ -1,0 +1,24 @@
+{
+    "0xe4b323fffe9e2d38": {
+        "state_10": "OFF",
+        "state": "ON",
+        "brightness": 36,
+        "temperature_1": 26.07,
+        "humidity_1": 58.18,
+        "brightness_10": 36
+    },
+    "0xa4c138024a75ffff": {
+        "temperature": 24.2,
+        "battery": 100,
+        "temperature_units": "celsius",
+        "temperature_calibration": 0,
+        "linkquality": 248
+    },
+    "0xd44867fffe2a920a": {
+        "occupancy": true,
+        "battery": 100,
+        "voltage": 2900,
+        "illumination": "bright",
+        "motion_timeout": 22
+    }
+}
