@@ -49,4 +49,12 @@ devices:
     friendly_name: '0xa4c138024a75ffff'
   '0xd44867fffe2a920a':
     friendly_name: '0xd44867fffe2a920a'
+  '0x001788010f1f6fab':
+    friendly_name: '0x001788010f1f6fab'
+  '0x001788010f1f74a9':
+    friendly_name: '0x001788010f1f74a9'
+  '0x001788010f1f6ab9':
+    friendly_name: '0x001788010f1f6ab9'
+  '0x001788010f1f7297':
+    friendly_name: '0x001788010f1f7297'
 blocklist: []

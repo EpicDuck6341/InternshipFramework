@@ -166,7 +166,7 @@
           }
         }
       },
-      "FacilicomLogManager/2.0.0": {
+      "FacilicomLogManager/2.2.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.3.0",
@@ -174,6 +174,7 @@
           "Microsoft.Extensions.Configuration.Binder": "9.0.4",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.4",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.4",
+          "Sentry.Serilog": "5.16.2",
           "Serilog": "4.2.0",
           "Serilog.Extensions.Logging": "9.0.1",
           "Serilog.Sinks.Console": "6.0.0",
@@ -1820,6 +1821,40 @@
           }
         }
       },
+      "Sentry/5.16.2": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Sentry.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Sentry.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/Sentry.props": {},
+          "buildTransitive/Sentry.targets": {}
+        }
+      },
+      "Sentry.Serilog/5.16.2": {
+        "type": "package",
+        "dependencies": {
+          "Sentry": "5.16.2",
+          "Serilog": "2.10.0"
+        },
+        "compile": {
+          "lib/net8.0/Sentry.Serilog.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Sentry.Serilog.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Serilog/4.2.0": {
         "type": "package",
         "compile": {
@@ -2513,13 +2548,13 @@
         "lib/netstandard2.0/DotNetty.Transport.xml"
       ]
     },
-    "FacilicomLogManager/2.0.0": {
-      "sha512": "j+E3rMymyBbgiY3/y+jLfoLMWCOXBKXfh7DEUq+ZXXW+E4cLZEW+1qpg4P5Cq6gCGOwdVlmktGc8VrWz2jhgiw==",
+    "FacilicomLogManager/2.2.0": {
+      "sha512": "4NfKL5rVy3zJQZKGWg9Tki4Y/dViAF57PnCMQMVjcWV6rh4UbyTA40XIRxX0ksRgt1jxdUcXorC2ivGaCauPyQ==",
       "type": "package",
-      "path": "facilicomlogmanager/2.0.0",
+      "path": "facilicomlogmanager/2.2.0",
       "files": [
         ".nupkg.metadata",
-        "facilicomlogmanager.2.0.0.nupkg.sha512",
+        "facilicomlogmanager.2.2.0.nupkg.sha512",
         "facilicomlogmanager.nuspec",
         "lib/net8.0/FacilicomLogManager.dll"
       ]
@@ -3847,6 +3882,86 @@
         "runtimes/osx-arm64/native/_._",
         "runtimes/osx-x64/native/libSystem.IO.Ports.Native.dylib",
         "useSharedDesignerContext.txt"
+      ]
+    },
+    "Sentry/5.16.2": {
+      "sha512": "JZiKizATWdBe4dSdvMhp3d/TiMUug3VvWjiu9ZH5UfTbrwGWYUexZ4ZGdyrIB2GuWlLBUWs3Vi1GFv3pNhRKFg==",
+      "type": "package",
+      "path": "sentry/5.16.2",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "analyzers/dotnet/cs/Sentry.SourceGenerators.dll",
+        "build/Sentry.Native.targets",
+        "build/Sentry.props",
+        "build/Sentry.targets",
+        "buildTransitive/Sentry.Native.targets",
+        "buildTransitive/Sentry.props",
+        "buildTransitive/Sentry.targets",
+        "lib/net462/Sentry.dll",
+        "lib/net462/Sentry.xml",
+        "lib/net8.0-android34.0/Sentry.dll",
+        "lib/net8.0-android34.0/Sentry.xml",
+        "lib/net8.0-ios17.0/Sentry.dll",
+        "lib/net8.0-ios17.0/Sentry.xml",
+        "lib/net8.0-maccatalyst17.0/Sentry.dll",
+        "lib/net8.0-maccatalyst17.0/Sentry.xml",
+        "lib/net8.0/Sentry.dll",
+        "lib/net8.0/Sentry.xml",
+        "lib/net9.0-android35.0/Sentry.dll",
+        "lib/net9.0-android35.0/Sentry.xml",
+        "lib/net9.0-ios18.0/Sentry.dll",
+        "lib/net9.0-ios18.0/Sentry.xml",
+        "lib/net9.0-maccatalyst18.0/Sentry.dll",
+        "lib/net9.0-maccatalyst18.0/Sentry.xml",
+        "lib/net9.0/Sentry.dll",
+        "lib/net9.0/Sentry.xml",
+        "lib/netstandard2.0/Sentry.dll",
+        "lib/netstandard2.0/Sentry.xml",
+        "lib/netstandard2.1/Sentry.dll",
+        "lib/netstandard2.1/Sentry.xml",
+        "sentry-native/linux-arm64/libsentry-native.a",
+        "sentry-native/linux-musl-arm64/libsentry-native.a",
+        "sentry-native/linux-musl-x64/libsentry-native.a",
+        "sentry-native/linux-x64/libsentry-native.a",
+        "sentry-native/osx/libsentry-native.a",
+        "sentry-native/win-arm64/sentry-native.lib",
+        "sentry-native/win-x64/sentry-native.lib",
+        "sentry-nuget.png",
+        "sentry.5.16.2.nupkg.sha512",
+        "sentry.nuspec",
+        "tools/sentry-cli-Darwin-arm64",
+        "tools/sentry-cli-Darwin-x86_64",
+        "tools/sentry-cli-Linux-aarch64",
+        "tools/sentry-cli-Linux-i686",
+        "tools/sentry-cli-Linux-x86_64",
+        "tools/sentry-cli-Windows-i686.exe",
+        "tools/sentry-cli-Windows-x86_64.exe"
+      ]
+    },
+    "Sentry.Serilog/5.16.2": {
+      "sha512": "U+eW1sFpmPGZZhHrsNtvsz0txEFz032c38OlCxAlbygL0YjRyXnyZnNbXxMHnLR8BpJX1OTPyXSbYJ3dbwBdxA==",
+      "type": "package",
+      "path": "sentry.serilog/5.16.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net462/Sentry.Serilog.dll",
+        "lib/net462/Sentry.Serilog.xml",
+        "lib/net8.0/Sentry.Serilog.dll",
+        "lib/net8.0/Sentry.Serilog.xml",
+        "lib/net9.0/Sentry.Serilog.dll",
+        "lib/net9.0/Sentry.Serilog.xml",
+        "lib/netstandard2.0/Sentry.Serilog.dll",
+        "lib/netstandard2.0/Sentry.Serilog.xml",
+        "lib/netstandard2.1/Sentry.Serilog.dll",
+        "lib/netstandard2.1/Sentry.Serilog.xml",
+        "sentry-nuget.png",
+        "sentry.serilog.5.16.2.nupkg.sha512",
+        "sentry.serilog.nuspec"
       ]
     },
     "Serilog/4.2.0": {
@@ -5185,7 +5300,7 @@
     "net8.0": [
       "Elijah.Data >= 1.0.0",
       "Elijah.Domain >= 1.0.0",
-      "FacilicomLogManager >= 2.0.0",
+      "FacilicomLogManager >= 2.2.0",
       "GenericRepository >= 3.3.0",
       "LogManager >= 1.0.2",
       "Microsoft.Azure.Devices.Client >= 1.42.3",
@@ -5212,6 +5327,7 @@
         "net8.0"
       ],
       "sources": {
+        "/home/vboxuser/Documents/local-nuget-feed": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5245,7 +5361,7 @@
         "dependencies": {
           "FacilicomLogManager": {
             "target": "Package",
-            "version": "[2.0.0, )"
+            "version": "[2.2.0, )"
           },
           "GenericRepository": {
             "target": "Package",

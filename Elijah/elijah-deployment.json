@@ -9,8 +9,8 @@
             "registryCredentials": {
               "elijah-deployment": {
                 "address": "elijahreg.azurecr.io",
-                "username": "${ACR_USERNAME}",
-                "password": "${ACR_PASSWORD}"
+                "username": "elijahreg",
+                "password": "xxxxxxxxxx"
               }
             }
           }
@@ -24,6 +24,7 @@
           },
           "edgeHub": {
             "type": "docker",
+            "status": "running",
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-hub:1.5",
@@ -41,9 +42,9 @@
               "createOptions": "{}"
             },
             "env": {
-              "POSTGRES_USER": {"value": "elijah"},
-              "POSTGRES_PASSWORD": {"value": "Passw0rd!"},
-              "POSTGRES_DB": {"value": "elijah_db"}
+              "POSTGRES_USER": { "value": "elijah" },
+              "POSTGRES_PASSWORD": { "value": "Passw0rd!" },
+              "POSTGRES_DB": { "value": "elijah_db" }
             }
           },
           "elijah": {
@@ -51,15 +52,37 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "elijahreg.azurecr.io/elijah:1.6",
+              "image": "elijahreg.azurecr.io/elijah:1.8",
               "createOptions": "{}"
             },
             "env": {
               "ConnectionStrings__DefaultConnection": {
                 "value": "Host=postgres;Port=5432;Database=elijah_db;Username=elijah;Password=Passw0rd!"
               },
-              "MqttConfig__Hostname": {"value": "edgeHub"},
-              "MqttConfig__Port": {"value": "8883"}
+              "MqttConfig__Hostname": { "value": "mqtt" },
+              "MqttConfig__Port": { "value": "1883" }
+            }
+          },
+          "mqtt": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "eclipse-mosquitto:2",
+              "createOptions": "{\"HostConfig\":{\"PortBindings\":{\"1883/tcp\":[{\"HostPort\":\"1883\"}],\"9001/tcp\":[{\"HostPort\":\"9001\"}]},\"Binds\":[\"/home/vboxuser/Documents/InternshipFramework/Elijah/mosquitto.conf:/mosquitto/config/mosquitto.conf\",\"mqtt-log:/var/log/mosquitto\"]}}"
+            }
+          },
+          "zigbee2mqtt": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "ghcr.io/koenkk/zigbee2mqtt:latest",
+              "createOptions": "{\"HostConfig\":{\"Devices\":[{\"PathOnHost\":\"/dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_6c77c37787c2ef118a9fc6138148b910-if00-port0\",\"PathInContainer\":\"/dev/ttyUSB0\",\"CgroupPermissions\":\"rwm\"}],\"Binds\":[\"/home/vboxuser/Documents/InternshipFramework/Elijah/zigbee2mqtt-data:/app/data\",\"/run/udev:/run/udev:ro\"],\"PortBindings\":{\"8080/tcp\":[{\"HostPort\":\"8080\"}]}}}"
+            },
+            "env": {
+              "TZ": { "value": "Europe/Amsterdam" },
+              "MQTT_SERVER": { "value": "mqtt://mqtt:1883" }
             }
           }
         }
@@ -68,7 +91,7 @@
     "$edgeHub": {
       "properties.desired": {
         "schemaVersion": "1.1",
-        "storeAndForwardConfiguration": {"timeToLiveSecs": 7200},
+        "storeAndForwardConfiguration": { "timeToLiveSecs": 7200 },
         "routes": {}
       }
     }

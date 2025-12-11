@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FacilicomLogManager" Version="2.0.0" />
+      <PackageReference Include="FacilicomLogManager" Version="2.2.0" />
       <PackageReference Include="GenericRepository" Version="3.3.0" />
       <PackageReference Include="LogManager" Version="1.0.2" />
       <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.42.3" />

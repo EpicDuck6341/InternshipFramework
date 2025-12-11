@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Qiy7I1DlZZ8=",
+  "dgSpecHash": "Lx0FciwuuFg=",
   "success": true,
   "projectFilePath": "/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
   "expectedPackageFiles": [
@@ -13,7 +13,7 @@
     "/home/vboxuser/.nuget/packages/dotnetty.common/0.7.6/dotnetty.common.0.7.6.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/dotnetty.handlers/0.7.6/dotnetty.handlers.0.7.6.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/dotnetty.transport/0.7.6/dotnetty.transport.0.7.6.nupkg.sha512",
-    "/home/vboxuser/.nuget/packages/facilicomlogmanager/2.0.0/facilicomlogmanager.2.0.0.nupkg.sha512",
+    "/home/vboxuser/.nuget/packages/facilicomlogmanager/2.2.0/facilicomlogmanager.2.2.0.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/genericrepository/3.3.0/genericrepository.3.3.0.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/logmanager/1.0.2/logmanager.1.0.2.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/microsoft.aspnetcore.http.abstractions/2.3.0/microsoft.aspnetcore.http.abstractions.2.3.0.nupkg.sha512",
@@ -62,6 +62,8 @@
     "/home/vboxuser/.nuget/packages/runtime.native.system.io.ports/9.0.10/runtime.native.system.io.ports.9.0.10.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/runtime.osx-arm64.runtime.native.system.io.ports/9.0.10/runtime.osx-arm64.runtime.native.system.io.ports.9.0.10.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/runtime.osx-x64.runtime.native.system.io.ports/9.0.10/runtime.osx-x64.runtime.native.system.io.ports.9.0.10.nupkg.sha512",
+    "/home/vboxuser/.nuget/packages/sentry/5.16.2/sentry.5.16.2.nupkg.sha512",
+    "/home/vboxuser/.nuget/packages/sentry.serilog/5.16.2/sentry.serilog.5.16.2.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/serilog/4.2.0/serilog.4.2.0.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/serilog.extensions.logging/9.0.1/serilog.extensions.logging.9.0.1.nupkg.sha512",
     "/home/vboxuser/.nuget/packages/serilog.sinks.console/6.0.0/serilog.sinks.console.6.0.0.nupkg.sha512",

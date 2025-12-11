@@ -68,3 +68,4 @@
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/obj/Debug/net8.0/refint/Elijah.Logic.dll
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/obj/Debug/net8.0/Elijah.Logic.pdb
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/obj/Debug/net8.0/ref/Elijah.Logic.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Logic/obj/Debug/net8.0/Sentry.Attributes.cs

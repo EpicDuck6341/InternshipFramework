@@ -20,6 +20,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -109,6 +110,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -168,6 +170,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -199,10 +202,6 @@
             "GenericRepository": {
               "target": "Package",
               "version": "[3.3.0, )"
-            },
-            "LogManager": {
-              "target": "Package",
-              "version": "[4.1.2, )"
             },
             "Microsoft.Azure.Devices.Client": {
               "target": "Package",
@@ -239,6 +238,10 @@
             "Serilog.Extensions.Hosting": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "facilicomlogmanager": {
+              "target": "Package",
+              "version": "[2.2.0, )"
             }
           },
           "imports": [
@@ -277,6 +280,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -310,7 +314,7 @@
           "dependencies": {
             "FacilicomLogManager": {
               "target": "Package",
-              "version": "[2.0.0, )"
+              "version": "[2.2.0, )"
             },
             "GenericRepository": {
               "target": "Package",

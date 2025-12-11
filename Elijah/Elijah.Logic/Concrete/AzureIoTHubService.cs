@@ -33,7 +33,7 @@ public class AzureIoTHubService(ModuleClient moduleClient) : IAzureIoTHubService
         message.Properties.Add("propertyName", property);
 
         await moduleClient.SendEventAsync("telemetry", message);
-        Console.WriteLine($"📤 Sent telemetry: {json}");
+        Console.WriteLine($"Sent telemetry: {json}");
     }
 
     public async Task SendBatchTelemetryAsync(string deviceId, Dictionary<string, object> properties)

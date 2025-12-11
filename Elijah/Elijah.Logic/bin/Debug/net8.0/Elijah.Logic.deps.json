@@ -10,7 +10,7 @@
         "dependencies": {
           "Elijah.Data": "1.0.0",
           "Elijah.Domain": "1.0.0",
-          "FacilicomLogManager": "2.0.0",
+          "FacilicomLogManager": "2.2.0",
           "GenericRepository": "3.3.0",
           "LogManager": "1.0.2",
           "Microsoft.Azure.Devices.Client": "1.42.3",
@@ -140,13 +140,14 @@
           }
         }
       },
-      "FacilicomLogManager/2.0.0": {
+      "FacilicomLogManager/2.2.0": {
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.3.0",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.9",
           "Microsoft.Extensions.Configuration.Binder": "9.0.4",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.9",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.9",
+          "Sentry.Serilog": "5.16.2",
           "Serilog": "4.2.0",
           "Serilog.Extensions.Logging": "9.0.1",
           "Serilog.Sinks.Console": "6.0.0",
@@ -155,8 +156,8 @@
         },
         "runtime": {
           "lib/net8.0/FacilicomLogManager.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.0.0.0"
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
           }
         }
       },
@@ -620,6 +621,26 @@
           }
         }
       },
+      "Sentry/5.16.2": {
+        "runtime": {
+          "lib/net8.0/Sentry.dll": {
+            "assemblyVersion": "5.16.2.0",
+            "fileVersion": "5.16.2.0"
+          }
+        }
+      },
+      "Sentry.Serilog/5.16.2": {
+        "dependencies": {
+          "Sentry": "5.16.2",
+          "Serilog": "4.2.0"
+        },
+        "runtime": {
+          "lib/net8.0/Sentry.Serilog.dll": {
+            "assemblyVersion": "5.16.2.0",
+            "fileVersion": "5.16.2.0"
+          }
+        }
+      },
       "Serilog/4.2.0": {
         "runtime": {
           "lib/net8.0/Serilog.dll": {
@@ -965,12 +986,12 @@
       "path": "dotnetty.transport/0.7.6",
       "hashPath": "dotnetty.transport.0.7.6.nupkg.sha512"
     },
-    "FacilicomLogManager/2.0.0": {
+    "FacilicomLogManager/2.2.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-j+E3rMymyBbgiY3/y+jLfoLMWCOXBKXfh7DEUq+ZXXW+E4cLZEW+1qpg4P5Cq6gCGOwdVlmktGc8VrWz2jhgiw==",
-      "path": "facilicomlogmanager/2.0.0",
-      "hashPath": "facilicomlogmanager.2.0.0.nupkg.sha512"
+      "sha512": "sha512-4NfKL5rVy3zJQZKGWg9Tki4Y/dViAF57PnCMQMVjcWV6rh4UbyTA40XIRxX0ksRgt1jxdUcXorC2ivGaCauPyQ==",
+      "path": "facilicomlogmanager/2.2.0",
+      "hashPath": "facilicomlogmanager.2.2.0.nupkg.sha512"
     },
     "GenericRepository/3.3.0": {
       "type": "package",
@@ -1307,6 +1328,20 @@
       "sha512": "sha512-89HgF1Oplzjomn0BLeqJxEC17d//zmbs7CMKT12ZvjvFMvpMFO8uQUZ9xRIh91rM0ByfbhSobe2IRezjpeDNlg==",
       "path": "runtime.osx-x64.runtime.native.system.io.ports/9.0.10",
       "hashPath": "runtime.osx-x64.runtime.native.system.io.ports.9.0.10.nupkg.sha512"
+    },
+    "Sentry/5.16.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JZiKizATWdBe4dSdvMhp3d/TiMUug3VvWjiu9ZH5UfTbrwGWYUexZ4ZGdyrIB2GuWlLBUWs3Vi1GFv3pNhRKFg==",
+      "path": "sentry/5.16.2",
+      "hashPath": "sentry.5.16.2.nupkg.sha512"
+    },
+    "Sentry.Serilog/5.16.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U+eW1sFpmPGZZhHrsNtvsz0txEFz032c38OlCxAlbygL0YjRyXnyZnNbXxMHnLR8BpJX1OTPyXSbYJ3dbwBdxA==",
+      "path": "sentry.serilog/5.16.2",
+      "hashPath": "sentry.serilog.5.16.2.nupkg.sha512"
     },
     "Serilog/4.2.0": {
       "type": "package",

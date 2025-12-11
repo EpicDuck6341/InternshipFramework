@@ -178,3 +178,7 @@
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/obj/Debug/net8.0/Elijah.Host.pdb
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/obj/Debug/net8.0/Elijah.Host.genruntimeconfig.cache
 /home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/obj/Debug/net8.0/ref/Elijah.Host.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/bin/Debug/net8.0/Sentry.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/bin/Debug/net8.0/Sentry.Serilog.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/bin/Debug/net8.0/Serilog.Sinks.RollingFile.dll
+/home/vboxuser/Documents/InternshipFramework/Elijah/Elijah.Host/obj/Debug/net8.0/Sentry.Attributes.cs

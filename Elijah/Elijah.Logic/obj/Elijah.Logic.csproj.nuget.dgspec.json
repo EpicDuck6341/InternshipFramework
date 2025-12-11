@@ -20,6 +20,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -109,6 +110,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -168,6 +170,7 @@
           "net8.0"
         ],
         "sources": {
+          "/home/vboxuser/Documents/local-nuget-feed": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -201,7 +204,7 @@
           "dependencies": {
             "FacilicomLogManager": {
               "target": "Package",
-              "version": "[2.0.0, )"
+              "version": "[2.2.0, )"
             },
             "GenericRepository": {
               "target": "Package",

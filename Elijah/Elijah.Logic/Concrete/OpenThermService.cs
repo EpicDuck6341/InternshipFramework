@@ -6,6 +6,7 @@ using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Elijah.Logic.Concrete;
 
@@ -15,12 +16,40 @@ namespace Elijah.Logic.Concrete;
 // ---------------------------------------------------- //
 public class OpenThermService(
     SerialPort serialPort,
-    IZigbeeRepository repo) : IOpenThermService
+    IAzureIoTHubService azure,
+    IZigbeeRepository repo) : IOpenThermService, IHostedService
 {
+    private CancellationTokenSource? _cts;
+    
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+    
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        
+        _ = Task.Run(async () =>
+        {
+            await EspConnect();
+            await SendConfigToEspAsync();
+            await foreach (var msg in ListenForIncomingMessagesAsync(_cts.Token))
+            {
+                Console.WriteLine($"OpenTherm: {msg.Id} = {msg.Value}");
+                azure.SendTelemetryAsync("OpenTherm", msg.Id, msg.Value);
+            }
+        }, _cts.Token);
+
+        return Task.CompletedTask;
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cts?.Cancel();
+        if (serialPort.IsOpen)
+            serialPort.Close();
+    }
 
     // --------------------------------------------------------- //
     // Establishes connection to ESP and waits for ready signal  //
@@ -29,32 +58,7 @@ public class OpenThermService(
     {
         serialPort.Open();
         Console.WriteLine("Serial port opened. Waiting for ESP to reset...");
-        await Task.Delay(4000);
-
-        string response = "";
-        int attempts = 0;
-
-        while (!response.Contains("ESP_READY") && attempts < 20)
-        {
-            try
-            {
-                Console.WriteLine(attempts);
-                response += serialPort.ReadExisting();
-                await Task.Delay(200);
-                attempts++;
-            }
-            catch (TimeoutException)
-            {
-                
-            }
-        }
-
-        Console.WriteLine(response.Contains("ESP_READY")
-            ? "ESP_READY received!"
-            : "Failed to receive ESP_READY");
-
-        if (response.Contains("ESP_READY"))
-            serialPort.WriteLine("test");
+        await Task.Delay(8000);
     }
 
     // -------------------------------------------------------- //
