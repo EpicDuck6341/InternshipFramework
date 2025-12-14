@@ -180,7 +180,7 @@ public class ZigbeeClient(
     // --------------------------------------------- //
     // Starts the background message processing loop //
     // --------------------------------------------- //
-    public void StartProcessingMessages() => receive.StartMessageLoop();
+    // public void StartProcessingMessages() => receive.StartMessageLoop();
 
     // ---------------------------------------------------------- //
     // Retrieves detailed reporting config for a specific device  //
@@ -322,6 +322,8 @@ public class ZigbeeClient(
 
             var receiveService = scope.ServiceProvider.GetRequiredService<IReceiveService>() as ReceiveService;
             receiveService?.RegisterLateOption(address, model, readableProps, descriptions);
+            var config = await configuredReportings.ConfigByAddress(address);
+            await send.SendReportConfigAsync(config);
 
             conn.Client.ApplicationMessageReceivedAsync -= Handler;
         }

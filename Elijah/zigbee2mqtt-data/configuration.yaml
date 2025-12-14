@@ -1,7 +1,7 @@
 version: 4
 mqtt:
   base_topic: zigbee2mqtt
-  server: mqtt://172.17.0.1:1883
+  server: mqtt://mqtt:1883
 serial:
   port: /dev/ttyUSB0
   adapter: ember

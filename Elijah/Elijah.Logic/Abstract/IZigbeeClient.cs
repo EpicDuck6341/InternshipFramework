@@ -33,7 +33,7 @@ namespace Elijah.Logic.Abstract
         // -------------------------- //
         // Starts message processing  //
         // -------------------------- //
-        void StartProcessingMessages();
+        // void StartProcessingMessages();
 
         // ------------------------------ //
         // Gets device reporting details  //

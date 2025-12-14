@@ -10,7 +10,7 @@
               "elijah-deployment": {
                 "address": "elijahreg.azurecr.io",
                 "username": "elijahreg",
-                "password": "xxxxxxxxxx"
+                "password": "xxxxxxxxxxxx"
               }
             }
           }
@@ -77,7 +77,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "ghcr.io/koenkk/zigbee2mqtt:latest",
+              "image": "ghcr.io/koenkk/zigbee2mqtt:2.6.1",
               "createOptions": "{\"HostConfig\":{\"Devices\":[{\"PathOnHost\":\"/dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_6c77c37787c2ef118a9fc6138148b910-if00-port0\",\"PathInContainer\":\"/dev/ttyUSB0\",\"CgroupPermissions\":\"rwm\"}],\"Binds\":[\"/home/vboxuser/Documents/InternshipFramework/Elijah/zigbee2mqtt-data:/app/data\",\"/run/udev:/run/udev:ro\"],\"PortBindings\":{\"8080/tcp\":[{\"HostPort\":\"8080\"}]}}}"
             },
             "env": {

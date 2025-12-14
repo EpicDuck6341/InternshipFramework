@@ -11,7 +11,7 @@ public class MainService(IZigbeeClient client) : IHostedService
     {
         await client.ConnectToMqtt();
         await client.SubscribeToAll();              // Subscribe to devices
-        client.StartProcessingMessages();           // Start receiving data
+        // client.StartProcessingMessages();           // Start receiving data
     
         Console.WriteLine("System ready. Telemetry will flow to Azure IoT Hub.");
         // await client.AllowJoinAndListen(15);

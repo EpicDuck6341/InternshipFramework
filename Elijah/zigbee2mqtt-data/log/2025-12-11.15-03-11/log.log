@@ -4575,3 +4575,234 @@
 [2025-12-11 16:17:16] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=7](ackRx=1)
 [2025-12-11 16:17:16] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=63:"MESSAGE_SENT_HANDLER" Seq=168 Len=22]
 [2025-12-11 16:17:16] debug: 	zh:ember:ezsp: ezspMessageSentHandler: status=OK type=BROADCAST indexOrDestination=65532 apsFrame={"profileId":0,"clusterId":54,"sourceEndpoint":0,"destinationEndpoint":0,"options":256,"groupId":0,"sequence":117} messageTag=29
+[2025-12-11 16:18:12] debug: 	z2m: Saving state to file /app/data/state.json
+[2025-12-11 16:18:14] debug: 	zh:controller:database: Writing database to '/app/data/database.db'
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1](ackRx=1 frmTx=1)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1 frmNum=7](frmRx=7) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=0](ackRx=1)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=168 Len=32]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=UNICAST apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":256,"groupId":0,"sequence":6} packetInfo:{"senderShortId":54041,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":244,"lastHopRssi":-39,"lastHopTimestamp":0} messageContents=080d0a00001800
+[2025-12-11 16:18:28] debug: 	zh:controller: Received payload: clusterID=1030, address=54041, groupID=0, endpoint=1, destinationEndpoint=1, wasBroadcast=false, linkQuality=244, frame={"header":{"frameControl":{"frameType":0,"manufacturerSpecific":false,"direction":1,"disableDefaultResponse":false,"reservedBits":0},"transactionSequenceNumber":13,"commandIdentifier":10},"payload":[{"attrId":0,"dataType":24,"attrData":0}],"command":{"ID":10,"name":"report","parameters":[{"name":"attrId","type":33},{"name":"dataType","type":32},{"name":"attrData","type":1000}]}}
+[2025-12-11 16:18:28] debug: 	zh:controller:endpoint: ZCL command 0xd44867fffe2a920a/1 msOccupancySensing.defaultRsp({"cmdId":10,"statusCode":0}, {"timeout":10000,"disableResponse":false,"disableRecovery":false,"disableDefaultResponse":true,"direction":1,"reservedBits":0,"transactionSequenceNumber":13,"writeUndiv":false})
+[2025-12-11 16:18:28] debug: 	zh:controller:endpoint: Request Queue (0xd44867fffe2a920a/1): send defaultRsp request immediately (sendPolicy=undefined)
+[2025-12-11 16:18:28] debug: 	zh:ember: ~~~> [ZCL to=0xd44867fffe2a920a:54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":0} header={"frameControl":{"reservedBits":0,"frameType":0,"direction":1,"disableDefaultResponse":true,"manufacturerSpecific":false},"transactionSequenceNumber":13,"commandIdentifier":11}]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ===> [FRAME: ID=52:"SEND_UNICAST" Seq=169 Len=26]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=1 frmRx=0](ackRx=1)
+[2025-12-11 16:18:28] debug: 	z2m: Received Zigbee message from '0xd44867fffe2a920a', type 'attributeReport', cluster 'msOccupancySensing', data '{"occupancy":0}' from endpoint 1 with groupID 0
+[2025-12-11 16:18:28] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/0xd44867fffe2a920a', payload '{"battery":100,"illumination":"bright","linkquality":244,"occupancy":false,"update":{"installed_version":8705,"latest_version":8705,"state":"idle"},"voltage":2900}'
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1](ackRx=1 frmTx=2)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1 frmNum=0](frmRx=0) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=1](ackRx=1)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=168 Len=32]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=UNICAST apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":256,"groupId":0,"sequence":7} packetInfo:{"senderShortId":54041,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":244,"lastHopRssi":-39,"lastHopTimestamp":0} messageContents=080e0a00001800
+[2025-12-11 16:18:28] debug: 	zh:controller: Received payload: clusterID=1030, address=54041, groupID=0, endpoint=1, destinationEndpoint=1, wasBroadcast=false, linkQuality=244, frame={"header":{"frameControl":{"frameType":0,"manufacturerSpecific":false,"direction":1,"disableDefaultResponse":false,"reservedBits":0},"transactionSequenceNumber":14,"commandIdentifier":10},"payload":[{"attrId":0,"dataType":24,"attrData":0}],"command":{"ID":10,"name":"report","parameters":[{"name":"attrId","type":33},{"name":"dataType","type":32},{"name":"attrData","type":1000}]}}
+[2025-12-11 16:18:28] debug: 	zh:controller:endpoint: ZCL command 0xd44867fffe2a920a/1 msOccupancySensing.defaultRsp({"cmdId":10,"statusCode":0}, {"timeout":10000,"disableResponse":false,"disableRecovery":false,"disableDefaultResponse":true,"direction":1,"reservedBits":0,"transactionSequenceNumber":14,"writeUndiv":false})
+[2025-12-11 16:18:28] debug: 	zh:controller:endpoint: Request Queue (0xd44867fffe2a920a/1): send defaultRsp request immediately (sendPolicy=undefined)
+[2025-12-11 16:18:28] debug: 	z2m: Received Zigbee message from '0xd44867fffe2a920a', type 'attributeReport', cluster 'msOccupancySensing', data '{"occupancy":0}' from endpoint 1 with groupID 0
+[2025-12-11 16:18:28] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/0xd44867fffe2a920a', payload '{"battery":100,"illumination":"bright","linkquality":244,"occupancy":false,"update":{"installed_version":8705,"latest_version":8705,"state":"idle"},"voltage":2900}'
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=2](ackRx=1 frmTx=2)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=2 frmNum=1](frmRx=1) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=2](ackRx=2)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [FRAME: ID=52:"SEND_UNICAST" Seq=169 Len=7]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ~~~> [SENT type=DIRECT apsSequence=118 messageTag=89 status=OK]
+[2025-12-11 16:18:28] debug: 	zh:ember: ~~~> [ZCL to=0xd44867fffe2a920a:54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":0} header={"frameControl":{"reservedBits":0,"frameType":0,"direction":1,"disableDefaultResponse":true,"manufacturerSpecific":false},"transactionSequenceNumber":14,"commandIdentifier":11}]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ===> [FRAME: ID=52:"SEND_UNICAST" Seq=170 Len=26]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=2 frmRx=2](ackRx=2)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=2 frmTx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=2](frmRx=2) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=3](ackRx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [FRAME: ID=52:"SEND_UNICAST" Seq=170 Len=7]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ~~~> [SENT type=DIRECT apsSequence=119 messageTag=90 status=OK]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=3 frmTx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=3](frmRx=3) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=4](ackRx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=63:"MESSAGE_SENT_HANDLER" Seq=170 Len=22]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ezspMessageSentHandler: status=OK type=DIRECT indexOrDestination=54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":118} messageTag=89
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=3 frmTx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=4](frmRx=4) Added to rxQueue
+[2025-12-11 16:18:28] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=5](ackRx=3)
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=63:"MESSAGE_SENT_HANDLER" Seq=170 Len=22]
+[2025-12-11 16:18:28] debug: 	zh:ember:ezsp: ezspMessageSentHandler: status=OK type=DIRECT indexOrDestination=54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":119} messageTag=90
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=3 frmTx=3)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=5](frmRx=5) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=6](ackRx=3)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=170 Len=32]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=UNICAST apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":256,"groupId":0,"sequence":8} packetInfo:{"senderShortId":54041,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":255,"lastHopRssi":-32,"lastHopTimestamp":0} messageContents=080f0a00001801
+[2025-12-11 16:19:48] debug: 	zh:controller: Received payload: clusterID=1030, address=54041, groupID=0, endpoint=1, destinationEndpoint=1, wasBroadcast=false, linkQuality=255, frame={"header":{"frameControl":{"frameType":0,"manufacturerSpecific":false,"direction":1,"disableDefaultResponse":false,"reservedBits":0},"transactionSequenceNumber":15,"commandIdentifier":10},"payload":[{"attrId":0,"dataType":24,"attrData":1}],"command":{"ID":10,"name":"report","parameters":[{"name":"attrId","type":33},{"name":"dataType","type":32},{"name":"attrData","type":1000}]}}
+[2025-12-11 16:19:48] debug: 	zh:controller:endpoint: ZCL command 0xd44867fffe2a920a/1 msOccupancySensing.defaultRsp({"cmdId":10,"statusCode":0}, {"timeout":10000,"disableResponse":false,"disableRecovery":false,"disableDefaultResponse":true,"direction":1,"reservedBits":0,"transactionSequenceNumber":15,"writeUndiv":false})
+[2025-12-11 16:19:48] debug: 	zh:controller:endpoint: Request Queue (0xd44867fffe2a920a/1): send defaultRsp request immediately (sendPolicy=undefined)
+[2025-12-11 16:19:48] debug: 	zh:ember: ~~~> [ZCL to=0xd44867fffe2a920a:54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":0} header={"frameControl":{"reservedBits":0,"frameType":0,"direction":1,"disableDefaultResponse":true,"manufacturerSpecific":false},"transactionSequenceNumber":15,"commandIdentifier":11}]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ===> [FRAME: ID=52:"SEND_UNICAST" Seq=171 Len=26]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=3 frmRx=6](ackRx=3)
+[2025-12-11 16:19:48] debug: 	z2m: Received Zigbee message from '0xd44867fffe2a920a', type 'attributeReport', cluster 'msOccupancySensing', data '{"occupancy":1}' from endpoint 1 with groupID 0
+[2025-12-11 16:19:48] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/0xd44867fffe2a920a', payload '{"battery":100,"illumination":"bright","linkquality":255,"occupancy":true,"update":{"installed_version":8705,"latest_version":8705,"state":"idle"},"voltage":2900}'
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=3 frmTx=4)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=6](frmRx=6) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=7](ackRx=3)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=170 Len=32]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=UNICAST apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":256,"groupId":0,"sequence":9} packetInfo:{"senderShortId":54041,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":255,"lastHopRssi":-32,"lastHopTimestamp":0} messageContents=08100a00001801
+[2025-12-11 16:19:48] debug: 	zh:controller: Received payload: clusterID=1030, address=54041, groupID=0, endpoint=1, destinationEndpoint=1, wasBroadcast=false, linkQuality=255, frame={"header":{"frameControl":{"frameType":0,"manufacturerSpecific":false,"direction":1,"disableDefaultResponse":false,"reservedBits":0},"transactionSequenceNumber":16,"commandIdentifier":10},"payload":[{"attrId":0,"dataType":24,"attrData":1}],"command":{"ID":10,"name":"report","parameters":[{"name":"attrId","type":33},{"name":"dataType","type":32},{"name":"attrData","type":1000}]}}
+[2025-12-11 16:19:48] debug: 	zh:controller:endpoint: ZCL command 0xd44867fffe2a920a/1 msOccupancySensing.defaultRsp({"cmdId":10,"statusCode":0}, {"timeout":10000,"disableResponse":false,"disableRecovery":false,"disableDefaultResponse":true,"direction":1,"reservedBits":0,"transactionSequenceNumber":16,"writeUndiv":false})
+[2025-12-11 16:19:48] debug: 	zh:controller:endpoint: Request Queue (0xd44867fffe2a920a/1): send defaultRsp request immediately (sendPolicy=undefined)
+[2025-12-11 16:19:48] debug: 	z2m: Received Zigbee message from '0xd44867fffe2a920a', type 'attributeReport', cluster 'msOccupancySensing', data '{"occupancy":1}' from endpoint 1 with groupID 0
+[2025-12-11 16:19:48] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/0xd44867fffe2a920a', payload '{"battery":100,"illumination":"bright","linkquality":255,"occupancy":true,"update":{"installed_version":8705,"latest_version":8705,"state":"idle"},"voltage":2900}'
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=4](ackRx=3 frmTx=4)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=4 frmNum=7](frmRx=7) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=0](ackRx=4)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [FRAME: ID=52:"SEND_UNICAST" Seq=171 Len=7]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ~~~> [SENT type=DIRECT apsSequence=120 messageTag=91 status=OK]
+[2025-12-11 16:19:48] debug: 	zh:ember: ~~~> [ZCL to=0xd44867fffe2a920a:54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":0} header={"frameControl":{"reservedBits":0,"frameType":0,"direction":1,"disableDefaultResponse":true,"manufacturerSpecific":false},"transactionSequenceNumber":16,"commandIdentifier":11}]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ===> [FRAME: ID=52:"SEND_UNICAST" Seq=172 Len=26]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=4 frmRx=0](ackRx=4)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5](ackRx=4 frmTx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5 frmNum=0](frmRx=0) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=1](ackRx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [FRAME: ID=52:"SEND_UNICAST" Seq=172 Len=7]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ~~~> [SENT type=DIRECT apsSequence=121 messageTag=92 status=OK]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5](ackRx=5 frmTx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5 frmNum=1](frmRx=1) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=2](ackRx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=63:"MESSAGE_SENT_HANDLER" Seq=172 Len=22]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ezspMessageSentHandler: status=OK type=DIRECT indexOrDestination=54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":120} messageTag=91
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5](ackRx=5 frmTx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5 frmNum=2](frmRx=2) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=3](ackRx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=63:"MESSAGE_SENT_HANDLER" Seq=172 Len=22]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ezspMessageSentHandler: status=OK type=DIRECT indexOrDestination=54041 apsFrame={"profileId":260,"clusterId":1030,"sourceEndpoint":1,"destinationEndpoint":1,"options":4352,"groupId":0,"sequence":121} messageTag=92
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5](ackRx=5 frmTx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5 frmNum=3](frmRx=3) Added to rxQueue
+[2025-12-11 16:19:48] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=4](ackRx=5)
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=172 Len=32]
+[2025-12-11 16:19:48] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=UNICAST apsFrame={"profileId":260,"clusterId":64529,"sourceEndpoint":1,"destinationEndpoint":1,"options":256,"groupId":0,"sequence":10} packetInfo:{"senderShortId":54041,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":252,"lastHopRssi":-37,"lastHopTimestamp":0} messageContents=18110a01202001
+[2025-12-11 16:19:48] debug: 	zh:controller: Received payload: clusterID=64529, address=54041, groupID=0, endpoint=1, destinationEndpoint=1, wasBroadcast=false, linkQuality=252, frame={"header":{"frameControl":{"frameType":0,"manufacturerSpecific":false,"direction":1,"disableDefaultResponse":true,"reservedBits":0},"transactionSequenceNumber":17,"commandIdentifier":10},"payload":[{"attrId":8193,"dataType":32,"attrData":1}],"command":{"ID":10,"name":"report","parameters":[{"name":"attrId","type":33},{"name":"dataType","type":32},{"name":"attrData","type":1000}]}}
+[2025-12-11 16:19:48] debug: 	z2m: Received Zigbee message from '0xd44867fffe2a920a', type 'attributeReport', cluster '64529', data '{"8193":1}' from endpoint 1 with groupID 0
+[2025-12-11 16:19:48] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/0xd44867fffe2a920a', payload '{"battery":100,"illumination":"bright","linkquality":252,"occupancy":true,"update":{"installed_version":8705,"latest_version":8705,"state":"idle"},"voltage":2900}'
+[2025-12-11 16:21:57] debug: 	z2m: Saving state to file /app/data/state.json
+[2025-12-11 16:21:57] info: 	z2m:mqtt: MQTT publish: topic 'zigbee2mqtt/bridge/state', payload '{"state":"offline"}'
+[2025-12-11 16:21:57] info: 	z2m: Disconnecting from MQTT server
+[2025-12-11 16:21:57] info: 	z2m: Stopping zigbee-herdsman...
+[2025-12-11 16:21:57] debug: 	zh:controller: Disable joining
+[2025-12-11 16:21:57] debug: 	zh:ember: ~~~> [ZCL BROADCAST apsFrame={"profileId":41440,"clusterId":33,"sourceEndpoint":242,"destinationEndpoint":242,"options":4416,"groupId":65533,"sequence":0} header={"frameControl":{"reservedBits":0,"frameType":1,"direction":1,"disableDefaultResponse":true,"manufacturerSpecific":false},"transactionSequenceNumber":73,"commandIdentifier":2}]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=54:"SEND_BROADCAST" Seq=173 Len=27]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=5 frmRx=4](ackRx=5)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6](ackRx=5 frmTx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6 frmNum=4](frmRx=4) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=5](ackRx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=54:"SEND_BROADCAST" Seq=173 Len=7]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ~~~> [SENT type=BROADCAST apsSequence=122 messageTag=93 status=OK]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6](ackRx=6 frmTx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6 frmNum=5](frmRx=5) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=6](ackRx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [CBFRAME: ID=69:"INCOMING_MESSAGE_HANDLER" Seq=173 Len=30]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ezspIncomingMessageHandler: type=BROADCAST_LOOPBACK apsFrame={"profileId":41440,"clusterId":33,"sourceEndpoint":242,"destinationEndpoint":242,"options":256,"groupId":0,"sequence":122} packetInfo:{"senderShortId":0,"senderLongId":"0xffffffffffffffff","bindingIndex":255,"addressIndex":255,"lastHopLqi":255,"lastHopRssi":0,"lastHopTimestamp":0} messageContents=1949020a0000
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=107:"CLEAR_TRANSIENT_LINK_KEYS" Seq=174 Len=5]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=6 frmRx=6](ackRx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=7](ackRx=6 frmTx=7)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=7 frmNum=6](frmRx=6) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=7](ackRx=7)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=107:"CLEAR_TRANSIENT_LINK_KEYS" Seq=174 Len=5]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=85:"SET_POLICY" Seq=175 Len=7]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=7 frmRx=7](ackRx=7)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=0](ackRx=7 frmTx=0)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=0 frmNum=7](frmRx=7) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=0](ackRx=0)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=85:"SET_POLICY" Seq=175 Len=6]
+[2025-12-11 16:21:57] debug: 	zh:ember: [EzspPolicyId] SET 'TRUST_CENTER_POLICY' TO '2' with status=OK.
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=34:"PERMIT_JOINING" Seq=176 Len=6]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=0 frmRx=0](ackRx=0)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1](ackRx=0 frmTx=1)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=1 frmNum=0](frmRx=0) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=1](ackRx=1)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=34:"PERMIT_JOINING" Seq=176 Len=6]
+[2025-12-11 16:21:57] debug: 	zh:ember: Permit joining on coordinator for 0 sec.
+[2025-12-11 16:21:57] debug: 	zh:ember: ~~~> [ZDO PERMIT_JOINING_REQUEST BROADCAST to=65532 messageTag=30 payload=1e0001]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=54:"SEND_BROADCAST" Seq=177 Len=24]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=1 frmRx=1](ackRx=1)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=2](ackRx=1 frmTx=2)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=2 frmNum=1](frmRx=1) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=2](ackRx=2)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=54:"SEND_BROADCAST" Seq=177 Len=7]
+[2025-12-11 16:21:57] debug: 	zh:ember: ~~~> [SENT ZDO BROADCAST messageTag=30 apsSequence=123 status=OK]
+[2025-12-11 16:21:57] debug: 	zh:controller:database: Writing database to '/app/data/database.db'
+[2025-12-11 16:21:57] debug: 	zh:controller: Creating coordinator backup
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=40:"GET_NETWORK_PARAMETERS" Seq=178 Len=5]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=2 frmRx=2](ackRx=2)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3](ackRx=2 frmTx=3)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=3 frmNum=2](frmRx=2) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=3](ackRx=3)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=40:"GET_NETWORK_PARAMETERS" Seq=178 Len=27]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=38:"GET_EUI64" Seq=179 Len=5]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=3 frmRx=3](ackRx=3)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=4](ackRx=3 frmTx=4)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=4 frmNum=3](frmRx=3) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=4](ackRx=4)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=38:"GET_EUI64" Seq=179 Len=13]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=278:"GET_NETWORK_KEY_INFO" Seq=180 Len=5]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=4 frmRx=4](ackRx=4)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5](ackRx=4 frmTx=5)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=5 frmNum=4](frmRx=4) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=5](ackRx=5)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=278:"GET_NETWORK_KEY_INFO" Seq=180 Len=17]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=276:"EXPORT_KEY" Seq=181 Len=23]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=5 frmRx=5](ackRx=5)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6](ackRx=5 frmTx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=6 frmNum=5](frmRx=5) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=6](ackRx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=276:"EXPORT_KEY" Seq=181 Len=25]
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: ===> [FRAME: ID=276:"EXPORT_KEY" Seq=182 Len=23]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=DATA frmTx=6 frmRx=6](ackRx=6)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA]
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=7](ackRx=6 frmTx=7)
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: <--- [FRAME type=DATA ackNum=7 frmNum=6](frmRx=6) Added to rxQueue
+[2025-12-11 16:21:57] debug: 	zh:ember:uart:ash: ---> [FRAME type=ACK frmRx=7](ackRx=7)
+[2025-12-11 16:21:57] debug: 	zh:ember:ezsp: <=== [FRAME: ID=276:"EXPORT_KEY" Seq=182 Len=25]
+[2025-12-11 16:21:57] info: 	zh:controller: Wrote coordinator backup to '/app/data/coordinator_backup.json'
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash: ASH COUNTERS since last clear:
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Total frames: RX=600, TX=784
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Cancelled   : RX=0, TX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   DATA frames : RX=599, TX=183
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   DATA bytes  : RX=11673, TX=3847
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Retry frames: RX=0, TX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   ACK frames  : RX=0, TX=600
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   NAK frames  : RX=0, TX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   nRdy frames : RX=0, TX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   CRC errors      : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Comm errors     : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Length < minimum: RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Length > maximum: RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Bad controls    : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Bad lengths     : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Bad ACK numbers : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Out of buffers  : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Retry dupes     : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   Out of sequence : RX=0
+[2025-12-11 16:21:57] info: 	zh:ember:uart:ash:   ACK timeouts    : RX=0
+[2025-12-11 16:21:58] info: 	zh:ember:uart:ash: Port closed, error=null
+[2025-12-11 16:21:58] info: 	zh:ember:uart:ash: ======== ASH stopped ========
+[2025-12-11 16:21:58] info: 	zh:ember:ezsp: ======== EZSP stopped ========
+[2025-12-11 16:21:58] info: 	zh:ember: ======== Ember Adapter Stopped ========
+[2025-12-11 16:21:58] info: 	z2m: Stopped zigbee-herdsman
+[2025-12-11 16:21:58] info: 	z2m: Stopped Zigbee2MQTT

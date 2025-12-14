@@ -26,7 +26,7 @@ public class ZigbeeCommandService(
         moduleClient.SetMethodHandlerAsync("SendDeviceOptions", HandleSendDeviceOptions, null, cancellationToken);
         moduleClient.SetMethodHandlerAsync("AllowJoinAndListen", HandleAllowJoin, null, cancellationToken);
         moduleClient.SetMethodHandlerAsync("RemoveDevice", HandleRemoveDevice, null, cancellationToken);
-        moduleClient.SetMethodHandlerAsync("StartProcessingMessages", HandleStartProcessing, null, cancellationToken);
+        // moduleClient.SetMethodHandlerAsync("StartProcessingMessages", HandleStartProcessing, null, cancellationToken);
         moduleClient.SetMethodHandlerAsync("GetDeviceDetails", HandleGetDeviceDetails, null, cancellationToken);
         moduleClient.SetMethodHandlerAsync("GetOptionDetails", HandleGetOptionDetails, null, cancellationToken);
         moduleClient.SetMethodHandlerAsync("SubscribeToAll", HandleSubscribeToAll, null, cancellationToken);
@@ -77,11 +77,12 @@ public class ZigbeeCommandService(
         catch (Exception ex) { return Error(ex); }
     }
 
-    private Task<MethodResponse> HandleStartProcessing(MethodRequest req, object ctx)
-    {
-        try { zigbeeClient.StartProcessingMessages(); return Task.FromResult(Ok()); }
-        catch (Exception ex) { return Task.FromResult(Error(ex)); }
-    }
+    // private Task<MethodResponse> HandleStartProcessing(MethodRequest req, object ctx)
+    // {
+    //     Console.WriteLine("Starting Message Processing");
+    //     // try { zigbeeClient.StartProcessingMessages(); return Task.FromResult(Ok()); }
+    //     // catch (Exception ex) { return Task.FromResult(Error(ex)); }
+    // }
 
     private async Task<MethodResponse> HandleGetDeviceDetails(MethodRequest req, object ctx)
     {

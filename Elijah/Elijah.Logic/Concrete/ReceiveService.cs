@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MQTTnet;
 using MQTTnet.Protocol;
 
@@ -16,9 +17,65 @@ namespace Elijah.Logic.Concrete;
 public class ReceiveService(
     IServiceScopeFactory scopeFactory,
     IMqttConnectionService mqtt,
-    IAzureIoTHubService azureService
-    ) : IReceiveService
+    IAzureIoTHubService azureService,
+    ISubscriptionService sub
+) : IReceiveService, IHostedService
 {
+    private bool _isRunning = false;
+    private readonly object _lock = new object();
+
+    // **Automatically starts when application boots**
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        lock (_lock)
+        {
+            if (_isRunning) 
+            {
+                Console.WriteLine("ReceiveService already running");
+                return Task.CompletedTask;
+            }
+            _isRunning = true;
+        }
+
+        Console.WriteLine("ReceiveService starting automatically...");
+        StartMessageLoop(); // Start immediately, no Azure call needed
+        return Task.CompletedTask;
+    }
+
+    // **Called only when application shuts down**
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        mqtt.Client.ApplicationMessageReceivedAsync -= OnMessageAsync;
+        Console.WriteLine("ReceiveService stopped");
+        return Task.CompletedTask;
+    }
+
+    // **Now private - not called from Azure**
+    private async void StartMessageLoop()
+    {  
+        // Wait for MQTT connection (max 30 seconds)
+        int attempts = 0;
+        while (!mqtt.Client.IsConnected && attempts < 30)
+        {
+            Console.WriteLine($"Waiting for MQTT connection... ({attempts + 1}/30)");
+            await Task.Delay(1000);
+            attempts++;
+        }
+
+        if (!mqtt.Client.IsConnected)
+        {
+            Console.WriteLine(" MQTT not connected after 30 seconds!");
+            return; 
+        }
+
+        Console.WriteLine("MQTT connected - starting message processing");
+        mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
+        
+        // Subscribe to device topics
+        sub.SubscribeAllActiveDevicesAsync();
+        
+        Console.WriteLine("Message processing is ACTIVE");
+    }
     
     // ------------------------------------------------------- //
     // Tracks devices that timed out during option retrieval   //
@@ -29,10 +86,11 @@ public class ReceiveService(
     // ---------------------------------------- //
     // Starts the main message processing loop  //
     // ---------------------------------------- //
-    public void StartMessageLoop()
-    {
-        mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
-    }
+    // public void StartMessageLoop()
+    // {
+    //     Console.WriteLine("Message loop started");
+    //     mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
+    // }
     // ------------------------------------------ //
     // Main message handler for all MQTT messages //
     // ------------------------------------------ //

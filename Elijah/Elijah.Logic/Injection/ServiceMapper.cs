@@ -35,6 +35,10 @@ public static class ServiceMapper
         // Add these registrations:
         services.AddSingleton<IAzureIoTHubService, AzureIoTHubService>();
         services.AddHostedService<ZigbeeCommandService>();
+        
+        services.AddSingleton<ReceiveService>();  
+        services.AddSingleton<IReceiveService>(sp => sp.GetRequiredService<ReceiveService>());  
+        services.AddHostedService(sp => sp.GetRequiredService<ReceiveService>()); 
 
 
         // Ensure ModuleClient is available:
@@ -50,7 +54,6 @@ public static class ServiceMapper
 
         services.AddTransient<ISubscriptionService, SubscriptionService>();
         services.AddTransient<ISendService, SendService>();
-        services.AddTransient<IReceiveService, ReceiveService>();
         services.AddHostedService<OpenThermService>();
         services.AddSingleton<IOpenThermService>(sp =>
             sp.GetServices<IHostedService>().OfType<OpenThermService>().First());

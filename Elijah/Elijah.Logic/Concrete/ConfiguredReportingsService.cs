@@ -134,21 +134,26 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
     public async Task<List<ReportConfig>> GetAllReportConfigsForAddressAsync(string deviceAddress)
     {
         if (string.IsNullOrWhiteSpace(deviceAddress))
-            return [];
+            return new List<ReportConfig>();
 
-        var configs = await QueryByAddress(deviceAddress).ToListAsync();
+   
+        var configsForDevice = await repo.Query<ConfiguredReporting>()
+            .Include(r => r.Device)
+            .Where(r => r.Device.Address == deviceAddress)
+            .ToListAsync();
 
-        return configs.Select(r =>
-            new ReportConfig(
-                r.Device.Address,
-                r.Cluster,
-                r.Attribute,
-                "0",
-                "0",
-                "0",
-                r.Endpoint
-            )
-        ).ToList();
+        // Map to ReportConfig DTO
+        var configs = configsForDevice.Select(r => new ReportConfig(
+            r.Device.Address,
+            r.Cluster,
+            r.Attribute,
+            "0",
+            "0",
+            "0",
+            r.Endpoint
+        )).ToList();
+
+        return configs;
     }
     
     // -------------------------------------------------------------------------------- //
