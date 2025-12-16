@@ -78,16 +78,24 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
     // ------------------------------------------------------------- //
     // Checks if a model template exists; copies template if present //
     // ------------------------------------------------------------- //
-    public async Task<bool> ModelPresentAsync(string modelId, string address)
+    public async Task<string> ModelPresentAsync(string modelId, string address)
     {
         var templateExists = await repo.Query<DeviceTemplate>()
             .AnyAsync(d => d.ModelId == modelId);
 
         Console.WriteLine(templateExists ? "Model already present" : "Model not yet present");
-
+        string type;
         if (templateExists)
+        {
+            type = "templateExist";
             await CopyModelTemplateAsync(modelId, address);
+        }
+        else
+        {
+            type = "templateNotExist";
+            
+        }
 
-        return templateExists;
+        return type;
     }
 }

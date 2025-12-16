@@ -26,7 +26,14 @@ public static class ServiceMapper
         );
 
         // Services
-        services.AddSingleton(new SerialPort("/dev/ttyUSB1", 115200)
+        var portName = configuration["OpenTherm:SerialPort"]
+                       ?? throw new InvalidOperationException("OpenTherm:SerialPort not configured");
+
+        var baudRate = int.TryParse(configuration["OpenTherm:BaudRate"], out var br)
+            ? br
+            : 115200;
+
+        services.AddSingleton(new SerialPort(portName, baudRate)
         {
             ReadTimeout = 2000,
             WriteTimeout = 2000
@@ -54,9 +61,9 @@ public static class ServiceMapper
 
         services.AddTransient<ISubscriptionService, SubscriptionService>();
         services.AddTransient<ISendService, SendService>();
-        services.AddHostedService<OpenThermService>();
-        services.AddSingleton<IOpenThermService>(sp =>
-            sp.GetServices<IHostedService>().OfType<OpenThermService>().First());
+        services.AddSingleton<OpenThermService>();
+        services.AddSingleton<IOpenThermService>(sp => sp.GetRequiredService<OpenThermService>());
+        services.AddHostedService(sp => sp.GetRequiredService<OpenThermService>());
 
         // Zigbee client
         services.AddSingleton<IZigbeeClient, ZigbeeClient>();

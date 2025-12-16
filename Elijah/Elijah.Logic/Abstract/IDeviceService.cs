@@ -20,7 +20,7 @@ public interface IDeviceService
     // ------------------------------------------------------- //
     // Verifies device existence, creates template if missing  //
     // ------------------------------------------------------- //
-    Task<bool> DevicePresentAsync(string modelId, string address);
+    Task<string> DevicePresentAsync(string modelId, string address);
 
     // ------------------------------------------- //
     // Unsubscribes all devices on system shutdown //
@@ -46,4 +46,6 @@ public interface IDeviceService
     // Gets addresses of all active (non-removed) devices  //
     // --------------------------------------------------- //
     Task<List<string>> GetActiveAddressesAsync();
+
+    Task SetSubscribedAsync(string address);
 }

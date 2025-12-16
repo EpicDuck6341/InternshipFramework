@@ -20,5 +20,5 @@ public interface IDeviceTemplateService
     // -------------------------------------------------------- //
     // Validates template existence and triggers copy if found  //
     // -------------------------------------------------------- //
-    Task<bool> ModelPresentAsync(string modelId, string address);
+    Task<string> ModelPresentAsync(string modelId, string address);
 }

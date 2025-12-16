@@ -32,6 +32,21 @@ services:
       - MQTT_SERVER=mqtt://mqtt:1883  
     networks:
       - elijah-network
+      
+  elijah:
+    container_name: elijah
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+    devices:
+      - "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0:/dev/ttyUSB0"  # OpenTherm
+    environment:
+      - SERIAL_PORT=/dev/ttyUSB0  
+    network_mode: "elijah-network"
+    restart: unless-stopped
+      
 
 networks:
   elijah-network:

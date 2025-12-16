@@ -18,7 +18,8 @@ public class ReceiveService(
     IServiceScopeFactory scopeFactory,
     IMqttConnectionService mqtt,
     IAzureIoTHubService azureService,
-    ISubscriptionService sub
+    ISubscriptionService sub,
+    IOpenThermService openTherm
 ) : IReceiveService, IHostedService
 {
     private bool _isRunning = false;
@@ -29,11 +30,12 @@ public class ReceiveService(
     {
         lock (_lock)
         {
-            if (_isRunning) 
+            if (_isRunning)
             {
                 Console.WriteLine("ReceiveService already running");
                 return Task.CompletedTask;
             }
+
             _isRunning = true;
         }
 
@@ -52,7 +54,7 @@ public class ReceiveService(
 
     // **Now private - not called from Azure**
     private async void StartMessageLoop()
-    {  
+    {
         // Wait for MQTT connection (max 30 seconds)
         int attempts = 0;
         while (!mqtt.Client.IsConnected && attempts < 30)
@@ -65,22 +67,22 @@ public class ReceiveService(
         if (!mqtt.Client.IsConnected)
         {
             Console.WriteLine(" MQTT not connected after 30 seconds!");
-            return; 
+            return;
         }
 
         Console.WriteLine("MQTT connected - starting message processing");
         mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
-        
+
         // Subscribe to device topics
         sub.SubscribeAllActiveDevicesAsync();
-        
+
         Console.WriteLine("Message processing is ACTIVE");
     }
-    
+
     // ------------------------------------------------------- //
     // Tracks devices that timed out during option retrieval   //
     // ------------------------------------------------------- //
-    private readonly Dictionary<string, PendingOptionData> _lateOptions 
+    private readonly Dictionary<string, PendingOptionData> _lateOptions
         = new Dictionary<string, PendingOptionData>();
 
     // ---------------------------------------- //
@@ -96,73 +98,115 @@ public class ReceiveService(
     // ------------------------------------------ //
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
     {
-        
-        using var scope = scopeFactory.CreateScope();
-        var devices = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        var filters = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
+        // Decode topic and payload
         var topic = arg.ApplicationMessage.Topic;
         var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-        if (topic.Contains("zigbee2mqtt/bridge"))
-            return; 
         
-        var deviceAddress = topic.Replace("zigbee2mqtt/", "");
-        var device = await devices.GetDeviceByAddressAsync(deviceAddress);
-        var modelId = device?.DeviceTemplate.ModelId;
-        var keys = await filters.QueryDataFilterAsync(deviceAddress);
-        var node = JsonNode.Parse(payload)?.AsObject();
-        if (node == null) 
+
+        if (topic.Contains("zigbee2mqtt/bridge"))
+        {
+            Console.WriteLine("[DEBUG] Ignoring bridge topic.");
             return;
-        if (node.ContainsKey("temperature") && node.ContainsKey("co2") && node.ContainsKey("humidity"))
+        }
+        
+
+        var deviceAddress = topic.Replace("zigbee2mqtt/", "");
+
+        // Create a new scope for all scoped services
+        using var scope = scopeFactory.CreateScope();
+
+        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var filterService = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
+
+        // Check subscription inside the scope
+        if (!await sub.IsSubscribedAsync(deviceAddress))
+        {
+            Console.WriteLine($"[DEBUG] Device {deviceAddress} is not subscribed. Skipping.");
+            return;
+        }
+        
+        Console.WriteLine($"[DEBUG] Device {deviceAddress} is subscribed.");
+        // Fetch device inside the scope
+        var device = await deviceService.GetDeviceByAddressAsync(deviceAddress, allowNull: true);
+        if (device == null)
+        {
+            Console.WriteLine($"[DEBUG] Device is null.");
+            return;
+        }
+        
+
+        // Query filters for this device
+        var keys = await filterService.QueryDataFilterAsync(deviceAddress);
+
+        var node = JsonNode.Parse(payload)?.AsObject();
+        if (node == null)
+        {
+            Console.WriteLine("[DEBUG] Payload JSON could not be parsed.");
+            return;
+        }
+        Console.WriteLine($"[DEBUG] Message Parsed.");
+        // Handle zero sensor values if present
+        if (node.ContainsKey("temperature") && node.ContainsKey("co2_2") && node.ContainsKey("humidity"))
         {
             var tempNode = node["temperature"];
-            var co2Node = node["co2"];
+            var co2Node = node["co2_2"];
             var humidityNode = node["humidity"];
-            
+            Console.WriteLine(tempNode);
+            Console.WriteLine($"[DEBUG] Sending Temp to OT.");
+            await openTherm.SendParameterAsync("currentTemp", tempNode);
+            Console.WriteLine($"[DEBUG] Sent!.");
+
             if (IsZeroValue(tempNode) && IsZeroValue(co2Node) && IsZeroValue(humidityNode))
             {
+                Console.WriteLine("[DEBUG] Zero sensor values detected. Handling.");
                 await HandleZeroSensorValuesAsync(deviceAddress);
             }
         }
+
+        // Filter data
         var filtered = new JsonObject();
+
         if (keys != null && keys.Any())
         {
-            foreach (var k in keys)
-                if (node.ContainsKey(k))
-                    filtered[k] = node[k]!.DeepClone();
+            // Only check co2 if it exists, weird interaction
+            bool co2IsZero = node.ContainsKey("co2_2") && IsZeroValue(node["co2_2"]);
+
+            if (!co2IsZero) 
+            {
+                foreach (var k in keys)
+                {
+                    if (node.ContainsKey(k))
+                        filtered[k] = node[k]!.DeepClone();
+                }
+            }
         }
         else
         {
             foreach (var kv in node)
             {
-                Console.WriteLine(node.Count);
-                Console.WriteLine(kv.Key);
-                await filters.NewFilterEntryAsync(deviceAddress, kv.Key);
+                Console.WriteLine($"[DEBUG] Adding filter for key: {kv.Key}");
+                await filterService.NewFilterEntryAsync(deviceAddress, kv.Key);
             }
         }
-        Console.WriteLine(
-            $"[{device?.Name},{modelId}]{filtered.ToJsonString()}");
+
+        Console.WriteLine($"[DEBUG] Filtered data for device {deviceAddress}: {filtered.ToJsonString()}");
+
+        // Send telemetry
         foreach (var ft in filtered)
         {
+            Console.WriteLine($"[DEBUG] Sending telemetry: {ft.Key} = {ft.Value}");
             await azureService.SendTelemetryAsync(deviceAddress, ft.Key, ft.Value);
         }
 
-
+        // Handle late options if present
         if (_lateOptions.TryGetValue(deviceAddress, out var pending))
         {
-            Console.WriteLine($"Late options received for {deviceAddress}");
-
-            await LateOptionAsync(
-                payload,
-                pending.Address,
-                pending.ReadableProps,
-                pending.Descriptions
-            );
+            Console.WriteLine($"[DEBUG] Late options received for {deviceAddress}. Processing...");
+            await LateOptionAsync(payload, pending.Address, pending.ReadableProps, pending.Descriptions);
             _lateOptions.Remove(deviceAddress);
         }
-
-        
-        
     }
+
 
     // ---------------------------------------------- //
     // Checks if a JSON node represents a zero value  //
@@ -170,20 +214,20 @@ public class ReceiveService(
     private bool IsZeroValue(JsonNode? node)
     {
         if (node == null) return false;
-        
+
         if (node is JsonValue value)
         {
             if (value.TryGetValue<float>(out var f)) return Math.Abs(f) < float.Epsilon;
             if (value.TryGetValue<int>(out var i)) return i == 0;
             if (value.TryGetValue<double>(out var d)) return Math.Abs(d) < double.Epsilon;
-            
+
             if (value.TryGetValue<string>(out var s))
             {
                 if (float.TryParse(s, out var parsedFloat)) return Math.Abs(parsedFloat) < float.Epsilon;
                 if (int.TryParse(s, out var parsedInt)) return parsedInt == 0;
             }
         }
-        
+
         return false;
     }
 
@@ -195,9 +239,9 @@ public class ReceiveService(
     {
         using var scope = scopeFactory.CreateScope();
         var config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
-        
+
         Console.WriteLine($"ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
-        
+
         var configs = await config.ConfigByAddress(deviceAddress);
         if (!configs.Any())
         {
@@ -205,33 +249,35 @@ public class ReceiveService(
             return;
         }
 
-     
+
         var baseConfig = configs.First();
         int minInterval = int.Parse(baseConfig.MinimumReportInterval ?? "0");
         int maxInterval = int.Parse(baseConfig.MaximumReportInterval ?? "0");
-        
-        int tempChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "temperature"))?.ReportableChange ?? "0");
-        int humidityChange = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "humidity"))?.ReportableChange ?? "0");
-        int co2Change = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "co2"))?.ReportableChange ?? "0");
 
-        
+        int tempChange =
+            int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "temperature"))?.ReportableChange ?? "0");
+        int humidityChange =
+            int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "humidity"))?.ReportableChange ?? "0");
+        int co2Change = int.Parse(configs.FirstOrDefault(c => IsAttributeMatch(c, "co2_2"))?.ReportableChange ?? "0");
+
+
         await SendConfigValueAsync(deviceAddress, "minimumReportInterval", minInterval);
         await Task.Delay(200);
-        
+
         await SendConfigValueAsync(deviceAddress, "maximumReportInterval", maxInterval);
         await Task.Delay(200);
-        
+
         await SendConfigValueAsync(deviceAddress, "temperatureReportableChange", tempChange);
         await Task.Delay(200);
-        
+
         await SendConfigValueAsync(deviceAddress, "humidityReportableChange", humidityChange);
         await Task.Delay(200);
-        
+
         await SendConfigValueAsync(deviceAddress, "co2ReportableChange", co2Change);
-        
+
         Console.WriteLine($"Completed reconfiguration for {deviceAddress}");
     }
-    
+
     // ------------------------------------------------------------------------------- //
     // Sends a single configuration value to ESP via MQTT using proper JSON structure  //
     // ------------------------------------------------------------------------------- //
@@ -247,7 +293,7 @@ public class ReceiveService(
 
         // Construct the MQTT message
         var message = new MqttApplicationMessageBuilder()
-            .WithTopic($"zigbee2mqtt/{address}/set") 
+            .WithTopic($"zigbee2mqtt/{address}/set")
             .WithPayload(payloadToSend)
             .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
@@ -263,8 +309,8 @@ public class ReceiveService(
     {
         return config.Attribute != null && config.Attribute.Equals(attributeName, StringComparison.OrdinalIgnoreCase);
     }
-    
-    
+
+
     // ------------------------------------------------- //
     // Processes option data that arrived after timeout  //
     // ------------------------------------------------- //
@@ -287,7 +333,7 @@ public class ReceiveService(
             await option.SetOptionsAsync(address, descriptions[i], value, prop);
             Console.WriteLine($"(LATE) Option: {prop} = {value}");
         }
-        
+
         await mqtt.Client.PublishAsync(
             new MqttApplicationMessageBuilder()
                 .WithTopic($"zigbee2mqtt/{address}/get")
@@ -312,5 +358,4 @@ public class ReceiveService(
 
         Console.WriteLine($"Stored late options for {address}");
     }
-
 }

@@ -14,4 +14,5 @@ public interface ISubscriptionService
     // Subscribes to all active devices  //
     // --------------------------------- //
     Task SubscribeAllActiveDevicesAsync();
+    Task<bool> IsSubscribedAsync(string address);
 }

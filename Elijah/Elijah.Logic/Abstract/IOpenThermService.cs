@@ -7,15 +7,12 @@ namespace Elijah.Logic.Abstract;
 // ---------------------------------------------- //
 public interface IOpenThermService
 {
-    // ------------------------------------------------------ //
-    // Initializes ESP serial connection and waits for ready  //
-    // ------------------------------------------------------ //
-    Task EspConnect();
+    
 
     // -------------------------------- //
     // Sends configuration data to ESP  //
     // -------------------------------- //
-    Task SendConfigToEspAsync();
+    Task SendConfigToEspAsync(CancellationToken cancellationToken = default);
 
     // ------------------------------------------- //
     // Continuously listens for messages from ESP  //
@@ -25,15 +22,19 @@ public interface IOpenThermService
     // -------------------------------- //
     // Sends a parameter update to ESP  //
     // -------------------------------- //
-    Task SendParameterAsync(string id, object value);
+    Task SendParameterAsync(string id, object value, CancellationToken cancellationToken = default);
+
 
     // ------------------------------------------------ //
     // Updates or creates OpenTherm config in database  //
     // ------------------------------------------------ //
-    Task UpdateOrCreateConfigAsync(int id, int intervalSec, float threshold);
     
     // ---------------------------------------- //
     // Represents an incoming message from ESP  //
     // ---------------------------------------- //
     public record IncomingMessage(string Id, JsonElement Value);
+
+    Task UpdateOrCreateConfigAsync(int id, int intervalSec, float threshold,
+        CancellationToken cancellationToken = default);
+
 }

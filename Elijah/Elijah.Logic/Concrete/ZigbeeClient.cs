@@ -60,100 +60,137 @@ public class ZigbeeClient(
     // Enables device joining and processes interview results  //
     // ------------------------------------------------------- //
     public async Task AllowJoinAndListen(int seconds)
+{
+    using var scope = scopeFactory.CreateScope();
+    var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+
+    await conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
+    Console.WriteLine($"DEBUG: Permitting join for {seconds} seconds."); // DEBUG
+    await send.PermitJoinAsync(seconds);
+
+    var joinedDevice = new Queue<(string address, string model)>();
+    var targetData = new Queue<(string address, string model, List<string> props, List<string> descs)>();
+    
+    async Task OnInterviewAsync(MqttApplicationMessageReceivedEventArgs e)
     {
-        using var scope = scopeFactory.CreateScope();
-        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/event")
+            return;
 
-        await conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
-        Console.WriteLine("Subscribed to bridge");
-        await send.PermitJoinAsync(seconds);
+        var payloadStr = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+        using var json = JsonDocument.Parse(payloadStr);
+        var root = json.RootElement;
 
-        var joinedDevice = new Queue<(string address, string model)>();
-        var targetData = new Queue<(string address, string model, List<string> props, List<string> descs)>();
         
-        async Task OnInterviewAsync(MqttApplicationMessageReceivedEventArgs e)
+
+        var data = root.GetProperty("data");
+        var address = data.GetProperty("ieee_address").GetString();
+        var model = data.GetProperty("definition").GetProperty("model").GetString();
+        
+        Console.WriteLine($"Device joined: {address} ({model})"); // Original line
+        string type = await deviceService.DevicePresentAsync(model, address);
+        if (type.Equals("TemplateNotExist"))
         {
-            if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/event")
-                return;
-
-            var payloadStr = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-            using var json = JsonDocument.Parse(payloadStr);
-            var root = json.RootElement;
-
-            if (root.GetProperty("type").GetString() != "device_interview" ||
-                root.GetProperty("data").GetProperty("status").GetString() != "successful")
-                return;
-
-            var data = root.GetProperty("data");
-            var address = data.GetProperty("ieee_address").GetString();
-            var model = data.GetProperty("definition").GetProperty("model").GetString();
-
-            Console.WriteLine($"Device joined: {address} ({model})");
-
-            if (model != null && address != null && !await deviceService.DevicePresentAsync(model, address))
+            Console.WriteLine($"DEBUG: New device ({model}, {address}). Creating new entry."); // DEBUG
+            await deviceService.NewDeviceEntryAsync(model, address, address);
+        }
+        else if(type.Equals("deviceExist"))
+        {
+            Console.WriteLine($"DEBUG: Device ({model}, {address}) already present or data is null. Set to active."); // DEBUG
+            if (address != null)
             {
-                await deviceService.NewDeviceEntryAsync(model, address, address);
+                Console.WriteLine($"DEBUG: Subscribing to existing device address: {address}"); // DEBUG
+                await sub.SubscribeAsync(address);
             }
-            else
-            {
-                Console.WriteLine("Set to active");
-            }
+            return;
+        }
+        
+        joinedDevice.Enqueue((address!, model!));
 
-            var exposes = data.GetProperty("definition").GetProperty("exposes");
-            var options = data.GetProperty("definition").GetProperty("options");
+        var exposes = data.GetProperty("definition").GetProperty("exposes");
+        var options = data.GetProperty("definition").GetProperty("options");
 
-            var properties = new List<string>();
-            var descriptions = new List<string>();
+        var properties = new List<string>();
+        var descriptions = new List<string>();
 
-            
+        if (exposes.GetArrayLength() != 0)
+        {
             foreach (var ex in exposes.EnumerateArray())
             {
                 var access = ex.GetProperty("access").GetInt16();
+                Console.WriteLine($"DEBUG: Processing expose. Access: {access}"); // DEBUG
                 if (access is 2 or 7)
                 {
-                    properties.Add(ex.GetProperty("property").GetString() ?? "");
-                    descriptions.Add(ex.GetProperty("description").GetString() ?? "");
+                    var prop = ex.GetProperty("property").GetString();
+                    var desc = ex.GetProperty("description").GetString();
+                    properties.Add(prop ?? "");
+                    descriptions.Add(desc ?? "");
+                    Console.WriteLine($"DEBUG: Added property (expose): {prop}"); // DEBUG
                 }
             }
+        }
 
+        if (options.GetArrayLength() != 0)
+        {
             foreach (var opt in options.EnumerateArray())
             {
                 var access = opt.GetProperty("access").GetInt16();
+                Console.WriteLine($"DEBUG: Processing option. Access: {access}"); // DEBUG
                 if (access is 2 or 7)
                 {
-                    properties.Add(opt.GetProperty("property").GetString() ?? "");
-                    descriptions.Add(opt.GetProperty("description").GetString() ?? "");
-                    Console.WriteLine(opt.GetProperty("property").GetString());
+                    var prop = opt.GetProperty("property").GetString();
+                    var desc = opt.GetProperty("description").GetString();
+                    properties.Add(prop ?? "");
+                    descriptions.Add(desc ?? "");
+                    Console.WriteLine(opt.GetProperty("property").GetString()); // Original line
+                    Console.WriteLine($"DEBUG: Added property (option): {prop}"); // DEBUG
                 }
             }
+        }
 
-            joinedDevice.Enqueue((address!, model!));
+
+        if (properties.Count != 0&&descriptions.Count != 0)
+        {
             targetData.Enqueue((address!, model!, properties, descriptions));
         }
 
-        conn.Client.ApplicationMessageReceivedAsync += OnInterviewAsync;
-        await Task.Delay(seconds * 1000);
-        await send.CloseJoinAsync();
-
-        // Process joined devices
-        while (joinedDevice.Count > 0)
-        {
-            var (addr, mdl) = joinedDevice.Dequeue();
-            await GetDeviceDetails(addr, mdl);
-            await sub.SubscribeAsync(addr);
-        }
-
-        await Task.Delay(500);
-
-        // Process device options
-        while (targetData.Count > 0)
-        {
-            var (addr, mdl, props, descriptions) = targetData.Dequeue();
-            await GetOptionDetails(addr, mdl, props, descriptions);
-        }
-
-        conn.Client.ApplicationMessageReceivedAsync -= OnInterviewAsync;
+        Console.WriteLine($"DEBUG: Device ({address}) enqueued for processing."); // DEBUG
     }
+
+    conn.Client.ApplicationMessageReceivedAsync += OnInterviewAsync;
+    Console.WriteLine($"DEBUG: Attached OnInterviewAsync handler. Waiting for {seconds} seconds."); // DEBUG
+    await Task.Delay(seconds * 1000);
+    Console.WriteLine("DEBUG: Wait time expired. Closing join."); // DEBUG
+    await send.CloseJoinAsync();
+
+    // Process joined devices
+    Console.WriteLine($"DEBUG: Starting to process joined devices. Count: {joinedDevice.Count}"); // DEBUG
+    while (joinedDevice.Count > 0)
+    {
+        var (addr, mdl) = joinedDevice.Dequeue();
+        Console.WriteLine($"DEBUG: Dequeued device for details: {addr} ({mdl})"); // DEBUG
+        await GetDeviceDetails(addr, mdl);
+        Console.WriteLine($"DEBUG: Subscribing to device: {addr}"); // DEBUG
+        await sub.SubscribeAsync(addr);
+    }
+    Console.WriteLine("DEBUG: Finished processing joined devices."); // DEBUG
+
+    await Task.Delay(500);
+    Console.WriteLine("DEBUG: Short delay after initial processing."); // DEBUG
+
+    // Process device options
+    Console.WriteLine($"DEBUG: Starting to process device options. Count: {targetData.Count}"); // DEBUG
+    while (targetData.Count > 0)
+    {
+        var (addr, mdl, props, descriptions) = targetData.Dequeue();
+        Console.WriteLine($"DEBUG: Dequeued device for options: {addr} ({mdl}) with {props.Count} properties."); // DEBUG
+        await GetOptionDetails(addr, mdl, props, descriptions);
+    }
+    Console.WriteLine("DEBUG: Finished processing device options."); // DEBUG
+
+    conn.Client.ApplicationMessageReceivedAsync -= OnInterviewAsync;
+    Console.WriteLine("DEBUG: Detached OnInterviewAsync handler."); // DEBUG
+    Console.WriteLine("DEBUG: AllowJoinAndListen finished."); // DEBUG
+}
 
     // ---------------------------------------------------- //
     // Marks a device as removed and sends removal command  //

@@ -41,15 +41,19 @@ public class DeviceService(
     // -------------------------------------------------------- //
     // Checks if a device exists, adds a template entry if not  //
     // -------------------------------------------------------- //
-    public async Task<bool> DevicePresentAsync(string modelId, string address)
+    public async Task<string> DevicePresentAsync(string modelId, string address)
     {
         var exists = await repo.Query<Device>()
             .AnyAsync(d => d.Address == address);
-
+        string type;
         if (!exists)
-            await deviceTemplate.ModelPresentAsync(modelId, address);
+           type = await deviceTemplate.ModelPresentAsync(modelId, address);
+        else
+        {
+            type = "deviceExist";
+        }
 
-        return exists;
+        return type;
     }
 
     // ------------------------ //
@@ -60,6 +64,13 @@ public class DeviceService(
         await repo.Query<Device>()
             .ExecuteUpdateAsync(d => d.SetProperty(x => x.Subscribed, false));
         await repo.SaveChangesAsync();
+    }
+
+    public async Task SetSubscribedAsync(string address)
+    {
+        await repo.Query<Device>()
+            .Where(d => d.Address == address)
+            .ExecuteUpdateAsync(d => d.SetProperty(x => x.Subscribed, true));
     }
 
     // ----------------------------------------- //

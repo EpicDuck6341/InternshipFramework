@@ -10,7 +10,8 @@ namespace Elijah.Logic.Concrete;
 // ----------------------------------------------- //
 public class SubscriptionService(
     IMqttConnectionService mqtt,
-    IServiceScopeFactory scopeFactory
+    IServiceScopeFactory scopeFactory,
+    IDeviceService deviceService
 ) : ISubscriptionService
 {
   
@@ -20,11 +21,8 @@ public class SubscriptionService(
     // ------------------------------------ //
     public async Task SubscribeAsync(string address)
     {
-        using var scope = scopeFactory.CreateScope();
-        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         await mqtt.Client.SubscribeAsync($"zigbee2mqtt/{address}");
-        var device = await deviceService.GetDeviceByAddressAsync(address);
-        if (device != null) device.Subscribed = true;
+        await deviceService.SetSubscribedAsync(address);
     }
 
     // ---------------------------------------------------- //
@@ -41,5 +39,17 @@ public class SubscriptionService(
             await SubscribeAsync(addr); 
             Console.WriteLine($"Subscribed to {addr}");
         }
+    }
+    
+    public async Task<bool> IsSubscribedAsync(string address)
+    {
+        using var scope = scopeFactory.CreateScope();
+        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var device = await deviceService.GetDeviceByAddressAsync(address);
+        if (device != null && device.Subscribed)
+        {
+            return true;
+        }
+        return false;
     }
 }
