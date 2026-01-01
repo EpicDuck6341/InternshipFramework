@@ -79,6 +79,13 @@ public class DeviceService(
             .Where(d => d.Address == address)
             .ExecuteUpdateAsync(d => d.SetProperty(x => x.Subscribed, false));
     }
+
+     public async Task SetRemovedAsync(string address)
+    {
+        await repo.Query<Device>()
+            .Where(d => d.Address == address)
+            .ExecuteUpdateAsync(d => d.SetProperty(x => x.SysRemoved, true));
+    }
     // ----------------------------------------- //
     // Returns addresses of unsubscribed devices //
     // ----------------------------------------- //
@@ -89,6 +96,7 @@ public class DeviceService(
             .Select(d => d.Address)
             .ToListAsync();
     }
+    
 
     // --------------------------------------- //
     // Returns addresses of subscribed devices //
