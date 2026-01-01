@@ -73,6 +73,12 @@ public class DeviceService(
             .ExecuteUpdateAsync(d => d.SetProperty(x => x.Subscribed, true));
     }
 
+     public async Task SetUnsubscribedAsync(string address)
+    {
+        await repo.Query<Device>()
+            .Where(d => d.Address == address)
+            .ExecuteUpdateAsync(d => d.SetProperty(x => x.Subscribed, false));
+    }
     // ----------------------------------------- //
     // Returns addresses of unsubscribed devices //
     // ----------------------------------------- //
