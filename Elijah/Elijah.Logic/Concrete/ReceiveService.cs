@@ -25,7 +25,6 @@ public class ReceiveService(
     private bool _isRunning = false;
     private readonly object _lock = new object();
 
-    // **Automatically starts when application boots**
     public Task StartAsync(CancellationToken cancellationToken)
     {
         lock (_lock)
@@ -40,22 +39,18 @@ public class ReceiveService(
         }
 
         Console.WriteLine("ReceiveService starting automatically...");
-        StartMessageLoop(); // Start immediately, no Azure call needed
+        StartMessageLoop(); 
         return Task.CompletedTask;
     }
-
-    // **Called only when application shuts down**
     public Task StopAsync(CancellationToken cancellationToken)
     {
         mqtt.Client.ApplicationMessageReceivedAsync -= OnMessageAsync;
         Console.WriteLine("ReceiveService stopped");
         return Task.CompletedTask;
     }
-
-    // **Now private - not called from Azure**
+    
     private async void StartMessageLoop()
     {
-        // Wait for MQTT connection (max 30 seconds)
         int attempts = 0;
         while (!mqtt.Client.IsConnected && attempts < 30)
         {
@@ -85,7 +80,7 @@ public class ReceiveService(
     private readonly Dictionary<string, PendingOptionData> _lateOptions
         = new Dictionary<string, PendingOptionData>();
 
-    // ---------------------------------------- //
+    // ---------------------------------------- //https://github.com/EpicDuck6341/InternshipFramework/tree/main/Elijah/Elijah.Logic/Concrete
     // Starts the main message processing loop  //
     // ---------------------------------------- //
     // public void StartMessageLoop()
@@ -97,42 +92,57 @@ public class ReceiveService(
     // Main message handler for all MQTT messages //
     // ------------------------------------------ //
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
+{
+    var topic = arg.ApplicationMessage.Topic;
+    var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+
+    if (topic.Contains("zigbee2mqtt/bridge"))
     {
-        // Decode topic and payload
-        var topic = arg.ApplicationMessage.Topic;
-        var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-        
+        Console.WriteLine("[DEBUG] Ignoring bridge topic.");
+        return;
+    }
 
-        if (topic.Contains("zigbee2mqtt/bridge"))
-        {
-            Console.WriteLine("[DEBUG] Ignoring bridge topic.");
-            return;
-        }
-        
+    // Example availability topic:
+    // zigbee2mqtt/<device_address>/availability
+    var isAvailabilityTopic = topic.EndsWith("/availability");
 
-        var deviceAddress = topic.Replace("zigbee2mqtt/", "");
+    // Extract device address
+    var deviceAddress = topic
+        .Replace("zigbee2mqtt/", "")
+        .Replace("/availability", "");
 
-        // Create a new scope for all scoped services
-        using var scope = scopeFactory.CreateScope();
+    using var scope = scopeFactory.CreateScope();
 
-        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-        var filterService = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
+    var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+    var filterService = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
 
-        // Check subscription inside the scope
-        if (!await sub.IsSubscribedAsync(deviceAddress))
-        {
-            Console.WriteLine($"[DEBUG] Device {deviceAddress} is not subscribed. Skipping.");
-            return;
-        }
-        
-        Console.WriteLine($"[DEBUG] Device {deviceAddress} is subscribed.");
-        // Fetch device inside the scope
-        var device = await deviceService.GetDeviceByAddressAsync(deviceAddress, allowNull: true);
-        if (device == null)
-        {
-            Console.WriteLine($"[DEBUG] Device is null.");
-            return;
-        }
+    // Check subscription
+    if (!await sub.IsSubscribedAsync(deviceAddress))
+    {
+        Console.WriteLine($"[DEBUG] Device {deviceAddress} is not subscribed. Skipping.");
+        return;
+    }
+
+    Console.WriteLine($"[DEBUG] Device {deviceAddress} is subscribed.");
+
+    var device = await deviceService.GetDeviceByAddressAsync(deviceAddress, allowNull: true);
+    if (device == null)
+    {
+        Console.WriteLine("[DEBUG] Device is null.");
+        return;
+    }
+
+
+    if (isAvailabilityTopic && payload.Contains("\"offline\""))
+    {
+        Console.WriteLine($"[DEBUG] Device {deviceAddress} is offline.");
+
+        await deviceService.SetUnsubscribedAsync(deviceAddress);
+        await deviceService.SetRemovedAsync(deviceAddress);
+
+
+        return;
+    }
         
 
         // Query filters for this device
