@@ -206,8 +206,8 @@ public class ZigbeeClient(
             var device = await deviceScope.GetDeviceByAddressAsync(address);
             if (device != null)
             {
-                await deviceScope.SetUnsubscribedAsync(device.Address);
-                await deviceScope.SetRemovedAsync(device.Address);
+                await deviceScope.SetUnsubscribedAsync(address);
+                await deviceScope.SetRemovedAsync(address);
             }
         }
 
