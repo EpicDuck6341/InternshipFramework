@@ -49,4 +49,5 @@ public interface IDeviceService
 
     Task SetSubscribedAsync(string address);
     Task SetUnsubscribedAsync(string address);
+    Task SetRemovedAsync(string address);
 }
