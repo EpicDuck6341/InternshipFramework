@@ -1758,6 +1758,9 @@
       "Elijah.Domain/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "FacilicomLogManager": "2.1.1"
+        },
         "compile": {
           "bin/placeholder/Elijah.Domain.dll": {}
         },
@@ -3714,27 +3717,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\YBastiaan\\.nuget\\packages\\": {}
+    "/home/vboxuser/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj",
+      "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
       "projectName": "Elijah.Logic",
-      "projectPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Logic\\Elijah.Logic.csproj",
-      "packagesPath": "C:\\Users\\YBastiaan\\.nuget\\packages\\",
-      "outputPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Logic\\obj\\",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/Elijah.Logic.csproj",
+      "packagesPath": "/home/vboxuser/.nuget/packages/",
+      "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Logic/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\YBastiaan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.Config"
+        "/home/vboxuser/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {},
         "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
       },
@@ -3742,11 +3742,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Data\\Elijah.Data.csproj": {
-              "projectPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Data\\Elijah.Data.csproj"
+            "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj": {
+              "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Data/Elijah.Data.csproj"
             },
-            "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
-              "projectPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj"
+            "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
+              "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj"
             }
           }
         }
@@ -3799,8 +3799,33 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Failed to retrieve information about 'FacilicomLogManager' from remote source 'https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/download/facilicomlogmanager/index.json'.",
+      "libraryId": "FacilicomLogManager"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Failed to retrieve information about 'FacilicomLogManager' from remote source 'https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/download/facilicomlogmanager/index.json'.",
+      "libraryId": "FacilicomLogManager"
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package FacilicomLogManager. No packages exist with this id in source(s): FacilicomNugetPackages, nuget.org",
+      "libraryId": "FacilicomLogManager",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

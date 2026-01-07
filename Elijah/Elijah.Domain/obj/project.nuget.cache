@@ -1,8 +1,40 @@
 {
   "version": 2,
-  "dgSpecHash": "+JQpP946WTc=",
-  "success": true,
-  "projectFilePath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
+  "dgSpecHash": "KpMYGhs8RKs=",
+  "success": false,
+  "projectFilePath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "message": "Failed to retrieve information about 'FacilicomLogManager' from remote source 'https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/download/facilicomlogmanager/index.json'.",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "libraryId": "FacilicomLogManager",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "message": "Failed to retrieve information about 'FacilicomLogManager' from remote source 'https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/download/facilicomlogmanager/index.json'.",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "libraryId": "FacilicomLogManager",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package FacilicomLogManager. No packages exist with this id in source(s): FacilicomNugetPackages, nuget.org",
+      "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "filePath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+      "libraryId": "FacilicomLogManager",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

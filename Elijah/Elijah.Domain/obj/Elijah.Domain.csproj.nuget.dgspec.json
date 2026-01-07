@@ -1,28 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {}
+    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {}
   },
   "projects": {
-    "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj": {
+    "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
+        "projectUniqueName": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
         "projectName": "Elijah.Domain",
-        "projectPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\Elijah.Domain.csproj",
-        "packagesPath": "C:\\Users\\YBastiaan\\.nuget\\packages\\",
-        "outputPath": "C:\\GIT\\FacilicomSolutions\\Tools\\bluebotlite\\Elijah\\Elijah.Domain\\obj\\",
+        "projectPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/Elijah.Domain.csproj",
+        "packagesPath": "/home/vboxuser/.nuget/packages/",
+        "outputPath": "/home/vboxuser/RiderProjects/InternshipFramework/Elijah/Elijah.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\YBastiaan\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\NuGetDefaults.Config"
+          "/home/vboxuser/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://gitlab.facilicom.biz/api/v4/projects/45/packages/nuget/index.json": {}
         },
@@ -46,6 +43,12 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "FacilicomLogManager": {
+              "target": "Package",
+              "version": "[2.1.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -62,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/vboxuser/.dotnet/sdk/8.0.414/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
