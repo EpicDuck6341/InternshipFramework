@@ -2,6 +2,8 @@ using Microsoft.Azure.Devices.Client;
 using System.Text;
 using System.Text.Json;
 using Elijah.Logic.Abstract;
+using Microsoft.Extensions.Logging;
+using FacilicomLogManager.Extensions;
 
 namespace Elijah.Logic.Concrete;
 
@@ -9,10 +11,16 @@ namespace Elijah.Logic.Concrete;
 // Azure IoT Hub communication service                     //
 // Handles telemetry sending and cloud-to-device commands  //
 // ------------------------------------------------------- //
-public class AzureIoTHubService(ModuleClient moduleClient) : IAzureIoTHubService
+public class AzureIoTHubService(
+    ModuleClient moduleClient,
+    ILogger<AzureIoTHubService> logger) : IAzureIoTHubService
 {
     public async Task SendTelemetryAsync(string deviceId, string property, object value)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Verzenden telemetrie voor device {deviceId}")
+            .SendLogInformation("Start telemetrie verzending - Device: {DeviceId}, Property: {Property}, Value: {Value}", deviceId, property, value);
+
         var telemetry = new
         {
             device = deviceId,
@@ -28,16 +36,22 @@ public class AzureIoTHubService(ModuleClient moduleClient) : IAzureIoTHubService
             ContentEncoding = "utf-8"
         };
 
-        // Add routing properties if needed
         message.Properties.Add("deviceId", deviceId);
         message.Properties.Add("propertyName", property);
 
         await moduleClient.SendEventAsync("telemetry", message);
-        Console.WriteLine($"Sent telemetry: {json}");
+
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Telemetrie succesvol verzonden voor {deviceId}")
+            .SendLogInformation("Finished telemetrie verzonden");
     }
 
     public async Task SendBatchTelemetryAsync(string deviceId, Dictionary<string, object> properties)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Batch telemetrie voor device {deviceId}")
+            .SendLogInformation("Verzenden batch telemetrie - Device: {DeviceId}, Aantal properties: {Count}", deviceId, properties.Count);
+
         var telemetry = new
         {
             device = deviceId,
@@ -53,6 +67,9 @@ public class AzureIoTHubService(ModuleClient moduleClient) : IAzureIoTHubService
         };
 
         await moduleClient.SendEventAsync("telemetry", message);
-        Console.WriteLine($"Sent batch telemetry for {deviceId}: {properties.Count} properties");
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Batch telemetrie verzonden voor {deviceId}")
+            .SendLogInformation("Batch telemetrie verzonden voor {DeviceId}: {Count} properties", deviceId, properties.Count);
     }
 }

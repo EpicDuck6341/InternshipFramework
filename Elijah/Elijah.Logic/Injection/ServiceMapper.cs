@@ -24,6 +24,9 @@ public static class ServiceMapper
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors()
         );
+        
+        //Logging
+        services.AddSingleton(configuration);
 
         // Services
         var portName = configuration["OpenTherm:SerialPort"]

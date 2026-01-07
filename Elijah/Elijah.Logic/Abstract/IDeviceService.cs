@@ -48,6 +48,4 @@ public interface IDeviceService
     Task<List<string>> GetActiveAddressesAsync();
 
     Task SetSubscribedAsync(string address);
-    Task SetUnsubscribedAsync(string address);
-    Task SetRemovedAsync(string address);
 }

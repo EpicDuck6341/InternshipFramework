@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Elijah.Logic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aea1ad9a1e7d23a3d17d1f0c7f9b344fd8072911")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7052b9a056c457d4e16f4390039be080e9d9e5a6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Elijah.Logic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Elijah.Logic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -3,6 +3,8 @@ using Elijah.Domain.Entities;
 using Elijah.Domain.Models;
 using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using FacilicomLogManager.Extensions;
 
 namespace Elijah.Logic.Concrete;
 
@@ -11,7 +13,10 @@ namespace Elijah.Logic.Concrete;
 // Service for managing device reporting configurations       //
 // Handles CRUD operations for ConfiguredReporting entities   //
 // ---------------------------------------------------------- //
-public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService deviceService)
+public class ConfiguredReportingsService(
+    IZigbeeRepository repo, 
+    IDeviceService deviceService,
+    ILogger<ConfiguredReportingsService> logger)
     : IConfiguredReportingsService
 {
     // ------------------------------------------------------------ //
@@ -54,9 +59,18 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         string endpoint
     )
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Nieuwe reporting config voor device {address}")
+            .SendLogInformation("Start NewConfigRepEntryAsync - Address: {Address}, Cluster: {Cluster}, Attribute: {Attribute}, Endpoint: {Endpoint}", address, cluster, attribute, endpoint);
+
         var device = await deviceService.GetDeviceByAddressAsync(address);
         if (device == null)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device {address} niet gevonden")
+                .SendLogWarning("Device niet gevonden bij NewConfigRepEntryAsync - Address: {Address}", address);
             return;
+        }
 
         await repo.CreateAsync(new ConfiguredReporting
         {
@@ -72,6 +86,10 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         });
 
         await repo.SaveChangesAsync();
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Reporting config opgeslagen voor {address}")
+            .SendLogInformation("NewConfigRepEntryAsync voltooid - DeviceId: {DeviceId}", device.Id);
     }
 
 
@@ -88,9 +106,18 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         string endpoint
     )
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Aanpassen reporting config voor device {address}")
+            .SendLogInformation("Start AdjustRepConfigAsync - Address: {Address}, Cluster: {Cluster}, Attribute: {Attribute}", address, cluster, attribute);
+
         var device = await deviceService.GetDeviceByAddressAsync(address, true);
         if (device == null)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device {address} niet gevonden")
+                .SendLogWarning("Device niet gevonden bij AdjustRepConfigAsync - Address: {Address}", address);
             return;
+        }
 
         var report = await repo.Query<ConfiguredReporting>()
             .FirstOrDefaultAsync(r =>
@@ -101,7 +128,12 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
             );
 
         if (report == null)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Reporting config niet gevonden voor {address}")
+                .SendLogWarning("Geen reporting config gevonden bij AdjustRepConfigAsync");
             return;
+        }
 
         report.MaximumReportInterval = maxInterval;
         report.MinimumReportInterval = minInterval;
@@ -109,6 +141,10 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
         report.Changed = true;
 
         await repo.SaveChangesAsync();
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Reporting config aangepast voor {address}")
+            .SendLogInformation("AdjustRepConfigAsync voltooid");
     }
 
 
@@ -117,13 +153,26 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
     // ------------------------------------------------------------------------------------------------------- //
     public async Task<List<ReportConfig>> GetChangedReportConfigsAsync(List<string> subscribedAddresses)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Ophalen gewijzigde reporting configs")
+            .SendLogInformation("Start GetChangedReportConfigsAsync - A subscribed addresses: {Count}", subscribedAddresses.Count);
+
         if (subscribedAddresses.Count == 0)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Geen geabonneerde devices")
+                .SendLogInformation("Geen subscribed addresses in GetChangedReportConfigsAsync");
             return [];
+        }
         
         var changed = await repo.Query<ConfiguredReporting>()
             .Include(r => r.Device)
             .Where(r => r.Changed && subscribedAddresses.Contains(r.Device.Address))
             .ToListAsync();
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Gewijzigde configs opgehaald")
+            .SendLogInformation("GetChangedReportConfigsAsync voltooid - Aantal configs: {Count}", changed.Count);
         
         return changed.Select(ToReportConfig).ToList();
     }
@@ -133,8 +182,17 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
     // ----------------------------------------------------------------------------------------- //
     public async Task<List<ReportConfig>> GetAllReportConfigsForAddressAsync(string deviceAddress)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Ophalen alle reporting configs voor {deviceAddress}")
+            .SendLogInformation("Start GetAllReportConfigsForAddressAsync - Address: {Address}", deviceAddress);
+
         if (string.IsNullOrWhiteSpace(deviceAddress))
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Ongeldig device adres")
+                .SendLogWarning("Leeg device adres in GetAllReportConfigsForAddressAsync");
             return new List<ReportConfig>();
+        }
 
    
         var configsForDevice = await repo.Query<ConfiguredReporting>()
@@ -153,6 +211,10 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
             r.Endpoint
         )).ToList();
 
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Alle reporting configs opgehaald voor {deviceAddress}")
+            .SendLogInformation("GetAllReportConfigsForAddressAsync voltooid - Aantal configs: {Count}", configs.Count);
+
         return configs;
     }
     
@@ -161,10 +223,24 @@ public class ConfiguredReportingsService(IZigbeeRepository repo, IDeviceService 
     // -------------------------------------------------------------------------------- //
     public async Task<List<ReportConfig>> ConfigByAddress(string deviceAddress)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Ophalen reporting configs voor {deviceAddress}")
+            .SendLogInformation("Start ConfigByAddress - Address: {Address}", deviceAddress);
+
         if (string.IsNullOrWhiteSpace(deviceAddress))
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Ongeldig device adres")
+                .SendLogWarning("Leeg device adres in ConfigByAddress");
             return [];
+        }
 
         var configs = await QueryByAddress(deviceAddress).ToListAsync();
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Reporting configs opgehaald voor {deviceAddress}")
+            .SendLogInformation("ConfigByAddress voltooid - Aantal configs: {Count}", configs.Count);
+            
         return configs.Select(ToReportConfig).ToList();
     }
 }

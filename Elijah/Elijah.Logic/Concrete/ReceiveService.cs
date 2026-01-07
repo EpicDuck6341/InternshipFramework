@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MQTTnet;
 using MQTTnet.Protocol;
+using Microsoft.Extensions.Logging;
+using FacilicomLogManager.Extensions;
 
 namespace Elijah.Logic.Concrete;
 
@@ -19,59 +21,78 @@ public class ReceiveService(
     IMqttConnectionService mqtt,
     IAzureIoTHubService azureService,
     ISubscriptionService sub,
-    IOpenThermService openTherm
-) : IReceiveService, IHostedService
+    IOpenThermService openTherm,
+    ILogger<ReceiveService> logger) : IReceiveService, IHostedService
 {
     private bool _isRunning = false;
     private readonly object _lock = new object();
-
+    
     public Task StartAsync(CancellationToken cancellationToken)
     {
         lock (_lock)
         {
             if (_isRunning)
             {
-                Console.WriteLine("ReceiveService already running");
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"ReceiveService al actief")
+                    .SendLogWarning("ReceiveService already running");
                 return Task.CompletedTask;
             }
 
             _isRunning = true;
         }
 
-        Console.WriteLine("ReceiveService starting automatically...");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"ReceiveService starten")
+            .SendLogInformation("ReceiveService starting automatically...");
         StartMessageLoop(); 
         return Task.CompletedTask;
     }
+
+ 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"ReceiveService stoppen")
+            .SendLogInformation("ReceiveService stopped");
         mqtt.Client.ApplicationMessageReceivedAsync -= OnMessageAsync;
-        Console.WriteLine("ReceiveService stopped");
         return Task.CompletedTask;
     }
     
     private async void StartMessageLoop()
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Wachten op MQTT verbinding")
+            .SendLogInformation("StartMessageLoop started");
+
         int attempts = 0;
         while (!mqtt.Client.IsConnected && attempts < 30)
         {
-            Console.WriteLine($"Waiting for MQTT connection... ({attempts + 1}/30)");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Wachten op verbinding... ({attempts + 1}/30)")
+                .SendLogInformation("Waiting for MQTT connection... ({Attempt}/30)", attempts + 1);
             await Task.Delay(1000);
             attempts++;
         }
 
         if (!mqtt.Client.IsConnected)
         {
-            Console.WriteLine(" MQTT not connected after 30 seconds!");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"MQTT niet verbonden na 30 seconden")
+                .SendLogError("MQTT not connected after 30 seconds!");
             return;
         }
 
-        Console.WriteLine("MQTT connected - starting message processing");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"MQTT verbonden, starten met verwerken")
+            .SendLogInformation("MQTT connected - starting message processing");
         mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
-
-        // Subscribe to device topics
+        
         sub.SubscribeAllActiveDevicesAsync();
 
-        Console.WriteLine("Message processing is ACTIVE");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Berichtverwerking actief")
+            .SendLogInformation("Message processing is ACTIVE");
     }
 
     // ------------------------------------------------------- //
@@ -79,106 +100,88 @@ public class ReceiveService(
     // ------------------------------------------------------- //
     private readonly Dictionary<string, PendingOptionData> _lateOptions
         = new Dictionary<string, PendingOptionData>();
-
-    // ---------------------------------------- //https://github.com/EpicDuck6341/InternshipFramework/tree/main/Elijah/Elijah.Logic/Concrete
-    // Starts the main message processing loop  //
-    // ---------------------------------------- //
-    // public void StartMessageLoop()
-    // {
-    //     Console.WriteLine("Message loop started");
-    //     mqtt.Client.ApplicationMessageReceivedAsync += OnMessageAsync;
-    // }
+    
     // ------------------------------------------ //
     // Main message handler for all MQTT messages //
     // ------------------------------------------ //
     private async Task OnMessageAsync(MqttApplicationMessageReceivedEventArgs arg)
-{
-    var topic = arg.ApplicationMessage.Topic;
-    var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-
-    if (topic.Contains("zigbee2mqtt/bridge"))
     {
-        Console.WriteLine("[DEBUG] Ignoring bridge topic.");
-        return;
-    }
+        var topic = arg.ApplicationMessage.Topic;
+        var payload = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"MQTT bericht ontvangen")
+            .SendLogInformation("OnMessageAsync - Topic: {Topic}, Payload: {Payload}", topic, payload);
 
-    // Example availability topic:
-    // zigbee2mqtt/<device_address>/availability
-    var isAvailabilityTopic = topic.EndsWith("/availability");
-
-    // Extract device address
-    var deviceAddress = topic
-        .Replace("zigbee2mqtt/", "")
-        .Replace("/availability", "");
-
-    using var scope = scopeFactory.CreateScope();
-
-    var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
-    var filterService = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
-
-    // Check subscription
-    if (!await sub.IsSubscribedAsync(deviceAddress))
-    {
-        Console.WriteLine($"[DEBUG] Device {deviceAddress} is not subscribed. Skipping.");
-        return;
-    }
-
-    Console.WriteLine($"[DEBUG] Device {deviceAddress} is subscribed.");
-
-    var device = await deviceService.GetDeviceByAddressAsync(deviceAddress, allowNull: true);
-    if (device == null)
-    {
-        Console.WriteLine("[DEBUG] Device is null.");
-        return;
-    }
-
-
-    if (isAvailabilityTopic && payload.Contains("\"offline\""))
-    {
-        Console.WriteLine($"[DEBUG] Device {deviceAddress} is offline.");
-
-        await deviceService.SetUnsubscribedAsync(deviceAddress);
-        await deviceService.SetRemovedAsync(deviceAddress);
-
-
-        return;
-    }
+        if (topic.Contains("zigbee2mqtt/bridge"))
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Bridge bericht genegeerd")
+                .SendLogInformation("Bridge message ignored");
+            return;
+        }
         
 
-        // Query filters for this device
+        var deviceAddress = topic.Replace("zigbee2mqtt/", "");
+
+       
+        using var scope = scopeFactory.CreateScope();
+
+        var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
+        var filterService = scope.ServiceProvider.GetRequiredService<IDeviceFilterService>();
+        
+        if (!await sub.IsSubscribedAsync(deviceAddress))
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device {deviceAddress} niet geabonneerd")
+                .SendLogInformation("Device {DeviceAddress} is not subscribed. Skipping.", deviceAddress);
+            return;
+        }
+        
+        var device = await deviceService.GetDeviceByAddressAsync(deviceAddress, allowNull: true);
+        if (device == null)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device is null")
+                .SendLogInformation("Device is null voor address: {Address}", deviceAddress);
+            return;
+        }
+        
+        
         var keys = await filterService.QueryDataFilterAsync(deviceAddress);
 
         var node = JsonNode.Parse(payload)?.AsObject();
         if (node == null)
         {
-            Console.WriteLine("[DEBUG] Payload JSON could not be parsed.");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Payload JSON kon niet worden geparset")
+                .SendLogWarning("Payload JSON could not be parsed.");
             return;
         }
-        Console.WriteLine($"[DEBUG] Message Parsed.");
-        // Handle zero sensor values if present
         if (node.ContainsKey("temperature") && node.ContainsKey("co2_2") && node.ContainsKey("humidity"))
         {
             var tempNode = node["temperature"];
             var co2Node = node["co2_2"];
             var humidityNode = node["humidity"];
-            Console.WriteLine(tempNode);
-            Console.WriteLine($"[DEBUG] Sending Temp to OT.");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Temperatuur doorsturen naar OpenTherm")
+                .SendLogInformation("Sending Temp to OT - Temp: {Temp}", tempNode);
             await openTherm.SendParameterAsync("currentTemp", tempNode);
-            Console.WriteLine($"[DEBUG] Sent!.");
 
             if (IsZeroValue(tempNode) && IsZeroValue(co2Node) && IsZeroValue(humidityNode))
             {
-                Console.WriteLine("[DEBUG] Zero sensor values detected. Handling.");
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Nul sensor waarden gedetecteerd")
+                    .SendLogWarning("Zero sensor values detected. Handling.");
                 await HandleZeroSensorValuesAsync(deviceAddress);
             }
         }
-
-        // Filter data
+        
         var filtered = new JsonObject();
 
         if (keys != null && keys.Any())
         {
-            // Only check co2 if it exists, weird interaction
+            
             bool co2IsZero = node.ContainsKey("co2_2") && IsZeroValue(node["co2_2"]);
 
             if (!co2IsZero) 
@@ -194,24 +197,26 @@ public class ReceiveService(
         {
             foreach (var kv in node)
             {
-                Console.WriteLine($"[DEBUG] Adding filter for key: {kv.Key}");
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Filter toevoegen voor key: {kv.Key}")
+                    .SendLogInformation("Adding filter for key: {Key}", kv.Key);
                 await filterService.NewFilterEntryAsync(deviceAddress, kv.Key);
             }
         }
-
-        Console.WriteLine($"[DEBUG] Filtered data for device {deviceAddress}: {filtered.ToJsonString()}");
-
-        // Send telemetry
+        
         foreach (var ft in filtered)
         {
-            Console.WriteLine($"[DEBUG] Sending telemetry: {ft.Key} = {ft.Value}");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Telemetrie versturen: {ft.Key}")
+                .SendLogInformation("Sending telemetry: {Key} = {Value}", ft.Key, ft.Value);
             await azureService.SendTelemetryAsync(deviceAddress, ft.Key, ft.Value);
         }
-
-        // Handle late options if present
+        
         if (_lateOptions.TryGetValue(deviceAddress, out var pending))
         {
-            Console.WriteLine($"[DEBUG] Late options received for {deviceAddress}. Processing...");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Late options ontvangen voor {deviceAddress}")
+                .SendLogInformation("Processing late options for {Address}", deviceAddress);
             await LateOptionAsync(payload, pending.Address, pending.ReadableProps, pending.Descriptions);
             _lateOptions.Remove(deviceAddress);
         }
@@ -250,12 +255,16 @@ public class ReceiveService(
         using var scope = scopeFactory.CreateScope();
         var config = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
 
-        Console.WriteLine($"ALL ZERO SENSOR VALUES detected for device {deviceAddress} - reconfiguring...");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Nul sensor waarden gedetecteerd voor {deviceAddress}")
+            .SendLogWarning("ALL ZERO SENSOR VALUES detected for device {DeviceAddress} - reconfiguring...", deviceAddress);
 
         var configs = await config.ConfigByAddress(deviceAddress);
         if (!configs.Any())
         {
-            Console.WriteLine($"No reporting configs found for device {deviceAddress}");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Geen reporting configs gevonden")
+                .SendLogWarning("Geen reporting configs found for device {DeviceAddress}", deviceAddress);
             return;
         }
 
@@ -285,7 +294,9 @@ public class ReceiveService(
 
         await SendConfigValueAsync(deviceAddress, "co2ReportableChange", co2Change);
 
-        Console.WriteLine($"Completed reconfiguration for {deviceAddress}");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Herconfiguratie voltooid voor {deviceAddress}")
+            .SendLogInformation("Herconfiguratie voltooid voor {DeviceAddress}", deviceAddress);
     }
 
     // ------------------------------------------------------------------------------- //
@@ -293,6 +304,10 @@ public class ReceiveService(
     // ------------------------------------------------------------------------------- //
     private async Task SendConfigValueAsync(string address, string parameterName, int value)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Config versturen: {parameterName}={value}")
+            .SendLogInformation("SendConfigValueAsync - Address: {Address}, Parameter: {Parameter}, Value: {Value}", address, parameterName, value);
+
         var payload = new
         {
             brightness = value
@@ -309,7 +324,9 @@ public class ReceiveService(
             .Build();
 
         await mqtt.Client.PublishAsync(message);
-        Console.WriteLine($"Sent config: {address} -> {parameterName}={value}");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Config verstuurd")
+            .SendLogInformation("Sent config: {Address} -> {Parameter}={Value}", address, parameterName, value);
     }
 
     // --------------------------------------------------- //
@@ -334,14 +351,22 @@ public class ReceiveService(
         var option = scope.ServiceProvider.GetRequiredService<IOptionService>();
 
         var node = JsonNode.Parse(payload);
-        if (node == null) return;
+        if (node == null) 
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Payload kon niet worden geparset")
+                .SendLogWarning("Node is null in LateOptionAsync");
+            return;
+        }
 
         for (int i = 0; i < readableProps.Count; i++)
         {
             var prop = readableProps[i];
             var value = node[prop]?.ToJsonString() ?? "-";
             await option.SetOptionsAsync(address, descriptions[i], value, prop);
-            Console.WriteLine($"(LATE) Option: {prop} = {value}");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Late option verwerkt: {prop}")
+                .SendLogInformation("(LATE) Option: {Property} = {Value}", prop, value);
         }
 
         await mqtt.Client.PublishAsync(
@@ -366,6 +391,8 @@ public class ReceiveService(
             Descriptions = descriptions
         };
 
-        Console.WriteLine($"Stored late options for {address}");
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Late options opgeslagen voor {address}")
+            .SendLogInformation("Stored late options for {Address}", address);
     }
 }

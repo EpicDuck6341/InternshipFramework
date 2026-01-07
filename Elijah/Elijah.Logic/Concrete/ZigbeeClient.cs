@@ -5,6 +5,8 @@ using Elijah.Logic.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Protocol;
+using Microsoft.Extensions.Logging;
+using FacilicomLogManager.Extensions;
 
 namespace Elijah.Logic.Concrete;
 
@@ -17,15 +19,21 @@ public class ZigbeeClient(
     ISubscriptionService sub,
     ISendService send,
     IReceiveService receive,
-    IServiceScopeFactory scopeFactory
-) : IZigbeeClient
+    IServiceScopeFactory scopeFactory,
+    ILogger<ZigbeeClient> logger) : IZigbeeClient
 {
     // ----------------------------------- //
     // Establishes MQTT broker connection  //
     // ----------------------------------- //
     public async Task ConnectToMqtt()
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Verbinden met MQTT")
+            .SendLogInformation("ConnectToMqtt started");
         await conn.ConnectAsync();
+        logger
+            .WithFacilicomContext(friendlyMessage: $"MQTT verbinding voltooid")
+            .SendLogInformation("ConnectToMqtt voltooid");
     }
     
     // ------------------------------------------------------ //
@@ -33,6 +41,10 @@ public class ZigbeeClient(
     // ------------------------------------------------------ //
     public async Task SendReportConfig()
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Reporting configs versturen")
+            .SendLogInformation("SendReportConfig started");
+
         using var scope = scopeFactory.CreateScope();
         var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var configuredReportingsService = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
@@ -40,6 +52,10 @@ public class ZigbeeClient(
         var changed = await configuredReportingsService.GetChangedReportConfigsAsync(
             await deviceService.GetSubscribedAddressesAsync());
         await send.SendReportConfigAsync(changed);
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Reporting configs versturen voltooid")
+            .SendLogInformation("SendReportConfig voltooid - Aantal configs: {Count}", changed.Count);
     }
 
     // ------------------------------------------------------- //
@@ -47,6 +63,10 @@ public class ZigbeeClient(
     // ------------------------------------------------------- //
     public async Task SendDeviceOptions()
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device options versturen")
+            .SendLogInformation("SendDeviceOptions started");
+
         using var scope = scopeFactory.CreateScope();
         var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
         var optionService = scope.ServiceProvider.GetRequiredService<IOptionService>();
@@ -54,6 +74,10 @@ public class ZigbeeClient(
         var changed = await optionService.GetChangedOptionValuesAsync(
             await deviceService.GetSubscribedAddressesAsync());
         await send.SendDeviceOptionsAsync(changed);
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device options versturen voltooid")
+            .SendLogInformation("SendDeviceOptions voltooid - Aantal options: {Count}", changed.Count);
     }
 
     // ------------------------------------------------------- //
@@ -61,11 +85,17 @@ public class ZigbeeClient(
     // ------------------------------------------------------- //
     public async Task AllowJoinAndListen(int seconds)
 {
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Join inschakelen voor {seconds} seconden")
+        .SendLogInformation("AllowJoinAndListen started - Seconds: {Seconds}", seconds);
+
     using var scope = scopeFactory.CreateScope();
     var deviceService = scope.ServiceProvider.GetRequiredService<IDeviceService>();
 
     await conn.Client.SubscribeAsync("zigbee2mqtt/bridge/event");
-    Console.WriteLine($"DEBUG: Permitting join for {seconds} seconds."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Join inschakelen")
+        .SendLogInformation("Permitting join for {Seconds} seconds.", seconds);
     await send.PermitJoinAsync(seconds);
 
     var joinedDevice = new Queue<(string address, string model)>();
@@ -86,19 +116,30 @@ public class ZigbeeClient(
         var address = data.GetProperty("ieee_address").GetString();
         var model = data.GetProperty("definition").GetProperty("model").GetString();
         
-        Console.WriteLine($"Device joined: {address} ({model})"); // Original line
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device toegetreden: {address} ({model})")
+            .SendLogInformation("Device joined: {Address} ({Model})", address, model);
         string type = await deviceService.DevicePresentAsync(model, address);
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Resultaat: {type}")
+            .SendLogInformation("DevicePresentAsync result: {Type}", type);
         if (type.Equals("templateNotExist"))
         {
-            Console.WriteLine($"DEBUG: New device ({model}, {address}). Creating new entry."); // DEBUG
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Nieuwe device aanmaken: {model}, {address}")
+                .SendLogInformation("Creating new device entry");
             await deviceService.NewDeviceEntryAsync(model, address, address);
         }
         else if(type.Equals("deviceExist"))
         {
-            Console.WriteLine($"DEBUG: Device ({model}, {address}) already present or data is null. Set to active."); // DEBUG
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device bestaat al, activeren")
+                .SendLogInformation("Device already present or data is null. Subscribing to existing device.");
             if (address != null)
             {
-                Console.WriteLine($"DEBUG: Subscribing to existing device address: {address}"); // DEBUG
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Subscriben naar bestaand device")
+                    .SendLogInformation("Subscribing to existing device address: {Address}", address);
                 await sub.SubscribeAsync(address);
             }
             return;
@@ -117,14 +158,18 @@ public class ZigbeeClient(
             foreach (var ex in exposes.EnumerateArray())
             {
                 var access = ex.GetProperty("access").GetInt16();
-                Console.WriteLine($"DEBUG: Processing expose. Access: {access}"); // DEBUG
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Verwerken expose")
+                    .SendLogInformation("Processing expose. Access: {Access}", access);
                 if (access is 2 or 7)
                 {
                     var prop = ex.GetProperty("property").GetString();
                     var desc = ex.GetProperty("description").GetString();
                     properties.Add(prop ?? "");
                     descriptions.Add(desc ?? "");
-                    Console.WriteLine($"DEBUG: Added property (expose): {prop}"); // DEBUG
+                    logger
+                        .WithFacilicomContext(friendlyMessage: $"Property toegevoegd: {prop}")
+                        .SendLogInformation("Added property (expose): {Property}", prop);
                 }
             }
         }
@@ -134,15 +179,19 @@ public class ZigbeeClient(
             foreach (var opt in options.EnumerateArray())
             {
                 var access = opt.GetProperty("access").GetInt16();
-                Console.WriteLine($"DEBUG: Processing option. Access: {access}"); // DEBUG
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Verwerken option")
+                    .SendLogInformation("Processing option. Access: {Access}", access);
                 if (access is 2 or 7)
                 {
                     var prop = opt.GetProperty("property").GetString();
                     var desc = opt.GetProperty("description").GetString();
                     properties.Add(prop ?? "");
                     descriptions.Add(desc ?? "");
-                    Console.WriteLine(opt.GetProperty("property").GetString()); // Original line
-                    Console.WriteLine($"DEBUG: Added property (option): {prop}"); // DEBUG
+                    Console.WriteLine(opt.GetProperty("property").GetString());
+                    logger
+                        .WithFacilicomContext(friendlyMessage: $"Property toegevoegd: {prop}")
+                        .SendLogInformation("Added property (option): {Property}", prop);
                 }
             }
         }
@@ -153,43 +202,69 @@ public class ZigbeeClient(
             targetData.Enqueue((address!, model!, properties, descriptions));
         }
 
-        Console.WriteLine($"DEBUG: Device ({address}) enqueued for processing."); // DEBUG
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device in wachtrij geplaatst")
+            .SendLogInformation("Device ({Address}) enqueued for processing.", address);
     }
 
     conn.Client.ApplicationMessageReceivedAsync += OnInterviewAsync;
-    Console.WriteLine($"DEBUG: Attached OnInterviewAsync handler. Waiting for {seconds} seconds."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Handler aangekoppeld, wachten...")
+        .SendLogInformation("Attached OnInterviewAsync handler. Waiting for {Seconds} seconds.", seconds);
     await Task.Delay(seconds * 1000);
-    Console.WriteLine("DEBUG: Wait time expired. Closing join."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Wachttijd verlopen")
+        .SendLogInformation("Wait time expired. Closing join.");
     await send.CloseJoinAsync();
 
     // Process joined devices
-    Console.WriteLine($"DEBUG: Starting to process joined devices. Count: {joinedDevice.Count}"); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Verwerken toegetreden devices")
+        .SendLogInformation("Starting to process joined devices. Count: {Count}", joinedDevice.Count);
     while (joinedDevice.Count > 0)
     {
         var (addr, mdl) = joinedDevice.Dequeue();
-        Console.WriteLine($"DEBUG: Dequeued device for details: {addr} ({mdl})"); // DEBUG
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device details ophalen")
+            .SendLogInformation("Dequeued device for details: {Address} ({Model})", addr, mdl);
         await GetDeviceDetails(addr, mdl);
-        Console.WriteLine($"DEBUG: Subscribing to device: {addr}"); // DEBUG
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Subscriben naar device")
+            .SendLogInformation("Subscribing to device: {Address}", addr);
         await sub.SubscribeAsync(addr);
     }
-    Console.WriteLine("DEBUG: Finished processing joined devices."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Verwerken devices voltooid")
+        .SendLogInformation("Finished processing joined devices.");
 
     await Task.Delay(500);
-    Console.WriteLine("DEBUG: Short delay after initial processing."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Korte pauze")
+        .SendLogInformation("Short delay after initial processing.");
 
     // Process device options
-    Console.WriteLine($"DEBUG: Starting to process device options. Count: {targetData.Count}"); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Verwerken device options")
+        .SendLogInformation("Starting to process device options. Count: {Count}", targetData.Count);
     while (targetData.Count > 0)
     {
         var (addr, mdl, props, descriptions) = targetData.Dequeue();
-        Console.WriteLine($"DEBUG: Dequeued device for options: {addr} ({mdl}) with {props.Count} properties."); // DEBUG
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device options verwerken")
+            .SendLogInformation("Dequeued device for options: {Address} ({Model}) with {Count} properties.", addr, mdl, props.Count);
         await GetOptionDetails(addr, mdl, props, descriptions);
     }
-    Console.WriteLine("DEBUG: Finished processing device options."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Device options verwerking voltooid")
+        .SendLogInformation("Finished processing device options.");
 
     conn.Client.ApplicationMessageReceivedAsync -= OnInterviewAsync;
-    Console.WriteLine("DEBUG: Detached OnInterviewAsync handler."); // DEBUG
-    Console.WriteLine("DEBUG: AllowJoinAndListen finished."); // DEBUG
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Handler losgekoppeld")
+        .SendLogInformation("Detached OnInterviewAsync handler.");
+    logger
+        .WithFacilicomContext(friendlyMessage: $"AllowJoinAndListen voltooid")
+        .SendLogInformation("AllowJoinAndListen finished.");
 }
 
     // ---------------------------------------------------- //
@@ -197,6 +272,10 @@ public class ZigbeeClient(
     // ---------------------------------------------------- //
     public async Task RemoveDevice(string name)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Device verwijderen: {name}")
+            .SendLogInformation("RemoveDevice started - Name: {Name}", name);
+
         using var scope = scopeFactory.CreateScope();
         var deviceScope = scope.ServiceProvider.GetRequiredService<IDeviceService>();
 
@@ -206,12 +285,18 @@ public class ZigbeeClient(
             var device = await deviceScope.GetDeviceByAddressAsync(address);
             if (device != null)
             {
-                await deviceScope.SetUnsubscribedAsync(address);
-                await deviceScope.SetRemovedAsync(address);
+                device.SysRemoved = true;
+                device.Subscribed = false;
             }
         }
 
-        if (address != null) await send.RemoveDeviceAsync(address);
+        if (address != null) 
+        {
+            await send.RemoveDeviceAsync(address);
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Device verwijder commando verstuurd")
+                .SendLogInformation("RemoveDevice command verstuurd - Address: {Address}", address);
+        }
     }
 
     // --------------------------------------------- //
@@ -222,40 +307,47 @@ public class ZigbeeClient(
     // ---------------------------------------------------------- //
     // Retrieves detailed reporting config for a specific device  //
     // ---------------------------------------------------------- //
-    public async Task GetDeviceDetails(string address, string modelId)
+public async Task GetDeviceDetails(string address, string modelId)
+{
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Device details ophalen: {address}")
+        .SendLogInformation("GetDeviceDetails started - Address: {Address}, ModelId: {ModelId}", address, modelId);
+
+    using var scope = scopeFactory.CreateScope();
+    var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
+    var tcs = new TaskCompletionSource<bool>();
+
+    async Task Handler(MqttApplicationMessageReceivedEventArgs e)
     {
-        using var scope = scopeFactory.CreateScope();
-        var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
-        var tcs = new TaskCompletionSource<bool>();
+        if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/devices")
+            return;
 
-        // Handler for device details response
-        async Task Handler(MqttApplicationMessageReceivedEventArgs e)
+        using var doc = JsonDocument.Parse(
+            Encoding.UTF8.GetString(e.ApplicationMessage.Payload)
+        );
+
+        foreach (var device in doc.RootElement.EnumerateArray())
         {
-            if (e.ApplicationMessage.Topic != "zigbee2mqtt/bridge/devices")
-                return;
+            var ieee = device.GetProperty("ieee_address").GetString();
+            if (ieee != address)
+                continue;
 
-            using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-            
-            foreach (var device in doc.RootElement.EnumerateArray())
+            if (!device.TryGetProperty("endpoints", out var endpoints))
+                continue;
+
+            foreach (var ep in endpoints.EnumerateObject())
             {
-                if (device.GetProperty("ieee_address").GetString() != address)
-                    continue;
+                int retries = 0;
+                const int maxRetries = 5;
 
-                if (!device.TryGetProperty("endpoints", out var endpoints))
-                    continue;
-
-                foreach (var ep in endpoints.EnumerateObject())
+                while (retries < maxRetries)
                 {
-                    int retries = 0;
-                    const int maxRetries = 5;
-                    
-                    while (retries < maxRetries)
+                    if (ep.Value.TryGetProperty("configured_reportings", out var reportings) &&
+                        reportings.GetArrayLength() > 0)
                     {
-                        if (ep.Value.TryGetProperty("configured_reportings", out var reportings) &&
-                            reportings.GetArrayLength() > 0)
+                        foreach (var rep in reportings.EnumerateArray())
                         {
-                            foreach (var rep in reportings.EnumerateArray())
-                            {
+                            try{
                                 await configuredReportings.NewConfigRepEntryAsync(
                                     address,
                                     rep.GetProperty("cluster").GetString(),
@@ -266,40 +358,58 @@ public class ZigbeeClient(
                                     ep.Name
                                 );
                             }
-
-                            conn.Client.ApplicationMessageReceivedAsync -= Handler;
-                            tcs.TrySetResult(true);
-                            return;
+                            catch (Exception ex)
+                            {
+                                logger
+                                    .WithFacilicomContext(friendlyMessage: $"Fout bij opslaan reporting config")
+                                    .SendLogError(ex, "Exception in NewConfigRepEntryAsync - Message: {Message}", ex.Message);
+                            }
                         }
 
-                        retries++;
-                        await Task.Delay(5_000);
-                        
-                        await conn.Client.PublishAsync(
-                            new MqttApplicationMessageBuilder()
-                                .WithTopic("zigbee2mqtt/bridge/request/devices")
-                                .WithPayload(JsonSerializer.Serialize(new { transaction = Guid.NewGuid().ToString() }))
-                                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                                .Build()
-                        );
+                        conn.Client.ApplicationMessageReceivedAsync -= Handler;
+                        tcs.TrySetResult(true);
+                        return;
                     }
+
+                    retries++;
+                    await Task.Delay(5_000);
+
+                    await conn.Client.PublishAsync(
+                        new MqttApplicationMessageBuilder()
+                            .WithTopic("zigbee2mqtt/bridge/request/devices")
+                            .WithPayload(JsonSerializer.Serialize(new
+                            {
+                                transaction = Guid.NewGuid().ToString()
+                            }))
+                            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+                            .Build()
+                    );
                 }
             }
         }
-
-        conn.Client.ApplicationMessageReceivedAsync += Handler;
-        await conn.Client.SubscribeAsync("zigbee2mqtt/bridge/devices");
-
-        await conn.Client.PublishAsync(
-            new MqttApplicationMessageBuilder()
-                .WithTopic("zigbee2mqtt/bridge/request/devices")
-                .WithPayload(JsonSerializer.Serialize(new { transaction = Guid.NewGuid().ToString() }))
-                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build()
-        );
-
-        await tcs.Task;
     }
+
+    conn.Client.ApplicationMessageReceivedAsync += Handler;
+    await conn.Client.SubscribeAsync("zigbee2mqtt/bridge/devices");
+    await conn.Client.PublishAsync(
+        new MqttApplicationMessageBuilder()
+            .WithTopic("zigbee2mqtt/bridge/request/devices")
+            .WithPayload(JsonSerializer.Serialize(new
+            {
+                transaction = Guid.NewGuid().ToString()
+            }))
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+            .Build()
+    );
+
+    await tcs.Task;
+    
+    logger
+        .WithFacilicomContext(friendlyMessage: $"Device details ophalen voltooid")
+        .SendLogInformation("GetDeviceDetails completed successfully");
+}
+
+
 
     // ---------------------------------------------- //
     // Retrieves and processes device option details  //
@@ -311,6 +421,10 @@ public class ZigbeeClient(
         List<string> descriptions
     )
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Option details ophalen: {address}")
+            .SendLogInformation("GetOptionDetails started - Address: {Address}, Model: {Model}", address, model);
+
         using var scope = scopeFactory.CreateScope();
         var option = scope.ServiceProvider.GetRequiredService<IOptionService>();
         var configuredReportings = scope.ServiceProvider.GetRequiredService<IConfiguredReportingsService>();
@@ -324,11 +438,18 @@ public class ZigbeeClient(
                 return;
 
             string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-            Console.WriteLine($"Received payload from {address}: {payload}");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Payload ontvangen van {address}")
+                .SendLogInformation("Received payload from {Address}: {Payload}", address, payload);
 
             JsonNode? node = JsonNode.Parse(payload);
             if (node == null)
+            {
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Payload kon niet worden geparset")
+                    .SendLogWarning("Node is null voor payload");
                 return;
+            }
 
             // Process all readable properties
             for (int i = 0; i < readableProps.Count; i++)
@@ -336,7 +457,9 @@ public class ZigbeeClient(
                 var prop = readableProps[i];
                 var value = node[prop]?.ToJsonString() ?? "-";
                 await option.SetOptionsAsync(address, descriptions[i], value, prop);
-                Console.WriteLine($"Option: {prop} = {value}");
+                logger
+                    .WithFacilicomContext(friendlyMessage: $"Option verwerkt: {prop}")
+                    .SendLogInformation("Option: {Property} = {Value}", prop, value);
             }
 
             conn.Client.ApplicationMessageReceivedAsync -= Handler;
@@ -355,7 +478,9 @@ public class ZigbeeClient(
         var completed = await Task.WhenAny(tcs.Task, Task.Delay(15000));
         if (completed != tcs.Task)
         {
-            Console.WriteLine($"Timeout while getting options for {address}");
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Timeout bij ophalen options")
+                .SendLogWarning("Timeout while getting options for {Address}", address);
 
             var receiveService = scope.ServiceProvider.GetRequiredService<IReceiveService>() as ReceiveService;
             receiveService?.RegisterLateOption(address, model, readableProps, descriptions);
@@ -364,6 +489,10 @@ public class ZigbeeClient(
 
             conn.Client.ApplicationMessageReceivedAsync -= Handler;
         }
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Option details ophalen voltooid")
+            .SendLogInformation("GetOptionDetails voltooid");
     }
 
     // --------------------------------- //

@@ -2,24 +2,37 @@ using Elijah.Data.Repository;
 using Elijah.Domain.Entities;
 using Elijah.Logic.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using FacilicomLogManager.Extensions;
 
 namespace Elijah.Logic.Concrete;
 
 // ------------------------------------------------------------ //
 // Service for managing device templates and model replication  //
 // ------------------------------------------------------------ //
-public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateService
+public class DeviceTemplateService(
+    IZigbeeRepository repo,
+    ILogger<DeviceTemplateService> logger) : IDeviceTemplateService
 {
     // ---------------------------------------------------------------- //
     // Copies a device template to a new device with the given address  //
     // ---------------------------------------------------------------- //
     public async Task CopyModelTemplateAsync(string modelId, string address)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Kopiëren template voor model {modelId}")
+            .SendLogInformation("Start CopyModelTemplateAsync - ModelId: {ModelId}, Address: {Address}", modelId, address);
+
         var template = await repo.Query<DeviceTemplate>()
             .FirstOrDefaultAsync(t => t.ModelId == modelId);
 
         if (template == null)
+        {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Template niet gevonden voor {modelId}")
+                .SendLogError("DeviceTemplate niet gevonden - ModelId: {ModelId}", modelId);
             throw new KeyNotFoundException($"DeviceTemplate with ModelId '{modelId}' not found.");
+        }
 
         var newName = $"{template.Name}{template.NumberOfActive + 1}";
         var newDevice = new Device
@@ -55,6 +68,10 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         }
 
         await repo.SaveChangesAsync();
+        
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Template gekopieerd naar device {newName}")
+            .SendLogInformation("CopyModelTemplateAsync voltooid - NewDeviceId: {DeviceId}, Aantal reports: {Count}", newDevice.Id, templateReports.Count);
     }
 
     // ----------------------------------- //
@@ -62,6 +79,10 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
     // ----------------------------------- //
     public async Task<DeviceTemplate> NewDvTemplateEntryAsync(string modelId, string name)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Nieuwe template aanmaken: {name}")
+            .SendLogInformation("Start NewDvTemplateEntryAsync - ModelId: {ModelId}, Name: {Name}", modelId, name);
+
         var template = new DeviceTemplate
         {
             ModelId = modelId,
@@ -71,6 +92,10 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
 
         await repo.CreateAsync(template);
 
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Template aangemaakt: {name}")
+            .SendLogInformation("NewDvTemplateEntryAsync voltooid - TemplateId: {TemplateId}", template.Id);
+            
         Console.WriteLine($"Template created: {name} ({modelId}) with ID {template.Id}");
         return template;
     }
@@ -80,6 +105,10 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
     // ------------------------------------------------------------- //
     public async Task<string> ModelPresentAsync(string modelId, string address)
     {
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Controleren template voor model {modelId}")
+            .SendLogInformation("Start ModelPresentAsync - ModelId: {ModelId}, Address: {Address}", modelId, address);
+
         var templateExists = await repo.Query<DeviceTemplate>()
             .AnyAsync(d => d.ModelId == modelId);
 
@@ -87,14 +116,23 @@ public class DeviceTemplateService(IZigbeeRepository repo) : IDeviceTemplateServ
         string type;
         if (templateExists)
         {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Template bestaat, wordt gekopieerd")
+                .SendLogInformation("Template gevonden, start kopiëren");
             type = "templateExist";
             await CopyModelTemplateAsync(modelId, address);
         }
         else
         {
+            logger
+                .WithFacilicomContext(friendlyMessage: $"Template bestaat niet")
+                .SendLogInformation("Template niet gevonden");
             type = "templateNotExist";
-            
         }
+
+        logger
+            .WithFacilicomContext(friendlyMessage: $"Resultaat: {type}")
+            .SendLogInformation("ModelPresentAsync voltooid - Type: {Type}", type);
 
         return type;
     }
