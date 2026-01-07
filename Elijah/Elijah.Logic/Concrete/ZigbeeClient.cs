@@ -88,7 +88,7 @@ public class ZigbeeClient(
         
         Console.WriteLine($"Device joined: {address} ({model})"); // Original line
         string type = await deviceService.DevicePresentAsync(model, address);
-        if (type.Equals("TemplateNotExist"))
+        if (type.Equals("templateNotExist"))
         {
             Console.WriteLine($"DEBUG: New device ({model}, {address}). Creating new entry."); // DEBUG
             await deviceService.NewDeviceEntryAsync(model, address, address);
