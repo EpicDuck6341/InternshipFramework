@@ -281,6 +281,6 @@ Verstuurt meerdere telemetriewaarden in één bericht voor efficiëntie.
 ---
 
 
-
+Note: Bij onduidelijkheden, raadpleeg de bijbehorende scriptie Sectie 3.3 t/m Sectie 5.2
 
 
